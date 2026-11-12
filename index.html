@@ -88,7 +88,7 @@ h3{font-size:11.5px;margin:20px 0 10px;font-weight:700;color:var(--muted);text-t
 .b-name{font:700 19px/1.1 "Segoe UI Variable Display","Segoe UI",sans-serif;letter-spacing:-.2px}
 .b-sub{font-size:12px;color:var(--muted)}
 .nav-list{display:flex;flex-direction:column;gap:3px}
-.nav-btn{position:relative;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:11px;border:0;background:none;color:var(--ink2);cursor:pointer;text-align:left;white-space:nowrap;font-size:14px;transition:background .15s,color .15s}
+.nav-btn{position:relative;display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:11px;border:0;background:none;color:var(--ink2);cursor:pointer;text-align:left;white-space:nowrap;font-size:14px;transition:background .15s,color .15s}
 .nav-btn:hover{background:var(--surface2);color:var(--ink)}
 .nav-btn.on{background:var(--surface);color:var(--accent-strong);font-weight:600;box-shadow:var(--shadow)}
 .nav-btn.on::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
@@ -392,6 +392,29 @@ input[type=time]{padding-right:6px}
 .pill .x:hover{opacity:1}
 .tile[data-act]:hover{border-color:var(--accent)}
 
+
+/* ---------- Ежедневник ---------- */
+.dtasks{display:flex;flex-direction:column}
+.dtask{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px;line-height:1.35}
+.dtask:last-child{border-bottom:0}
+.dtask span{flex:1;overflow-wrap:anywhere}
+.dtask.done span{text-decoration:line-through;color:var(--muted)}
+.dtask .btn{opacity:.5}
+.dtask:hover .btn{opacity:1}
+#dyNote{min-height:200px;line-height:1.55}
+.mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.mcal .mh{font-size:11px;color:var(--muted);text-align:center;padding-bottom:4px;font-weight:600}
+.md{aspect-ratio:1;border:1px solid var(--line);background:var(--surface);border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;color:var(--ink2);font-variant-numeric:tabular-nums}
+.md:hover{border-color:var(--accent)}
+.md.today{border-color:var(--gold)}
+.md.sel{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.md .mn{font-size:13px;font-weight:600}
+.mdots{display:flex;gap:3px;height:6px}
+.mdots i{width:6px;height:6px;border-radius:50%;display:block}
+.mdots i.a{background:var(--accent)} .mdots i.t{background:var(--gold)} .mdots i.p{background:var(--warn)} .mdots i.n{background:var(--ink2)}
+.md.sel .mdots i{background:var(--accent-ink)}
+div.juz{cursor:default}
+
 @media (max-width:860px){
   .app{flex-direction:column}
   .side{width:auto;height:auto;position:sticky;top:0;z-index:20;flex-direction:row;align-items:center;overflow-x:auto;scrollbar-width:none;border-right:0;border-bottom:1px solid var(--line);padding:6px 8px;gap:4px}
@@ -570,6 +593,7 @@ const ALLW=()=>[true,true,true,true,true,true,true];
 function defState(){ return {v:1,created:today(),
   quran:{mem:{},goal:1,wd:ALLW(),deadline:'',order:'desc',revGoal:2,lastRev:{},rev:{},goals:[]},
   log:{hifz:{},rev:{}}, items:[], texts:[], time:{}, timer:null, ach:{},
+  khatm:{cur:{start:today(),page:0},goal:20,deadline:'',wd:ALLW(),log:{},done:[]}, diary:{},
   ui:{page:'today',theme:'auto',lastBackup:'',remind:{on:true,times:['20:00'],tray:true}}}; }
 function normalize(s){
   const d=defState(); if(!s||typeof s!=='object') return d;
@@ -578,6 +602,8 @@ function normalize(s){
   out.log=Object.assign(defState().log,s.log||{});
   out.ui=Object.assign(defState().ui,s.ui||{});
   out.items=Array.isArray(s.items)?s.items.map(it=>Object.assign({wd:ALLW(),log:{},startDone:0,finished:'',author:'',unit:'стр.',dlMode:'open',deadline:'',dMode:'open',daily:0},it)):[];
+  out.khatm=Object.assign(defState().khatm,s.khatm||{}); if(!out.khatm.cur) out.khatm.cur={start:today(),page:0}; if(!Array.isArray(out.khatm.done)) out.khatm.done=[];
+  if(!out.diary||typeof out.diary!=='object') out.diary={};
   out.texts=Array.isArray(s.texts)?s.texts.map(x=>Object.assign({author:'',items:[],mem:{},rev:{},goal:0,wd:ALLW(),deadline:'',log:{},revLog:{},created:today()},x)):[];
   out.ui.remind=Object.assign(defState().ui.remind,(s.ui&&s.ui.remind)||{});
   for(const k of ['time','ach']) if(!out[k]||typeof out[k]!=='object') out[k]={};
@@ -814,7 +840,7 @@ Object.assign(ICON,{
   edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
   sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
 });
-const PAGES=[['today','Сегодня'],['hifz','Заучивание'],['rev','Повторение'],['texts','Тексты'],['books','Книги'],['lessons','Уроки'],['reports','Отчёты'],['ach','Достижения'],['settings','Настройки']];
+const PAGES=[['today','Сегодня'],['hifz','Заучивание'],['rev','Повторение'],['khatm','Чтение Корана'],['texts','Тексты'],['books','Книги'],['lessons','Уроки'],['diary','Ежедневник'],['reports','Отчёты'],['ach','Достижения'],['settings','Настройки']];
 const UI={qsearch:'',qfilter:'all',modalRefresh:null,lastDark:null};
 const isDark=()=>state.ui.theme==='dark'||(state.ui.theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
 function applyTheme(){
@@ -834,10 +860,10 @@ function render(){
   applyTheme();
   const T=quranTotals(), pct=T.pg/TOTAL_PAGES*100;
   $('#nav').innerHTML=`<div class="brand"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><div><div class="b-name">Талиб</div><div class="b-sub">трекер знаний</div></div></div>
-    <div class="nav-list">${PAGES.map(([k,l],i)=>`<button class="nav-btn${state.ui.page===k?' on':''}" data-act="nav" data-p="${k}" title="${l} — клавиша ${i+1}">${ico(k)}<span>${l}</span><kbd>${i+1}</kbd></button>`).join('')}</div>
+    <div class="nav-list">${PAGES.map(([k,l],i)=>`<button class="nav-btn${state.ui.page===k?' on':''}" data-act="nav" data-p="${k}" title="${l} — клавиша ${i+1}">${ico(k)}<span>${l}</span>${i<9?`<kbd>${i+1}</kbd>`:''}</button>`).join('')}</div>
     <div class="side-bottom">${timerWidget()}<div class="mini"><div class="kv"><span>Коран выучен</span><b>${pct>0&&pct<1?nf.format(Math.round(pct*10)/10):Math.floor(pct)}%</b></div>${bar(T.pg/TOTAL_PAGES)}<div class="sub">≈${fmt(T.pg)} из ${TOTAL_PAGES} страниц</div></div>
     <div class="theme-switch">${[['light','sun','Светлая тема'],['dark','moon','Тёмная тема'],['auto','monitor','Как в системе']].map(([k,i,l])=>`<button class="${state.ui.theme===k?'on':''}" data-act="theme-set" data-v="${k}" title="${l}" aria-label="${l}">${ico(i)}</button>`).join('')}</div></div>`;
-  const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings}[state.ui.page]||pageToday;
+  const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,khatm:pageKhatm,diary:pageDiary,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings}[state.ui.page]||pageToday;
   $('#main').innerHTML=P();
   const fab=$('#timerFab'); if(fab) fab.innerHTML=state.timer?timerWidget():'';
   sendRemind();
@@ -857,6 +883,7 @@ function pageToday(){
   if(q.revGoal>0&&studyQ&&T.ay>0){ tasks++; if((state.log.rev[t]||0)>=q.revGoal-1e-6) doneT++; }
   for(const it of active) if(it.dMode==='fixed'&&it.daily>0&&it.wd[dow(t)]){ tasks++; if((it.log[t]||0)>=it.daily-1e-6) doneT++; }
   for(const x of state.texts) if(+x.goal>0&&x.wd[dow(t)]&&txMem(x)<x.items.length){ tasks++; if((x.log[t]||0)>=x.goal-1e-6) doneT++; }
+  { const K=state.khatm; if(K.goal>0&&K.wd[dow(t)]){ tasks++; if((K.log[t]||0)>=K.goal-1e-6) doneT++; } }
   let week=0; for(let i=0;i<7;i++) week+=dayMinutes(addDays(t,-i));
   const msg=!tasks?'На сегодня запланированных задач нет':doneT===tasks?'Все задачи на сегодня выполнены. Ма ша Аллах!':`Осталось ${tasks-doneT} ${plural(tasks-doneT,'задача','задачи','задач')} — бисмиЛлях!`;
   const hj=hijri(t);
@@ -874,7 +901,7 @@ function pageToday(){
   const lb=state.ui.lastBackup;
   if(IS_IOS&&!STANDALONE&&!HOST&&!state.ui.hideInstall) h+=`<div class="msg ok banner" style="margin-top:18px">${ico('plus')}<span style="flex:1"><b>Установите Талиб как приложение:</b> нажмите «Поделиться» <span style="font-size:15px">⎋</span> внизу Safari → «На экран „Домой“». Так он будет открываться без адресной строки, работать без интернета, а данные будут надёжнее защищены.</span><button class="btn sm" data-act="hide-install">Понятно</button></div>`;
   if((T.ay>0||state.items.length)&&(!lb||diffDays(lb,t)>=14)) h+=`<div class="msg warn banner" style="margin-top:18px">${ico('info')}<span style="flex:1">${lb?'Последняя ручная резервная копия была '+fmtD(lb)+'.':'Вы ещё не делали резервную копию в отдельный файл.'}</span><button class="btn sm" data-act="export">${ico('download')}Сохранить копию</button></div>`;
-  h+=`<div class="section-t">План на сегодня</div><div class="grid">${hifzTodayCard()}${revTodayCard()}${state.texts.filter(x=>txMem(x)<x.items.length||txDue(x).length).map(textCard).join('')}${active.map(itemCard).join('')}
+  h+=`<div class="section-t">План на сегодня</div><div class="grid">${hifzTodayCard()}${revTodayCard()}${khatmCard()}${diaryTodayCard()}${state.texts.filter(x=>txMem(x)<x.items.length||txDue(x).length).map(textCard).join('')}${active.map(itemCard).join('')}
     <button class="add-card" data-act="it-new" data-kind="book">${ico('plus')}<b>Добавить книгу</b><span class="sub">с дедлайном или без</span></button>
     <button class="add-card" data-act="it-new" data-kind="lesson">${ico('plus')}<b>Добавить курс уроков</b><span class="sub">лекции, аудио, видео</span></button>
     ${state.texts.length?'':`<button class="add-card" data-act="tx-new">${ico('plus')}<b>Добавить текст для заучивания</b><span class="sub">хадисы, мутуны, дуа</span></button>`}</div>`;
@@ -1275,8 +1302,8 @@ function textDetailHtml(x){
 }
 
 /* ===================== ТАЙМЕР ЗАНЯТИЙ ===================== */
-function CATS(){ return [['hifz','Заучивание Корана'],['rev','Повторение Корана'],...state.items.filter(i=>!i.finished).map(i=>['i:'+i.id,i.title]),...state.texts.map(x=>['t:'+x.id,x.title]),['other','Другое']]; }
-function catName(c){ if(c==='hifz') return 'Заучивание Корана'; if(c==='rev') return 'Повторение Корана'; if(c==='other') return 'Другое';
+function CATS(){ return [['hifz','Заучивание Корана'],['rev','Повторение Корана'],['khatm','Чтение Корана'],...state.items.filter(i=>!i.finished).map(i=>['i:'+i.id,i.title]),...state.texts.map(x=>['t:'+x.id,x.title]),['other','Другое']]; }
+function catName(c){ if(c==='hifz') return 'Заучивание Корана'; if(c==='khatm') return 'Чтение Корана'; if(c==='rev') return 'Повторение Корана'; if(c==='other') return 'Другое';
   if(c.startsWith('i:')){ const it=findItem(c.slice(2)); return it?it.title:'Удалённая книга/курс'; } if(c.startsWith('t:')){ const x=findText(c.slice(2)); return x?x.title:'Удалённый текст'; } return c; }
 const tElapsed=()=>{ const T=state.timer; return T?T.acc+(T.start?Date.now()-T.start:0):0; };
 const mmss=ms=>{ const s=Math.max(0,Math.floor(ms/1000)), h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+':'+pad(m):m)+':'+pad(x); };
@@ -1356,7 +1383,7 @@ function pageAch(){
 
 /* ===================== ОТЧЁТЫ ===================== */
 function dayLogs(){
-  const L={hifz:state.log.hifz,rev:state.log.rev,book:{},lesson:{},text:{},time:{}};
+  const L={hifz:state.log.hifz,rev:state.log.rev,khatm:state.khatm.log,book:{},lesson:{},text:{},time:{}};
   for(const it of state.items){ const T=it.kind==='book'?L.book:L.lesson; for(const d in it.log) T[d]=(T[d]||0)+it.log[d]; }
   for(const x of state.texts) for(const d in x.log) L.text[d]=(L.text[d]||0)+x.log[d];
   for(const d in state.time) L.time[d]=dayMinutes(d);
@@ -1371,8 +1398,8 @@ function periodRange(kind,off){
 }
 function metrics(L,from,to){
   const t=today(), end=to>t?t:to, q=state.quran;
-  const m={hifz:sumR(L.hifz,from,to),rev:sumR(L.rev,from,to),book:sumR(L.book,from,to),lesson:sumR(L.lesson,from,to),text:sumR(L.text,from,to),time:sumR(L.time,from,to),active:0,days:0,goalDays:0,studyDays:0};
-  if(end>=from) for(let d=from,i=0;d<=end&&i<400;d=addDays(d,1),i++){ m.days++; if(['hifz','rev','book','lesson','text','time'].some(k=>(L[k][d]||0)>0)) m.active++; if(q.wd[dow(d)]&&q.goal>0){ m.studyDays++; if((L.hifz[d]||0)>=q.goal-1e-6) m.goalDays++; } }
+  const m={hifz:sumR(L.hifz,from,to),rev:sumR(L.rev,from,to),khatm:sumR(L.khatm,from,to),book:sumR(L.book,from,to),lesson:sumR(L.lesson,from,to),text:sumR(L.text,from,to),time:sumR(L.time,from,to),active:0,days:0,goalDays:0,studyDays:0};
+  if(end>=from) for(let d=from,i=0;d<=end&&i<400;d=addDays(d,1),i++){ m.days++; if(['hifz','rev','khatm','book','lesson','text','time'].some(k=>(L[k][d]||0)>0)) m.active++; if(q.wd[dow(d)]&&q.goal>0){ m.studyDays++; if((L.hifz[d]||0)>=q.goal-1e-6) m.goalDays++; } }
   return m;
 }
 function barsSvg(vals,labels,tips,goal){
@@ -1405,7 +1432,7 @@ function pageReports(){
     <div class="print-only"><h2>Отчёт: ${R.label}</h2></div>
     <div class="sub" style="margin:-4px 0 12px">Стрелки — сравнение с прошлым периодом (${fmtDs(P.from)} – ${fmtDs(P.to)})${ongoing?', взято то же число дней':''}.</div>
     <div class="tiles">${tile('hifz','',fmt(M.hifz)+' <span class="sub">стр.</span>','выучено Корана',delta(M.hifz,PM.hifz))}${tile('rev','gold',fmt(M.rev)+' <span class="sub">стр.</span>','повторено',delta(M.rev,PM.rev))}${tile('books','',fmt(M.book)+' <span class="sub">стр.</span>','прочитано книг',delta(M.book,PM.book))}${tile('lessons','',fmt(M.lesson),'пройдено уроков (ед.)',delta(M.lesson,PM.lesson))}
-    ${tile('texts','gold',fmt(M.text),'выучено пунктов текстов',delta(M.text,PM.text))}${tile('clock','fire',hm(M.time),'время занятий',delta(M.time,PM.time))}${tile('cal','',`${M.active} <span class="sub">из ${M.days}</span>`,'активных дней',delta(M.active,PM.active))}${tile('target','',M.studyDays?Math.round(M.goalDays/M.studyDays*100)+'%':'—','дней с выполненной целью заучивания','')}</div>`;
+    ${tile('khatm','gold',fmt(M.khatm)+' <span class="sub">стр.</span>','прочитано Корана',delta(M.khatm,PM.khatm))}${tile('texts','gold',fmt(M.text),'выучено пунктов текстов',delta(M.text,PM.text))}${tile('clock','fire',hm(M.time),'время занятий',delta(M.time,PM.time))}${tile('cal','',`${M.active} <span class="sub">из ${M.days}</span>`,'активных дней',delta(M.active,PM.active))}${tile('target','',M.studyDays?Math.round(M.goalDays/M.studyDays*100)+'%':'—','дней с выполненной целью заучивания','')}</div>`;
   const unitL=R0.kind==='year'?'по месяцам':'по дням';
   h+=`<div class="grid2" style="margin-top:18px"><div class="card"><h2>${ico('hifz')}Заучивание</h2><div class="sub">страниц ${unitL}</div>${periodChart(L.hifz,R,R0.kind,'стр.',R0.kind==='year'?0:state.quran.goal)}</div>
     <div class="card"><h2>${ico('rev')}Повторение</h2><div class="sub">страниц ${unitL}</div>${periodChart(L.rev,R,R0.kind,'стр.',R0.kind==='year'?0:state.quran.revGoal)}</div>
@@ -1421,9 +1448,9 @@ function pageReports(){
 }
 function reportCsv(){
   const R=periodRange(UI.rep.kind,UI.rep.off), L=dayLogs(), n=v=>String(r3(v||0)).replace('.',',');
-  const rows=[['Дата','Заучено, стр.','Повторено, стр.','Прочитано книг, стр.','Уроки, ед.','Тексты, пунктов','Время, мин']];
-  const tot=[0,0,0,0,0,0]; const end=R.to>today()?today():R.to;
-  for(let d=R.from,i=0;d<=end&&i<400;d=addDays(d,1),i++){ const v=[L.hifz[d],L.rev[d],L.book[d],L.lesson[d],L.text[d],L.time[d]].map(x=>x||0); v.forEach((x,j)=>tot[j]+=x); rows.push([parseD(d).toLocaleDateString('ru-RU'),...v.map(n)]); }
+  const rows=[['Дата','Заучено, стр.','Повторено, стр.','Чтение Корана, стр.','Прочитано книг, стр.','Уроки, ед.','Тексты, пунктов','Время, мин']];
+  const tot=[0,0,0,0,0,0,0]; const end=R.to>today()?today():R.to;
+  for(let d=R.from,i=0;d<=end&&i<400;d=addDays(d,1),i++){ const v=[L.hifz[d],L.rev[d],L.khatm[d],L.book[d],L.lesson[d],L.text[d],L.time[d]].map(x=>x||0); v.forEach((x,j)=>tot[j]+=x); rows.push([parseD(d).toLocaleDateString('ru-RU'),...v.map(n)]); }
   rows.push(['Итого',...tot.map(n)]);
   rows.push([]); rows.push(['Книги и курсы','Тип','За период','Пройдено всего','Всего','Единица']);
   for(const it of state.items) rows.push([it.title,it.kind==='book'?'книга':'уроки',n(sumR(it.log,R.from,R.to)),n(itemDone(it)),n(it.total),it.unit]);
@@ -1453,6 +1480,7 @@ function pendingTasks(all){
   }
   for(const it of state.items) if(!it.finished&&it.dMode==='fixed'&&it.daily>0&&(all||it.wd[dow(t)])&&left(it.log[t]||0,it.daily)) out.push(`«${it.title}»`);
   for(const x of state.texts) if(+x.goal>0&&(all||x.wd[dow(t)])&&txMem(x)<x.items.length&&left(x.log[t]||0,x.goal)) out.push(`«${x.title}»`);
+  { const K=state.khatm; if(K.goal>0&&(all||K.wd[dow(t)])&&left(K.log[t]||0,K.goal)) out.push(all?'чтение Корана':`чтение Корана (${fmt(K.log[t]||0)} из ${fmt(K.goal)} стр.)`); }
   return out;
 }
 // На телефоне будильник Android сообщит об окончании таймера, даже если приложение свёрнуто.
@@ -1627,6 +1655,155 @@ Object.assign(CHG,{
 UI.rep={kind:'week',off:0};
 document.body.insertAdjacentHTML('beforeend','<div id="achPop" class="ach-pop"></div><div id="timerFab" class="timer-fab"></div>');
 checkAch(); // уже заслуженные достижения отмечаем молча
+
+/* ===================== ЧТЕНИЕ КОРАНА (ХАТМ) ===================== */
+Object.assign(ICON,{
+  khatm:'<path d="M3.5 5c2.8-.8 5.6-.6 8.5 1.2 2.9-1.8 5.7-2 8.5-1.2v13.5c-2.8-.8-5.6-.6-8.5 1.2-2.9-1.8-5.7-2-8.5-1.2z"/><path d="M12 6.2V19.7M6.5 9.2c1.4-.3 2.6-.1 3.6.4M6.5 12.2c1.4-.3 2.6-.1 3.6.4M13.9 9.6c1-.5 2.2-.7 3.6-.4M13.9 12.6c1-.5 2.2-.7 3.6-.4"/>',
+  diary:'<rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M9 3v18M12.5 8h3.5M12.5 12h3.5M12.5 16h2"/>',
+});
+// Страницы начала джузов в мединском мусхафе
+const JUZ_PAGE=[1,22,42,62,82,102,121,142,162,182,201,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
+const juzAtPage=p=>{ let j=1; JUZ_PAGE.forEach((s,i)=>{ if(s<=p) j=i+1; }); return j; };
+const surahAtPage=p=>{ let s=SUR[0]; for(const S of SUR) if(S.start<=p) s=S; return s; };
+const khN=()=>state.khatm.done.length+1;
+function khAdd(pages,date){ // возвращает true, если хатм завершён
+  const K=state.khatm; date=date||today(); let left=r3(pages), fin=false;
+  if(left<0){ const take=Math.max(left,-K.cur.page); K.cur.page=r3(K.cur.page+take); addLogTo(K.log,date,take); return false; }
+  while(left>1e-9){ const take=Math.min(TOTAL_PAGES-K.cur.page,left); K.cur.page=r3(K.cur.page+take); addLogTo(K.log,date,take); left=r3(left-take);
+    if(K.cur.page>=TOTAL_PAGES-1e-9){ K.done.push({n:K.done.length+1,start:K.cur.start,end:date}); K.cur={start:date,page:0}; fin=true; } }
+  return fin;
+}
+function addLogTo(L,date,v){ L[date]=r3((L[date]||0)+v); if(Math.abs(L[date])<1e-9) delete L[date]; }
+function khPos(){ const p=Math.min(TOTAL_PAGES,Math.max(1,Math.floor(state.khatm.cur.page)+1)); return {p,juz:juzAtPage(p),S:surahAtPage(p)}; }
+const khMsg=fin=>fin?`Ма ша Аллах! Хатм №${state.khatm.done.length} завершён. Начат хатм №${khN()}`:null;
+
+function khatmCard(){
+  const K=state.khatm, t=today(), v=K.log[t]||0, g=+K.goal||0, st=streak(K.log,g,K.wd), pos=khPos();
+  const met=g>0&&v>=g-1e-6;
+  return `<div class="card task">${cardHead('khatm','Чтение Корана',`Хатм №${khN()} · прочитано ${fmt(K.cur.page)} из ${TOTAL_PAGES} стр.`,streakPill(st),'gold')}
+    <div class="task-main">${ring(g>0?v/g:(v>0?1:0),fmt(v),g>0?'из '+fmt(g)+' стр.':'стр.',84,'gold')}<div class="task-info">
+      <div style="font-weight:600">${met?'Вирд на сегодня прочитан':g>0?`Сегодня: ${fmt(v)} из ${fmt(g)} стр.`:`Сегодня: ${fmt(v)} стр.`}</div>
+      ${met?`<span class="pill ok">${ico('check')}готово</span>`:''}
+      <div class="sub">Сейчас: джуз ${pos.juz} · стр. ${pos.p} · ${esc(pos.S.name)}</div></div></div>
+    <div class="row" style="margin-top:14px">${g>0&&!met?`<button class="btn primary sm" data-act="kh-add" data-v="${r3(g-v)}">${ico('check')}Прочитал вирд (${fmt(g-v)})</button>`:''}<button class="btn sm" data-act="kh-add" data-v="20">+1 джуз</button>
+      <input type="number" min="0" step="any" placeholder="стр." id="khQuick" data-enter style="width:76px;height:30px"><button class="btn sm" data-act="kh-quick">${ico('plus')}Стр.</button></div></div>`;
+}
+function pageKhatm(){
+  const K=state.khatm, t=today(), rem=TOTAL_PAGES-K.cur.page, pos=khPos(), st=streak(K.log,K.goal,K.wd);
+  const p=pace({remaining:rem,goal:K.goal,deadline:K.deadline,wd:K.wd,log:K.log,unit:'стр.'});
+  let h=pageHead('khatm','Чтение Корана',`Хатм — полное прочтение Корана (${TOTAL_PAGES} страниц мединского мусхафа). Отмечайте прочитанное, выберите ежедневный вирд и срок.`)+'<div class="stack">';
+  h+=`<div class="card"><div class="top">${donut(K.cur.page/TOTAL_PAGES,'хатм №'+khN())}<div class="stats">
+    <div class="stat"><div class="v">${fmt(K.cur.page)}</div><div class="l">страниц прочитано</div></div>
+    <div class="stat"><div class="v">${fmt(rem)}</div><div class="l">осталось</div></div>
+    <div class="stat"><div class="v">${pos.juz}</div><div class="l">джуз сейчас</div></div>
+    <div class="stat"><div class="v" style="font-size:18px">${esc(pos.S.name)}</div><div class="l">стр. ${pos.p} · сура ${pos.S.n}</div></div>
+    <div class="stat"><div class="v">${K.done.length}</div><div class="l">${plural(K.done.length,'хатм завершён','хатма завершено','хатмов завершено')}</div></div>
+    <div class="stat"><div class="v">${st}</div><div class="l">серия, ${plural(st,'день','дня','дней')}</div></div></div></div></div>`;
+  h+=`<div class="grid2"><div class="card"><h2>${ico('check')}Отметить чтение</h2>
+    <div class="row"><button class="btn primary" data-act="kh-add" data-v="${r3(K.goal||20)}">${ico('check')}Вирд (${fmt(K.goal||20)} стр.)</button><button class="btn" data-act="kh-add" data-v="20">+1 джуз</button><button class="btn" data-act="kh-add" data-v="10">+½ джуза</button><button class="btn" data-act="kh-add" data-v="1">+1 стр.</button></div>
+    <div class="row"><span style="min-width:150px">Прочитал страниц:</span><input type="number" min="0" step="any" id="khAmt" data-enter><button class="btn sm" data-act="kh-amt">${ico('plus')}Добавить</button></div>
+    <div class="row"><span style="min-width:150px">Дочитал до страницы:</span><input type="number" min="0" max="${TOTAL_PAGES}" id="khPage" value="${Math.floor(K.cur.page)}" data-enter><button class="btn sm" data-act="kh-page">Сохранить</button></div>
+    <div class="row"><span style="min-width:150px">Запись за дату:</span><input type="date" id="khDate" value="${t}" max="${t}"><input type="number" step="any" id="khDateAmt" placeholder="стр." style="width:80px" data-enter><button class="btn sm" data-act="kh-date">${ico('plus')}Добавить</button></div></div>
+  <div class="card"><h2>${ico('target')}Вирд и срок</h2>
+    <label class="f"><span>Ежедневный вирд — страниц в день (20 стр. ≈ 1 джуз; 0 = без нормы)</span><input type="number" min="0" step="1" value="${K.goal}" data-chg="kh-goal"></label>
+    <div class="row" style="margin-top:8px"><span class="sub">Быстро:</span><button class="btn sm" data-act="kh-plan" data-days="30">Хатм за 30 дней</button><button class="btn sm" data-act="kh-plan" data-days="7">за неделю</button><button class="btn sm" data-act="kh-plan" data-days="60">за 2 месяца</button><button class="btn sm" data-act="kh-plan" data-days="365">за год</button></div>
+    <label class="f"><span>Дни чтения</span></label>${wdChips(K.wd,'kh-wd')}
+    <label class="f"><span>Дедлайн хатма (необязательно)</span></label><div class="row"><input type="date" value="${K.deadline}" min="${t}" data-chg="kh-deadline">${K.deadline?'<button class="btn sm" data-act="kh-nodeadline">Убрать</button>':''}</div>
+    <h3>Расчёт</h3>${p.html}</div></div>`;
+  h+=`<div class="card"><h2>${ico('grid')}Джузы текущего хатма</h2><div class="juz-grid">${JUZ_PAGE.map((s,i)=>{ const e=i<29?JUZ_PAGE[i+1]-1:TOTAL_PAGES, len=e-s+1, read=Math.max(0,Math.min(len,K.cur.page-(s-1))), f=read/len;
+    return `<div class="juz${f>=1?' full':''}" data-tt="${esc('Джуз '+(i+1)+': стр. '+s+'–'+e)}"><span class="jn">${i+1}</span><span class="jp">${f>=1?ico('check'):Math.floor(f*100)+'%'}</span><span class="jb"><i style="width:${f*100}%"></i></span></div>`; }).join('')}</div></div>`;
+  h+=`<div class="grid2"><div class="card"><h2>${ico('chart')}По дням</h2><div class="sub">страниц прочитано за день, последние 30 дней</div>${barChart(K.log,{goal:K.goal,unit:'стр.'})}</div>
+    <div class="card"><h2>${ico('cal')}Календарь чтения</h2>${heatmap(K.log,{goal:K.goal,wd:K.wd,unit:'стр.'})}</div></div>`;
+  h+=`<div class="card"><h2>${ico('trophy')}Завершённые хатмы</h2>${K.done.length?`<div class="hist">${K.done.slice().reverse().map(d=>`<div><span><b>Хатм №${d.n}</b></span><span class="sub">${fmtD(d.start)} — ${fmtD(d.end)} · ${daysW(diffDays(d.start,d.end)+1)}</span></div>`).join('')}</div>`:'<div class="muted">Пока нет — первый хатм впереди, ин ша Аллах.</div>'}
+    <div class="row" style="margin-top:12px"><span class="sub">Текущий хатм начат ${fmtD(K.cur.start)}.</span><span class="spacer"></span><button class="btn sm danger" data-act="kh-restart">Начать текущий хатм заново</button></div></div>`;
+  return h+'</div>';
+}
+
+/* ===================== ЕЖЕДНЕВНИК ===================== */
+UI.dday=today();
+const dayRec=d=>state.diary[d]||{tasks:[],note:''};
+function dayEnsure(d){ if(!state.diary[d]) state.diary[d]={tasks:[],note:''}; return state.diary[d]; }
+function dayClean(d){ const r=state.diary[d]; if(r&&!r.tasks.length&&!(r.note||'').trim()) delete state.diary[d]; }
+function taskList(d,compact){
+  const r=dayRec(d);
+  return `<div class="dtasks">${r.tasks.length?r.tasks.map(x=>`<label class="dtask${x.done?' done':''}"><input type="checkbox" data-chg="dy-done" data-d="${d}" data-id="${x.id}" ${x.done?'checked':''}><span>${esc(x.t)}</span>${compact?'':`<button class="btn ghost sm icon" data-act="dy-del" data-d="${d}" data-id="${x.id}" title="Удалить">✕</button>`}</label>`).join(''):`<div class="muted" style="padding:6px 0">Задач пока нет.</div>`}</div>
+    <div class="row" style="margin-top:8px"><input type="text" id="dyNew-${d}" placeholder="Новая задача…" maxlength="300" data-enter style="flex:1;width:auto"><button class="btn sm primary" data-act="dy-add" data-d="${d}">${ico('plus')}Добавить</button></div>`;
+}
+function diaryTodayCard(){
+  const t=today(), r=dayRec(t), done=r.tasks.filter(x=>x.done).length;
+  return `<div class="card task">${cardHead('diary','Ежедневник',r.tasks.length?`задачи на сегодня: ${done} из ${r.tasks.length}`:'план на сегодня','<button class="btn ghost sm" data-act="dy-open" data-d="'+t+'">Открыть</button>','ink')}
+    ${r.tasks.length?`<div style="margin-bottom:10px">${bar(done/r.tasks.length)}</div>`:''}${taskList(t,true)}${(r.note||'').trim()?`<div class="msg" style="white-space:pre-wrap">${esc(r.note.length>160?r.note.slice(0,160)+'…':r.note)}</div>`:''}</div>`;
+}
+function daySummary(d){
+  const L=dayLogs(), parts=[];
+  const add=(v,txt)=>{ if(v>0) parts.push(`<span class="pill">${txt}</span>`); };
+  add(L.hifz[d],`заучено ${fmt(L.hifz[d])} стр.`); add(L.rev[d],`повторено ${fmt(L.rev[d])} стр.`); add(L.khatm[d],`прочитано Корана ${fmt(L.khatm[d])} стр.`);
+  add(L.text[d],`текстов: ${fmt(L.text[d])}`); add(L.book[d],`книги: ${fmt(L.book[d])} стр.`); add(L.lesson[d],`уроки: ${fmt(L.lesson[d])}`); add(L.time[d],`время: ${hm(L.time[d])}`);
+  return parts.length?`<div class="row">${parts.join('')}</div>`:'<div class="muted">В этот день занятия не отмечались.</div>';
+}
+function monthCal(d){
+  const dt=parseD(d), y=dt.getFullYear(), m=dt.getMonth(), first=new Date(y,m,1), shift=(first.getDay()+6)%7, n=new Date(y,m+1,0).getDate(), t=today(), L=dayLogs();
+  let h=`<div class="mcal">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>`<div class="mh">${w}</div>`).join('')}`;
+  for(let i=0;i<shift;i++) h+='<div></div>';
+  for(let i=1;i<=n;i++){ const ds_=ds(new Date(y,m,i)), r=state.diary[ds_], tk=r?r.tasks.length:0, dn=r?r.tasks.filter(x=>x.done).length:0;
+    const act=['hifz','rev','khatm','book','lesson','text','time'].some(k=>(L[k][ds_]||0)>0);
+    h+=`<button class="md${ds_===d?' sel':''}${ds_===t?' today':''}" data-act="dy-pick" data-d="${ds_}"><span class="mn">${i}</span><span class="mdots">${act?'<i class="a"></i>':''}${tk?`<i class="${dn===tk?'t':'p'}"></i>`:''}${r&&(r.note||'').trim()?'<i class="n"></i>':''}</span></button>`; }
+  return h+`</div><div class="legend"><span><i style="background:var(--accent)"></i>были занятия</span><span><i style="background:var(--gold)"></i>все задачи выполнены</span><span><i style="background:var(--warn)"></i>есть невыполненные</span><span><i style="background:var(--ink2)"></i>есть заметка</span></div>`;
+}
+function pageDiary(){
+  const d=UI.dday, r=dayRec(d), t=today(), done=r.tasks.filter(x=>x.done).length;
+  let label=parseD(d).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).replace(' г.',''); label=label.charAt(0).toUpperCase()+label.slice(1);
+  const rel=d===t?'сегодня':d===addDays(t,1)?'завтра':d===addDays(t,-1)?'вчера':'';
+  let h=pageHead('diary','Ежедневник','Планы и заметки на каждый день. Итоги занятий подставляются сами.')+'<div class="stack">';
+  h+=`<div class="toolbar"><button class="btn icon" data-act="dy-nav" data-v="-1" title="Предыдущий день">‹</button><b class="rep-label">${label}${rel?` <span class="pill">${rel}</span>`:''}</b><button class="btn icon" data-act="dy-nav" data-v="1" title="Следующий день">›</button>
+    ${d!==t?'<button class="btn sm" data-act="dy-nav" data-v="0">Сегодня</button>':''}<span class="spacer"></span><input type="date" value="${d}" data-chg="dy-date"></div>`;
+  h+=`<div class="grid2"><div class="card"><h2>${ico('check')}Задачи${r.tasks.length?` <span class="sub" style="font-weight:500">${done} из ${r.tasks.length}</span>`:''}</h2>${r.tasks.length?`<div style="margin-bottom:10px">${bar(done/r.tasks.length)}</div>`:''}${taskList(d,false)}
+      ${r.tasks.some(x=>!x.done)?`<div class="row" style="margin-top:12px"><button class="btn sm" data-act="dy-move" data-d="${d}">Перенести невыполненные на следующий день</button></div>`:''}</div>
+    <div class="card"><h2>${ico('edit')}Заметки дня</h2><textarea id="dyNote" data-d="${d}" rows="9" placeholder="Мысли, итоги, что получилось, что улучшить, дуа, планы…">${esc(r.note||'')}</textarea><div class="sub" id="dyNoteState" style="margin-top:6px">Сохраняется автоматически.</div></div></div>`;
+  h+=`<div class="grid2"><div class="card"><h2>${ico('chart')}Итоги дня</h2>${daySummary(d)}</div>
+    <div class="card"><h2>${ico('cal')}${(()=>{ const s=parseD(d).toLocaleDateString('ru-RU',{month:'long',year:'numeric'}).replace(' г.',''); return s.charAt(0).toUpperCase()+s.slice(1); })()}</h2>${monthCal(d)}</div></div>`;
+  return h+'</div>';
+}
+let noteTimer=null;
+document.addEventListener('input',e=>{ if(e.target.id!=='dyNote') return; const el=e.target; clearTimeout(noteTimer);
+  $('#dyNoteState').textContent='…'; noteTimer=setTimeout(()=>{ const d=el.dataset.d; dayEnsure(d).note=el.value; dayClean(d); save(); const s=$('#dyNoteState'); if(s) s.textContent='Сохранено'; },500); });
+
+/* ---------- действия ---------- */
+Object.assign(A,{
+  'kh-add':el=>{ const v=+el.dataset.v; if(!(v>0)) return; act(`Чтение Корана: +${fmt(v)} стр.`,()=>khMsg(khAdd(v))); },
+  'kh-quick':()=>{ const v=num('#khQuick'); if(!(v>0)) return toast('Введите количество страниц'); act(`Чтение Корана: +${fmt(v)} стр.`,()=>khMsg(khAdd(v))); },
+  'kh-amt':()=>{ const v=num('#khAmt'); if(!isFinite(v)||v===0) return toast('Введите количество страниц'); act(`Чтение Корана: ${v>0?'+':''}${fmt(v)} стр.`,()=>khMsg(khAdd(v))); },
+  'kh-page':()=>{ const v=num('#khPage'); if(!(v>=0&&v<=TOTAL_PAGES)) return toast(`Страница — от 0 до ${TOTAL_PAGES}`); const d=v-state.khatm.cur.page; if(Math.abs(d)<1e-9) return; act(`Отмечено: дочитано до стр. ${fmt(v)}`,()=>khMsg(khAdd(d))); },
+  'kh-date':()=>{ const d=$('#khDate').value, v=num('#khDateAmt'); if(!d||d>today()) return toast('Выберите дату (не позже сегодня)'); if(!isFinite(v)||v===0) return toast('Введите количество страниц'); act(`Чтение за ${fmtDs(d)}: ${fmt(v)} стр.`,()=>khMsg(khAdd(v,d))); },
+  'kh-plan':el=>{ const days=+el.dataset.days, K=state.khatm, t=today(), rem=TOTAL_PAGES-K.cur.page, dl=addDays(t,days-1);
+    const sf=(K.log[t]||0)>0?addDays(t,1):t, sd=Math.max(1,studyDaysBetween(sf,dl,K.wd)), g=Math.ceil(rem/sd);
+    act(`План: хатм за ${daysW(days)} — ${g} стр. в день`,()=>{ K.goal=g; K.deadline=dl; }); },
+  'kh-nodeadline':()=>{ state.khatm.deadline=''; save(); render(); },
+  'kh-restart':()=>{ if(!confirm('Начать текущий хатм заново с первой страницы? Прочитанные страницы останутся в статистике.')) return; act('Хатм начат заново',()=>{ state.khatm.cur={start:today(),page:0}; }); },
+  'dy-open':el=>{ UI.dday=el.dataset.d||today(); state.ui.page='diary'; save(); render(); window.scrollTo(0,0); },
+  'dy-nav':el=>{ const v=+el.dataset.v; UI.dday=v===0?today():addDays(UI.dday,v); render(); },
+  'dy-pick':el=>{ UI.dday=el.dataset.d; render(); },
+  'dy-add':el=>{ const d=el.dataset.d, inp=document.getElementById('dyNew-'+d), t=(inp&&inp.value||'').trim(); if(!t) return toast('Введите текст задачи');
+    act(null,()=>{ dayEnsure(d).tasks.push({id:'k'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),t,done:false}); });
+    const again=document.getElementById('dyNew-'+d); if(again) again.focus(); },
+  'dy-del':el=>{ const d=el.dataset.d, id=el.dataset.id; act('Задача удалена',()=>{ const r=dayEnsure(d); r.tasks=r.tasks.filter(x=>x.id!==id); dayClean(d); }); },
+  'dy-move':el=>{ const d=el.dataset.d, nx=addDays(d,1); act('Невыполненные задачи перенесены на '+fmtDs(nx),()=>{ const r=dayEnsure(d), left=r.tasks.filter(x=>!x.done); r.tasks=r.tasks.filter(x=>x.done); dayEnsure(nx).tasks.push(...left); dayClean(d); }); },
+});
+Object.assign(CHG,{
+  'kh-goal':el=>{ const v=parseFloat(el.value); state.khatm.goal=isFinite(v)&&v>0?v:0; save(); render(); },
+  'kh-wd':el=>{ state.khatm.wd[+el.dataset.i]=el.checked; save(); render(); },
+  'kh-deadline':el=>{ state.khatm.deadline=el.value||''; save(); render(); },
+  'dy-date':el=>{ if(el.value){ UI.dday=el.value; render(); } },
+  'dy-done':el=>{ const d=el.dataset.d, id=el.dataset.id; act(null,()=>{ const x=dayEnsure(d).tasks.find(z=>z.id===id); if(x) x.done=el.checked; }); },
+});
+ACH.push(
+  {id:'kh1',icon:'khatm',t:'Первый хатм',d:'Прочитать весь Коран',p:()=>[state.khatm.done.length,1]},
+  {id:'kh5',icon:'khatm',t:'Пять хатмов',d:'Завершить 5 хатмов',p:()=>[state.khatm.done.length,5]},
+  {id:'khm',icon:'khatm',t:'Хатм за месяц',d:'Завершить хатм за 30 дней или быстрее',p:()=>[state.khatm.done.some(d=>diffDays(d.start,d.end)<30)?1:0,1]},
+  {id:'kh1000',icon:'khatm',t:'Тысяча страниц',d:'Прочитать 1000 страниц Корана',p:()=>[Math.floor(sumLog(state.khatm.log)),1000]},
+  {id:'dy7',icon:'diary',t:'Организованность',d:'Выполнить все задачи ежедневника 7 дней',p:()=>[Object.values(state.diary).filter(r=>r.tasks.length&&r.tasks.every(x=>x.done)).length,7]}
+);
+checkAch();
 
 // обновлять «сегодня» после полуночи
 let lastDay=today(); setInterval(()=>{ if(today()!==lastDay){ lastDay=today(); render(); } },60000);
