@@ -602,6 +602,57 @@ div.juz{cursor:default}
 .ram-calc{margin-top:12px;line-height:1.55}
 @media (max-width:860px){ .daybar .seg{flex:1} .db-msg{min-width:100%} }
 
+/* ---------- 1.4: меню по группам, окна выбора, раскрывающиеся блоки ---------- */
+.grid2.al{align-items:start}
+.nav-g{padding:12px 12px 4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ph-q{margin-left:8px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);background:var(--surface);color:var(--muted);font:600 13px/1 inherit;cursor:pointer;vertical-align:4px;padding:0}
+.ph-q:hover,.ph-q.on{color:var(--accent-strong);border-color:var(--accent)}
+.page-head h1{display:flex;align-items:center}
+.modal.small{max-width:460px}
+.sheet-list{display:flex;flex-direction:column;gap:6px}
+.sheet-opt{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font:inherit;transition:border-color .15s,background .15s}
+.sheet-opt:hover{border-color:var(--accent)}
+.sheet-opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.sheet-opt>span{display:flex;flex-direction:column;gap:2px}
+.sheet-opt svg{width:18px;height:18px;color:var(--accent-strong);flex:none}
+.caret{font-size:11px;opacity:.6;margin-left:2px}
+.daychip.past{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
+.method-btn{gap:6px}
+.method-btn svg{width:15px;height:15px}
+.section-t.row-t{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.section-t.row-t .btn{text-transform:none;letter-spacing:0;font-weight:600}
+.mark-box{margin-top:12px}
+.mark-box>.rng:first-child{margin-top:0}
+.next-pg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft)}
+.next-pg b{font-size:17px}
+.rng select{height:34px;max-width:100%}
+.rng select.grow{flex:1;min-width:0}
+.fold{padding:0}
+.fold>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary>svg{width:18px;height:18px;color:var(--accent-strong);flex:none}
+.fold-t{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+.fold-c svg{width:18px;height:18px;color:var(--muted);transition:transform .2s}
+.fold[open] .fold-c svg{transform:rotate(180deg)}
+.fold-b{padding:0 20px 20px}
+.fold-b>h3:first-child{margin-top:0}
+.cyc-prog{margin:4px 0 6px}
+.cyc-cells{display:flex;gap:4px;margin-top:8px}
+.cyc-cell{flex:1;height:8px;border-radius:4px;background:var(--surface2)}
+.cyc-cell.ok{background:var(--accent)} .cyc-cell.miss{background:var(--bad)} .cyc-cell.now{background:var(--gold)}
+.nav-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.nav-toggles .chip span{width:auto;padding:0 12px;gap:6px}
+.nav-toggles .chip svg{width:15px;height:15px}
+@media (max-width:860px){
+  .nav-g{padding:0;width:1px;height:22px;background:var(--line2);margin:0 4px;flex:none}
+  .nav-g span{display:none}
+  .modal::before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:var(--line2);margin:-8px auto 12px}
+  .modal{transition:transform .2s ease}
+  .fold>summary{padding:14px 16px}
+  .fold-b{padding:0 16px 16px}
+  .page-head>.row{flex-wrap:wrap}
+}
+
 /* ---------- Печать / PDF ---------- */
 @media print{
   :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
@@ -686,10 +737,10 @@ const ico=k=>`<svg class="ico" viewBox="0 0 24 24">${ICON[k]}</svg>`;
 /* ===================== СОСТОЯНИЕ ===================== */
 const ALLW=()=>[true,true,true,true,true,true,true];
 function defState(){ return {v:1,created:today(),
-  quran:{mem:{},goal:1,wd:ALLW(),deadline:'',order:'desc',revGoal:2,lastRev:{},rev:{},goals:[],revMode:'cycle',cycleDays:7,revOrder:'asc',cycleStart:today(),cycleDone:{}},
+  quran:{mem:{},goal:1,wd:ALLW(),deadline:'',order:'desc',revGoal:2,lastRev:{},rev:{},goals:[],revMode:'cycle',cycleDays:7,revOrder:'asc',cycleStart:today(),cycleDone:{},hifzMethod:'pages',revMethod:'pages'},
   log:{hifz:{},rev:{}}, items:[], texts:[], time:{}, timer:null, ach:{},
   khatm:{cur:{start:today(),page:0},goal:20,deadline:'',wd:ALLW(),log:{},done:[]}, diary:{}, tasks:[], ramadan:{}, qada:{made:[]},
-  ui:{page:'today',theme:'auto',lastBackup:'',remind:{on:true,times:['20:00'],tray:true}}}; }
+  ui:{page:'today',theme:'auto',lastBackup:'',remind:{on:true,times:['20:00'],tray:true},hide:{},open:{},mig14:1}}; }
 function normalize(s){
   const d=defState(); if(!s||typeof s!=='object') return d;
   const out=Object.assign(d,s);
@@ -702,11 +753,17 @@ function normalize(s){
   if(!Array.isArray(s.tasks)){ out.tasks=[]; for(const d in out.diary){ const r=out.diary[d]; (r.tasks||[]).forEach(x=>out.tasks.push({id:x.id||('k'+Math.random().toString(36).slice(2,9)),text:x.t,note:'',date:d,time:'',prio:0,due:'',rep:null,until:'',done:x.done?d:'',doneOn:{},created:d})); delete r.tasks; if(!(r.note||'').trim()) delete out.diary[d]; } }
   out.tasks=out.tasks.map(k=>Object.assign({note:'',date:'',time:'',prio:0,due:'',rep:null,until:'',done:'',doneOn:{}},k));
   for(const k of ['ramadan','qada']) if(!out[k]||typeof out[k]!=='object') out[k]=defState()[k];
-  { const q=out.quran; if(!q.revMode) q.revMode='cycle'; if(!q.cycleDays) q.cycleDays=7; if(!q.revOrder) q.revOrder='asc'; if(!q.cycleStart) q.cycleStart=today(); if(!q.cycleDone||typeof q.cycleDone!=='object') q.cycleDone={}; }
+  { const q=out.quran; if(!q.revMode) q.revMode='cycle'; if(!q.cycleDays) q.cycleDays=7; if(!q.revOrder) q.revOrder='asc'; if(!q.cycleStart) q.cycleStart=today(); if(!q.cycleDone||typeof q.cycleDone!=='object') q.cycleDone={};
+    // 1.4: старые ключи «круг:день» → с подписью настроек круга
+    const sig=`${q.cycleStart}/${q.cycleDays}/${q.revOrder}`; for(const k of Object.keys(q.cycleDone)) if(/^\d+:\d+$/.test(k)){ q.cycleDone[sig+'#'+k]=q.cycleDone[k]; delete q.cycleDone[k]; }
+    if(!q.hifzMethod) q.hifzMethod='pages'; if(!q.revMethod) q.revMethod='pages'; }
   out.texts=Array.isArray(s.texts)?s.texts.map(x=>Object.assign({author:'',items:[],mem:{},rev:{},goal:0,wd:ALLW(),deadline:'',log:{},revLog:{},created:today()},x)):[];
   out.ui.remind=Object.assign(defState().ui.remind,(s.ui&&s.ui.remind)||{});
   for(const k of ['time','ach']) if(!out[k]||typeof out[k]!=='object') out[k]={};
   if(!Array.isArray(out.quran.goals)) out.quran.goals=[];
+  for(const k of ['hide','open']) if(!out.ui[k]||typeof out.ui[k]!=='object') out.ui[k]={};
+  // 1.4: первичная отметка «всего выученного» в первый день попала в статистику дня — переносим в «выучено раньше»
+  if(!(s.ui&&s.ui.mig14)){ const v=out.log.hifz[out.created]; if(v>20) delete out.log.hifz[out.created]; out.ui.mig14=1; }
   return out;
 }
 // В программе Talib.exe данные хранит сама программа (файл data.json); в обычном браузере — localStorage.
@@ -758,20 +815,20 @@ const memStr=s=>state.quran.mem[s]||'';
 function memCount(s){ const m=memStr(s); let c=0; for(let i=0;i<m.length;i++) if(m.charCodeAt(i)===49) c++; return c; }
 function memArr(s){ const m=memStr(s),n=SUR[s-1].ayahs; return Array.from({length:n},(_,i)=>m[i]==='1'); }
 function setMemArr(s,arr){ const str=arr.map(b=>b?'1':'0').join(''); if(str.indexOf('1')<0) delete state.quran.mem[s]; else state.quran.mem[s]=str; }
-const surPagesMem=s=>{const S=SUR[s-1];return memCount(s)/S.ayahs*S.pages;};
-function quranTotals(){ let ay=0,pg=0,full=0,part=0; for(const S of SUR){ const c=memCount(S.n); ay+=c; pg+=c/S.ayahs*S.pages; if(c===S.ayahs) full++; else if(c>0) part++; } return {ay,pg,full,part}; }
-function applyMem(s,arr,date){ const S=SUR[s-1]; const before=memCount(s); setMemArr(s,arr); const after=memCount(s); if(date&&after!==before) addLog('hifz',date,(after-before)/S.ayahs*S.pages); }
+const surPagesMem=s=>memPg(s);
+function quranTotals(){ let ay=0,pg=0,full=0,part=0; for(const S of SUR){ const c=memCount(S.n); ay+=c; if(c) pg+=c===S.ayahs?S.pages:memPg(S.n); if(c===S.ayahs) full++; else if(c>0) part++; } return {ay,pg,full,part}; }
+function applyMem(s,arr,date){ const before=memPg(s); setMemArr(s,arr); const after=memPg(s); if(date&&Math.abs(after-before)>1e-9) addLog('hifz',date,after-before); }
 function nextPortion(goal){
   const order=state.quran.order==='asc'?SUR:[...SUR].reverse();
   const ranges=[]; let acc=0;
   for(const S of order){
     if(acc>=goal-1e-6) break;
-    const arr=memArr(S.n),per=S.pages/S.ayahs; let cur=null;
+    const arr=memArr(S.n); let cur=null;
     for(let a=1;a<=S.ayahs;a++){
       if(arr[a-1]){ if(cur){ranges.push(cur);cur=null;} continue; }
       if(acc>=goal-1e-6) break;
       if(!cur) cur={s:S.n,from:a,to:a}; else cur.to=a;
-      acc+=per;
+      acc+=ayW(S.n,a);
     }
     if(cur) ranges.push(cur);
   }
@@ -944,6 +1001,12 @@ Object.assign(ICON,{
 });
 const PAGES=[['today','Сегодня'],['calendar','Календарь'],['hifz','Заучивание'],['rev','Повторение'],['khatm','Чтение Корана'],['diary','Ежедневник'],['texts','Тексты'],['books','Книги'],['lessons','Уроки'],['ramadan','Рамадан'],['reports','Отчёты'],['ach','Достижения'],['settings','Настройки']];
 const UI={qsearch:'',qfilter:'all',modalRefresh:null,lastDark:null};
+// Меню по группам; «Сегодня» и «Настройки» скрыть нельзя
+const NAV_GROUPS=[['',['today','calendar','diary']],['Коран',['hifz','rev','khatm','ramadan']],['Учёба',['books','lessons','texts']],['Прочее',['reports','ach','settings']]];
+const NAV_FIXED=['today','settings'];
+const isOn=k=>NAV_FIXED.includes(k)||!(state.ui.hide&&state.ui.hide[k]);
+const navPages=()=>NAV_GROUPS.flatMap(([,ks])=>ks).filter(isOn);
+const pageTitle=k=>(PAGES.find(p=>p[0]===k)||[k,k])[1];
 const isDark=()=>state.ui.theme==='dark'||(state.ui.theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
 function applyTheme(){
   const th=state.ui.theme; if(th==='auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=th;
@@ -951,7 +1014,9 @@ function applyTheme(){
   const mt=document.querySelector('meta[name=theme-color]'); if(mt) mt.setAttribute('content',d?'#0d0f0e':'#efede7');
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render());
-function pageHead(icon,title,sub,right){ return `<header class="page-head"><div class="ph-l"><span class="ph-ico">${ico(icon)}</span><div><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:''}</div></div>${right?`<div class="row">${right}</div>`:''}</header>`; }
+// Длинное пояснение под заголовком прячется за кнопкой «?»
+function pageHead(icon,title,sub,right){ const long=!!sub&&sub.replace(/<[^>]+>/g,'').length>70, open=long&&UI.help===state.ui.page;
+  return `<header class="page-head"><div class="ph-l"><span class="ph-ico">${ico(icon)}</span><div><h1>${title}${long?`<button class="ph-q${open?' on':''}" data-act="ph-help" title="Пояснение" aria-label="Пояснение">?</button>`:''}</h1>${sub&&(!long||open)?`<div class="sub">${sub}</div>`:''}</div></div>${right?`<div class="row">${right}</div>`:''}</header>`; }
 function cardHead(icon,title,sub,right,tone){ return `<div class="card-h"><span class="badge-ico ${tone||''}">${ico(icon)}</span><div class="ch-t"><div class="item-title">${title}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>${right?`<div class="ch-r">${right}</div>`:''}</div>`; }
 function ring(frac,big,small,size,tone){ size=size||80; const sw=size>=100?10:8, r=(size-sw)/2-1, c=2*Math.PI*r, f=Math.max(0,Math.min(1,frac||0)), cx=size/2;
   return `<svg class="ring ${tone||''}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex:none"><circle class="r-bg" cx="${cx}" cy="${cx}" r="${r}" stroke-width="${sw}"/>${f>0?`<circle class="r-fg" cx="${cx}" cy="${cx}" r="${r}" stroke-width="${sw}" stroke-dasharray="${(c*f).toFixed(2)} ${c.toFixed(2)}" transform="rotate(-90 ${cx} ${cx})"/>`:''}<text class="r-big" x="${cx}" y="${cx+(small?1:6)}" style="font-size:${size>=100?24:17}px">${big}</text>${small?`<text class="r-sub" x="${cx}" y="${cx+(size>=100?20:15)}">${small}</text>`:''}</svg>`; }
@@ -986,16 +1051,17 @@ function hijri(t){ try{ const h=hijriParts(t); return `${h.d} ${HIJRI_MONTHS[h.m
 
 function render(){
   applyTheme();
+  if(!isOn(state.ui.page)) state.ui.page='today';
   const T=quranTotals(), pct=T.pg/TOTAL_PAGES*100;
   $('#nav').innerHTML=`<div class="brand"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><div><div class="b-name">Талиб</div><div class="b-sub">трекер знаний</div></div></div>
-    <div class="nav-list">${PAGES.map(([k,l],i)=>`<button class="nav-btn${state.ui.page===k?' on':''}" data-act="nav" data-p="${k}" title="${l} — клавиша ${i+1}">${ico(k)}<span>${l}</span>${i<9?`<kbd>${i+1}</kbd>`:''}</button>`).join('')}</div>
+    <div class="nav-list">${(()=>{ let n=0; return NAV_GROUPS.map(([g,ks])=>{ const vis=ks.filter(isOn); if(!vis.length) return '';
+      return `${g?`<div class="nav-g"><span>${g}</span></div>`:''}${vis.map(k=>{ n++; const l=pageTitle(k); return `<button class="nav-btn${state.ui.page===k?' on':''}" data-act="nav" data-p="${k}" title="${l}${n<10?' — клавиша '+n:''}">${ico(k)}<span>${l}</span>${n<10?`<kbd>${n}</kbd>`:''}</button>`; }).join('')}`; }).join(''); })()}</div>
     <div class="side-bottom">${timerWidget()}<div class="mini"><div class="kv"><span>Коран выучен</span><b>${pct>0&&pct<1?nf.format(Math.round(pct*10)/10):Math.floor(pct)}%</b></div>${bar(T.pg/TOTAL_PAGES)}<div class="sub">≈${fmt(T.pg)} из ${TOTAL_PAGES} страниц</div></div>
     <div class="theme-switch">${[['light','sun','Светлая тема'],['dark','moon','Тёмная тема'],['auto','monitor','Как в системе']].map(([k,i,l])=>`<button class="${state.ui.theme===k?'on':''}" data-act="theme-set" data-v="${k}" title="${l}" aria-label="${l}">${ico(i)}</button>`).join('')}</div></div>`;
   const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,khatm:pageKhatm,diary:pageDiary,calendar:pageCalendar,ramadan:pageRamadan,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings}[state.ui.page]||pageToday;
   $('#main').innerHTML=P();
   const fab=$('#timerFab'); if(fab) fab.innerHTML=state.timer?timerWidget():'';
   applyRamPlan(); sendRemind(); sendWidget();
-  if(state.ui.page==='hifz') applySurahFilter();
   if(UI.modalRefresh&&!$('#modal').classList.contains('hidden')) UI.modalRefresh();
 }
 function wdChips(wd,chg,extra=''){ return `<div class="chips">${WD_ORDER.map(i=>`<label class="chip"><input type="checkbox" data-chg="${chg}" data-i="${i}" ${extra} ${wd[i]?'checked':''}><span>${WD[i]}</span></label>`).join('')}</div>`; }
@@ -1004,14 +1070,14 @@ function wdChips(wd,chg,extra=''){ return `<div class="chips">${WD_ORDER.map(i=>
 function pageToday(){
   const t=today(), q=state.quran, T=quranTotals();
   let dt=parseD(t).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).replace(' г.',''); dt=dt.charAt(0).toUpperCase()+dt.slice(1);
-  const active=state.items.filter(i=>!i.finished&&!isPlanned(i));
+  const active=state.items.filter(i=>!i.finished&&!isPlanned(i)&&isOn(i.kind==='book'?'books':'lessons'));
   let tasks=0,doneT=0;
   const studyQ=q.wd[dow(t)];
-  if(q.goal>0&&studyQ&&T.pg<TOTAL_PAGES-1e-6){ tasks++; if((state.log.hifz[t]||0)>=q.goal-1e-6) doneT++; }
-  if(revGoal()>0&&studyQ&&T.ay>0){ tasks++; if((state.log.rev[t]||0)>=revGoal()-1e-6) doneT++; }
+  if(isOn('hifz')&&q.goal>0&&studyQ&&T.pg<TOTAL_PAGES-1e-6){ tasks++; if((state.log.hifz[t]||0)>=q.goal-1e-6) doneT++; }
+  if(isOn('rev')&&revGoal()>0&&studyQ&&T.ay>0){ tasks++; if((state.log.rev[t]||0)>=revGoal()-1e-6) doneT++; }
   for(const it of active) if(it.dMode==='fixed'&&it.daily>0&&it.wd[dow(t)]){ tasks++; if((it.log[t]||0)>=it.daily-1e-6) doneT++; }
-  for(const x of state.texts) if(+x.goal>0&&!isPlanned(x)&&x.wd[dow(t)]&&txMem(x)<x.items.length){ tasks++; if((x.log[t]||0)>=x.goal-1e-6) doneT++; }
-  { const K=state.khatm; if(K.goal>0&&K.wd[dow(t)]){ tasks++; if((K.log[t]||0)>=K.goal-1e-6) doneT++; } }
+  if(isOn('texts')) for(const x of state.texts) if(+x.goal>0&&!isPlanned(x)&&x.wd[dow(t)]&&txMem(x)<x.items.length){ tasks++; if((x.log[t]||0)>=x.goal-1e-6) doneT++; }
+  { const K=state.khatm; if(isOn('khatm')&&K.goal>0&&K.wd[dow(t)]){ tasks++; if((K.log[t]||0)>=K.goal-1e-6) doneT++; } }
   let week=0; for(let i=0;i<7;i++) week+=dayMinutes(addDays(t,-i));
   const msg=!tasks?'На сегодня запланированных задач нет':doneT===tasks?'Все задачи на сегодня выполнены. Ма ша Аллах!':`Осталось ${tasks-doneT} ${plural(tasks-doneT,'задача','задачи','задач')} — бисмиЛлях!`;
   const hj=hijri(t);
@@ -1029,31 +1095,11 @@ function pageToday(){
   const lb=state.ui.lastBackup;
   if(IS_IOS&&!STANDALONE&&!HOST&&!state.ui.hideInstall) h+=`<div class="msg ok banner" style="margin-top:18px">${ico('plus')}<span style="flex:1"><b>Установите Талиб как приложение:</b> нажмите «Поделиться» <span style="font-size:15px">⎋</span> внизу Safari → «На экран „Домой“». Так он будет открываться без адресной строки, работать без интернета, а данные будут надёжнее защищены.</span><button class="btn sm" data-act="hide-install">Понятно</button></div>`;
   if((T.ay>0||state.items.length)&&(!lb||diffDays(lb,t)>=14)) h+=`<div class="msg warn banner" style="margin-top:18px">${ico('info')}<span style="flex:1">${lb?'Последняя ручная резервная копия была '+fmtD(lb)+'.':'Вы ещё не делали резервную копию в отдельный файл.'}</span><button class="btn sm" data-act="export">${ico('download')}Сохранить копию</button></div>`;
-  h+=dayBar()+`<div class="section-t">${LD()===t?'План на сегодня':'Записи за '+fmtD(LD())}</div><div class="grid">${ramadanCard()}${hifzTodayCard()}${revTodayCard()}${khatmCard()}${diaryTodayCard()}${state.texts.filter(x=>!isPlanned(x)&&(txMem(x)<x.items.length||txDue(x).length)).map(textCard).join('')}${active.map(itemCard).join('')}
-    <button class="add-card" data-act="it-new" data-kind="book">${ico('plus')}<b>Добавить книгу</b><span class="sub">с дедлайном или без</span></button>
-    <button class="add-card" data-act="it-new" data-kind="lesson">${ico('plus')}<b>Добавить курс уроков</b><span class="sub">лекции, аудио, видео</span></button>
-    ${state.texts.length?'':`<button class="add-card" data-act="tx-new">${ico('plus')}<b>Добавить текст для заучивания</b><span class="sub">хадисы, мутуны, дуа</span></button>`}</div>`;
+  h+=`<div class="section-t row-t"><span>${LD()===t?'План на сегодня':'Записи за '+fmtD(LD())}</span>${dayChip()}</div><div class="grid">${isOn('ramadan')?ramadanCard():''}${isOn('hifz')?hifzTodayCard():''}${isOn('rev')?revTodayCard():''}${isOn('khatm')?khatmCard():''}${isOn('diary')?diaryTodayCard():''}${(isOn('texts')?state.texts:[]).filter(x=>!isPlanned(x)&&(txMem(x)<x.items.length||txDue(x).length)).map(textCard).join('')}${active.map(itemCard).join('')}
+    ${isOn('books')?`<button class="add-card" data-act="it-new" data-kind="book">${ico('plus')}<b>Добавить книгу</b><span class="sub">с дедлайном или без</span></button>`:''}
+    ${isOn('lessons')?`<button class="add-card" data-act="it-new" data-kind="lesson">${ico('plus')}<b>Добавить курс уроков</b><span class="sub">лекции, аудио, видео</span></button>`:''}
+    ${state.texts.length||!isOn('texts')?'':`<button class="add-card" data-act="tx-new">${ico('plus')}<b>Добавить текст для заучивания</b><span class="sub">хадисы, мутуны, дуа</span></button>`}</div>`;
   return h;
-}
-function hifzTodayCard(){
-  const t=LD(), dw=dayWord(t,true), q=state.quran, T=quranTotals(), v=state.log.hifz[t]||0, g=q.goal, st=streak(state.log.hifz,g,q.wd);
-  let h=`<div class="card task">${cardHead('hifz','Заучивание Корана',`выучено ≈${fmt(T.pg)} из ${TOTAL_PAGES} стр.`,streakPill(st))}`;
-  if(T.pg>=TOTAL_PAGES-1e-6) return h+`<div class="msg ok">Ма ша Аллах! Весь Коран отмечен как выученный.</div></div>`;
-  const met=g>0&&v>=g-1e-6;
-  h+=`<div class="task-main">${ring(g>0?v/g:(v>0?1:0),fmt(v),g>0?'из '+fmt(g)+' стр.':'стр.',84)}<div class="task-info">
-    <div style="font-weight:600">${g>0?(met?(t===today()?'Цель на сегодня выполнена':`${dw}: цель выполнена`):`${dw}: ${fmt(v)} из ${fmt(g)} стр.`):`${dw}: ${fmt(v)} стр.`}</div>
-    ${met?`<span class="pill ok">${ico('check')}готово</span>`:''}${!q.wd[dow(t)]?'<span class="pill">выходной по плану</span>':''}
-    <button class="btn ghost sm" data-act="nav" data-p="hifz" style="margin-left:-11px">${ico('grid')}Отметить по аятам</button></div></div>`;
-  const G=q.goals.map(g=>({g,I:goalInfo(g)})).find(o=>!o.I.done);
-  if(G) h+=`<div class="goal-mini">${ico('target')}<span style="flex:1"><b>${esc(goalName(G.g))}</b>${G.g.deadline?' · к '+fmtD(G.g.deadline):''} — ${Math.floor(G.I.st.frac*100)}%</span>${G.I.pill}</div>`;
-  const size=g>0?(v<g-1e-6?g-v:g):1; const pr=nextPortion(size);
-  if(pr.ranges.length){
-    const shown=pr.ranges.slice(0,4);
-    h+=`<div class="portion-box"><div class="pb-t">${met?'Следующая порция (сверх плана или на завтра)':'Порция на сегодня'} · ≈${fmt(pr.pages)} стр.</div>
-    <ul class="portion">${shown.map(r=>`<li>${rangeText(r)}<span class="ar" style="font-size:18px">${ARABIC[r.s-1]}</span></li>`).join('')}${pr.ranges.length>4?`<li class="muted">и ещё ${pr.ranges.length-4}…</li>`:''}</ul>
-    <div class="row"><button class="btn primary sm" data-act="portion-done">${ico('check')}Выучил порцию</button><button class="btn sm" data-act="portion-part">Выучил часть…</button></div></div>`;
-  }
-  return h+`</div>`;
 }
 function itemCard(it){
   const t=LD(), dw=dayWord(t,true), done=itemDone(it), rem=Math.max(0,it.total-done), tv=it.log[t]||0;
@@ -1079,42 +1125,6 @@ function itemCard(it){
 }
 
 /* ---------- Заучивание ---------- */
-function pageHifz(){
-  const q=state.quran, T=quranTotals(), rem=Math.max(0,TOTAL_PAGES-T.pg), st=streak(state.log.hifz,q.goal,q.wd);
-  const p=pace({remaining:rem,goal:q.goal,deadline:q.deadline,wd:q.wd,log:state.log.hifz,unit:'стр.'});
-  let h=pageHead('hifz','Заучивание Корана',`Мединский мусхаф: 114 сур, ${TOTAL_AYAHS} аятов, ${TOTAL_PAGES} страниц. Объём частей сур в страницах — приблизительный.`)+dayBar()+`<div class="stack">`;
-  h+=`<div class="card"><div class="top">${donut(T.pg/TOTAL_PAGES,'выучено')}<div class="stats">
-    <div class="stat"><div class="v">≈${fmt(T.pg)}</div><div class="l">страниц выучено</div></div>
-    <div class="stat"><div class="v">≈${fmt(rem)}</div><div class="l">страниц осталось</div></div>
-    <div class="stat"><div class="v">${T.ay}</div><div class="l">аятов из ${TOTAL_AYAHS}</div></div>
-    <div class="stat"><div class="v">${T.full}</div><div class="l">сур полностью</div></div>
-    <div class="stat"><div class="v">${T.part}</div><div class="l">сур частично</div></div>
-    <div class="stat"><div class="v">${st}</div><div class="l">серия, ${plural(st,'день','дня','дней')}</div></div>
-  </div></div></div>`;
-  h+=`<div class="grid2"><div class="card"><h2>${ico('target')}План и темп</h2>
-    <label class="f"><span>Ежедневная цель — страниц в день (0,5 = полстраницы; 0 = без цели)</span><input type="number" min="0" step="0.25" value="${q.goal}" data-chg="q-goal"></label>
-    <label class="f"><span>Дни занятий</span></label>${wdChips(q.wd,'q-wd')}
-    <label class="f"><span>Порядок заучивания (для подсказки порции)</span><select data-chg="q-order" style="width:100%"><option value="desc" ${q.order==='desc'?'selected':''}>С конца — от суры ан-Нас к аль-Бакаре</option><option value="asc" ${q.order==='asc'?'selected':''}>С начала — от аль-Фатихи</option></select></label>
-    <label class="f"><span>Дедлайн (необязательно)</span></label><div class="row"><input type="date" value="${q.deadline}" min="${today()}" data-chg="q-deadline">${q.deadline?'<button class="btn sm" data-act="q-nodeadline">Убрать дедлайн</button>':''}</div>
-    <h3>Расчёт</h3>${p.html}</div>`;
-  h+=`<div class="card"><h2>${ico('clock')}Сколько времени займёт</h2><div class="sub">Остаток ≈${fmt(rem)} стр. при разном темпе (${wdText(q.wd)}).</div>${paceTable(rem)}</div></div>`;
-  h+=`<div class="grid2"><div class="card"><h2>${ico('chart')}По дням</h2><div class="sub">страниц выучено за день, последние 30 дней</div>${barChart(state.log.hifz,{goal:q.goal,unit:'стр.'})}</div>
-    <div class="card"><h2>${ico('trend')}Общий прогресс</h2><div class="sub">всего выучено страниц (с учётом выученного ранее)</div>${lineChart(state.log.hifz,{baseline:T.pg-sumLog(state.log.hifz),unit:'стр.'})}</div></div>`;
-  h+=`<div class="grid2">${goalsCard()}${juzCard()}</div>`;
-  h+=`<div class="card"><h2>${ico('cal')}Календарь привычки</h2>${heatmap(state.log.hifz,{goal:q.goal,wd:q.wd,unit:'стр.'})}</div>`;
-  h+=`<div class="card"><h2>${ico('grid')}Карта Корана</h2><div class="sub">Каждая клетка — сура; заливка показывает выученную долю. Нажмите на клетку, чтобы отметить аяты.</div><div class="qmap" style="margin-top:14px">${SUR.map(S=>{const c=memCount(S.n),f=c/S.ayahs*100;return `<div class="qt${c===S.ayahs?' full':''}" data-act="sur-open" data-s="${S.n}" style="background:${c===S.ayahs?'var(--accent)':c>0?`linear-gradient(to top,var(--accent-mid) ${f}%,var(--surface2) ${f}%)`:'var(--surface2)'}" data-tt="${esc(S.n+'. '+S.name+' — '+c+'/'+S.ayahs+' аятов ('+Math.floor(f)+'%)')}">${S.n}</div>`;}).join('')}</div>
-    <div class="legend"><span><i style="background:var(--surface2);border:1px solid var(--line2)"></i>не начата</span><span><i style="background:var(--accent-mid)"></i>частично</span><span><i style="background:var(--accent)"></i>выучена</span></div></div>`;
-  h+=`<div class="card"><div class="toolbar"><h2>${ico('list')}Суры</h2><span class="spacer"></span>
-    <div class="seg">${[['all','Все'],['full','Выучены'],['part','Частично'],['none','Не начаты']].map(([k,l])=>`<label><input type="radio" name="qf" value="${k}" data-chg="q-filter" ${UI.qfilter===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
-    <div class="search">${ico('search')}<input type="text" id="qsearch" placeholder="Название или номер суры" value="${esc(UI.qsearch)}"></div></div>
-    <div class="scroll"><table class="list surahs"><thead><tr><th>№</th><th>Сура</th><th></th><th class="right">Аятов</th><th class="right">≈Стр.</th><th style="width:20%">Прогресс</th><th class="right">Выучено</th><th>Вся</th><th></th></tr></thead><tbody>
-    ${SUR.map(S=>{const c=memCount(S.n);const st=c===S.ayahs?'full':c>0?'part':'none';return `<tr data-name="${S.n} ${esc(S.name.toLowerCase())} ${ARABIC[S.n-1]}" data-st="${st}"><td><span class="n-badge ${st}">${S.n}</span></td><td style="font-weight:550">${esc(S.name)}</td><td class="ar">${ARABIC[S.n-1]}</td><td class="num right">${S.ayahs}</td><td class="num right">${fmt(S.pages)}</td><td>${bar(c/S.ayahs)}</td><td class="num right nowrap">${c} / ${S.ayahs}</td><td><input type="checkbox" data-chg="sur-full" data-s="${S.n}" ${c===S.ayahs?'checked':''} title="Отметить всю суру выученной"></td><td class="right"><button class="btn sm" data-act="sur-open" data-s="${S.n}">Аяты</button></td></tr>`;}).join('')}
-    </tbody></table></div></div>`;
-  h+=`<div class="card"><h2>${ico('sparkle')}Начальная настройка: что уже выучено раньше</h2><div class="sub">Отметьте суры, выученные до начала работы с трекером. Они войдут в общий прогресс и в повторение, но не в ежедневную статистику.</div>
-    <div class="row" style="margin-top:14px">Суры с № <input type="number" id="bulkFrom" min="1" max="114" value="78" style="width:76px"> по № <input type="number" id="bulkTo" min="1" max="114" value="114" style="width:76px"><button class="btn primary" data-act="bulk" data-v="1">${ico('check')}Отметить как выученные ранее</button><button class="btn" data-act="bulk" data-v="0">Снять отметку</button></div>
-    <div class="row"><span class="sub">Быстрый выбор:</span><button class="btn sm" data-act="bulk-preset" data-a="78" data-b="114">Джуз 30 (78–114)</button><button class="btn sm" data-act="bulk-preset" data-a="67" data-b="77">Джуз 29 (67–77)</button><button class="btn sm" data-act="bulk-preset" data-a="1" data-b="1">Аль-Фатиха</button></div></div>`;
-  return h+'</div>';
-}
 function paceTable(rem){
   const q=state.quran, t=today(), startFrom=(state.log.hifz[t]||0)>0?addDays(t,1):t;
   if(!q.wd.some(Boolean)) return '<div class="msg warn">Выберите дни занятий.</div>';
@@ -1126,17 +1136,10 @@ function paceTable(rem){
     const dur=cal>=365?fmt(cal/365)+' г.':cal>=60?fmt(cal/30.4)+' мес.':daysW(cal);
     return `<tr${cur?' style="background:var(--accent-soft)"':''}><td class="nowrap"><b>${nf2.format(r)}</b> стр./день${cur?' <span class="pill ok">ваш</span>':''}</td><td class="num right">${n}</td><td class="num right nowrap">${dur}</td><td class="nowrap">${fmtD(fin)}</td>${q.deadline?`<td>${fin<=q.deadline?'<span class="pill ok">успеете</span>':'<span class="pill bad">нет</span>'}</td>`:''}</tr>`;}).join('')}</tbody></table>`;
 }
-function applySurahFilter(){
-  const qs=UI.qsearch.trim().toLowerCase();
-  document.querySelectorAll('tr[data-name]').forEach(tr=>{ const ok=(UI.qfilter==='all'||tr.dataset.st===UI.qfilter)&&(!qs||tr.dataset.name.includes(qs)); tr.style.display=ok?'':'none'; });
-}
-
-/* ---------- Повторение ---------- */
-
 /* ---------- Книги / Уроки ---------- */
 function pageItems(kind){
   const K=KIND[kind], list=state.items.filter(i=>i.kind===kind), act_=list.filter(i=>!i.finished), fin=list.filter(i=>i.finished);
-  let h=pageHead(kind==='book'?'books':'lessons',K.title,`${act_.length} в процессе · ${fin.length} завершено`,`<button class="btn primary" data-act="it-new" data-kind="${kind}">${ico('plus')}${K.add}</button>`)+(list.length?dayBar():'')+`<div class="stack">`;
+  let h=pageHead(kind==='book'?'books':'lessons',K.title,`${act_.length} в процессе · ${fin.length} завершено`,(list.length?dayChip():'')+`<button class="btn primary" data-act="it-new" data-kind="${kind}">${ico('plus')}${K.add}</button>`)+`<div class="stack">`;
   if(!list.length) return h+`<div class="empty"><div class="empty-ico">${ico(kind==='book'?'books':'lessons')}</div><div class="empty-t">${kind==='book'?'Пока нет книг':'Пока нет курсов'}</div><div class="sub">${K.empty}</div><button class="btn primary" data-act="it-new" data-kind="${kind}">${ico('plus')}${K.add}</button></div></div>`;
   const plan_=act_.filter(isPlanned), now_=act_.filter(i=>!isPlanned(i));
   if(now_.length) h+=`<div class="grid">${now_.map(itemCard).join('')}</div>`;
@@ -1223,6 +1226,8 @@ function pageSettings(){
   return pageHead('settings','Настройки','')+`<div class="stack">
   <div class="card"><h2>${ico('palette')}Оформление</h2><div class="theme-opts">${[['light','Светлая','<i class="s"></i><i class="c"></i><i class="a"></i>'],['dark','Тёмная','<i class="s"></i><i class="c"></i><i class="a"></i>'],['auto','Как в системе','<i class="a"></i>']].map(([k,l,inner])=>`<label class="theme-opt"><input type="radio" name="th" value="${k}" data-chg="theme" ${s.theme===k?'checked':''}><span class="th-prev th-${k}">${inner}</span><span>${l}</span></label>`).join('')}</div>
     <div class="sub" style="margin-top:12px">Тему также можно переключать кнопками внизу боковой панели.</div></div>
+  <div class="card"><h2>${ico('list')}Разделы в меню</h2><div class="sub">Снимите галочку, чтобы спрятать раздел, которым вы не пользуетесь. Его данные сохраняются — раздел можно вернуть в любой момент. Спрятанный раздел пропадает и со страницы «Сегодня».</div>
+    <div class="nav-toggles">${NAV_GROUPS.map(([g,ks])=>ks.filter(k=>!NAV_FIXED.includes(k)).map(k=>`<label class="chip"><input type="checkbox" data-chg="nav-show" data-k="${k}" ${isOn(k)?'checked':''}><span>${ico(k)}${pageTitle(k)}</span></label>`).join('')).join('')}</div></div>
   <div class="card"><h2>${ico('download')}Резервная копия</h2><div class="sub">Данные хранятся только на этом компьютере. Регулярно сохраняйте копию в файл (например, в облачную папку) — из неё можно всё восстановить или перенести на другой компьютер.</div>
     <div class="row" style="margin-top:14px"><button class="btn primary" data-act="export">${ico('download')}Сохранить копию в файл…</button><button class="btn" data-act="import">${ico('upload')}Восстановить из файла…</button><span class="sub">${s.lastBackup?'Последняя копия: '+fmtD(s.lastBackup):'Копий ещё не было'}</span></div></div>
   ${remindCard()}
@@ -1258,7 +1263,7 @@ function openSurah(s){
 function refreshSurah(){
   const S=SUR[draft.s-1]; document.querySelectorAll('.ayah').forEach((b,i)=>b.classList.toggle('on',draft.arr[i]));
   const c=draft.arr.filter(Boolean).length, was=memCount(draft.s), d=c-was;
-  $('#smSum').innerHTML=`Отмечено <b>${c}</b> из ${S.ayahs} (≈${fmt(c/S.ayahs*S.pages)} стр.)${d?` · изменение: ${d>0?'+':''}${d} ${plural(d,'аят','аята','аятов')}`:''}`;
+  $('#smSum').innerHTML=`Отмечено <b>${c}</b> из ${S.ayahs} (≈${fmt(draft.arr.reduce((p,on,i)=>on?p+ayW(draft.s,i+1):p,0))} стр.)${d?` · изменение: ${d>0?'+':''}${d} ${plural(d,'аят','аята','аятов')}`:''}`;
 }
 function portionPart(){
   const q=state.quran, v=state.log.hifz[LD()]||0, size=q.goal>0?(v<q.goal-1e-6?q.goal-v:q.goal):1, pr=nextPortion(size);
@@ -1272,7 +1277,13 @@ function portionPart(){
 }
 
 /* ===================== МОДАЛКА / ТОСТ / ПОДСКАЗКИ ===================== */
-function openModal(html){ $('#modalBox').innerHTML=html; $('#modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+// cls='small' — компактное окно выбора (на телефоне все окна выезжают снизу и закрываются свайпом вниз)
+function openModal(html,cls){ const b=$('#modalBox'); b.className='modal'+(cls?' '+cls:''); b.style.transform=''; b.innerHTML=html; $('#modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+(()=>{ const box=$('#modalBox'); let y0=null, dy=0;
+  box.addEventListener('touchstart',e=>{ if(innerWidth>860||box.scrollTop>0||e.target.closest('input,select,textarea,.ayah-grid,.sura-pick')) { y0=null; return; } y0=e.touches[0].clientY; dy=0; },{passive:true});
+  box.addEventListener('touchmove',e=>{ if(y0==null) return; dy=e.touches[0].clientY-y0; if(dy>0){ box.style.transition='none'; box.style.transform=`translateY(${dy}px)`; } },{passive:true});
+  box.addEventListener('touchend',()=>{ if(y0==null) return; box.style.transition=''; if(dy>90) closeModal(); else box.style.transform=''; y0=null; });
+})();
 function closeModal(){ $('#modal').classList.add('hidden'); $('#modalBox').innerHTML=''; document.body.style.overflow=''; UI.modalRefresh=null; draft=null; }
 let toastTimer=null;
 function toast(msg,undo){ const el=$('#toast'); el.innerHTML=`${ico(undo?'check':'info')}<span>${esc(msg)}</span>${undo?'<button id="undoBtn">Отменить <span style="opacity:.6;font-weight:500">Ctrl+Z</span></button>':''}`; el.style.display='flex'; if(undo) $('#undoBtn').onclick=()=>{ el.style.display='none'; undo(); }; clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.style.display='none',6000); }
@@ -1283,12 +1294,24 @@ document.addEventListener('scroll',()=>tt.style.display='none',true);
 
 /* ===================== ДЖУЗЫ И ЦЕЛИ ===================== */
 const JUZ_START=[[1,1],[2,142],[2,253],[3,93],[4,24],[4,148],[5,82],[6,111],[7,88],[8,41],[9,93],[11,6],[12,53],[15,1],[17,1],[18,75],[21,1],[23,1],[25,21],[27,56],[29,46],[33,31],[36,28],[39,32],[41,47],[46,1],[51,31],[58,1],[67,1],[78,1]];
+const JUZ_PAGE=[1,22,42,62,82,102,121,142,162,182,201,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
+// Страницы мусхафа по аятам. Опорные точки — начало каждой суры и каждого джуза (начала джузов в мединском мусхафе
+// — точные страницы); между ними — пропорционально числу аятов. Вес аята = доля страницы, которую он занимает.
+// (var и ленивый расчёт: достижения проверяются ещё при загрузке скрипта)
+var PAGE_ANCH, AYAH_W;
+function pageAnchors(){ if(PAGE_ANCH) return PAGE_ANCH; const cum=[0]; for(const S of SUR) cum.push(cum[cum.length-1]+S.ayahs);
+  const m=new Map(); SUR.forEach((S,k)=>m.set(cum[k],S.pos)); JUZ_START.forEach(([s,a],i)=>m.set(cum[s-1]+a-1,JUZ_PAGE[i]-1)); m.set(cum[114],TOTAL_PAGES);
+  return PAGE_ANCH={cum,pts:[...m.entries()].sort((x,y)=>x[0]-y[0])}; }
+function anchorSeg(g){ const pts=pageAnchors().pts; let i=0; while(i<pts.length-2&&pts[i+1][0]<=g) i++; return [pts[i],pts[i+1]]; }
+function ayahPage(s,a){ const g=pageAnchors().cum[s-1]+a-0.5, [[g0,p0],[g1,p1]]=anchorSeg(g), pos=p0+(p1-p0)*(g-g0)/(g1-g0); return Math.max(1,Math.min(TOTAL_PAGES,Math.floor(pos)+1)); }
+function ayW(s,a){ if(!AYAH_W) AYAH_W=SUR.map(S=>{ const w=new Float64Array(S.ayahs), c=pageAnchors().cum[S.n-1]; for(let x=1;x<=S.ayahs;x++){ const [[g0,p0],[g1,p1]]=anchorSeg(c+x-0.5); w[x-1]=(p1-p0)/(g1-g0); } return w; }); return AYAH_W[s-1][a-1]; }
+function memPg(s){ const m=memStr(s); let p=0; for(let i=0;i<m.length;i++) if(m.charCodeAt(i)===49) p+=ayW(s,i+1); return p; }
 const JUZ=JUZ_START.map(([s,a],i)=>{ const nx=JUZ_START[i+1]; let es,ea;
   if(!nx){ es=114; ea=SUR[113].ayahs; } else if(nx[1]===1){ es=nx[0]-1; ea=SUR[es-1].ayahs; } else { es=nx[0]; ea=nx[1]-1; }
   return {n:i+1,s,a,es,ea}; });
 function juzSegments(j){ const J=JUZ[j-1], out=[]; for(let s=J.s;s<=J.es;s++) out.push({s,from:s===J.s?J.a:1,to:s===J.es?J.ea:SUR[s-1].ayahs}); return out; }
 function segStats(segs){ let tot=0,mem=0,pg=0,pgMem=0;
-  for(const g of segs){ const S=SUR[g.s-1], m=memStr(g.s), per=S.pages/S.ayahs; for(let a=g.from;a<=g.to;a++){ tot++; pg+=per; if(m.charCodeAt(a-1)===49){ mem++; pgMem+=per; } } }
+  for(const g of segs){ const m=memStr(g.s); for(let a=g.from;a<=g.to;a++){ const per=ayW(g.s,a); tot++; pg+=per; if(m.charCodeAt(a-1)===49){ mem++; pgMem+=per; } } }
   return {tot,mem,pg,pgMem,frac:tot?mem/tot:0}; }
 const juzStats=j=>segStats(juzSegments(j));
 const rangeSegs=(a,b)=>{ const o=[]; for(let s=a;s<=b;s++) o.push({s,from:1,to:SUR[s-1].ayahs}); return o; };
@@ -1308,9 +1331,9 @@ function goalInfo(g){
   } else res.pill='<span class="pill">без срока</span>';
   return res;
 }
-function goalsCard(){
+function goalsCard(bare){
   const q=state.quran;
-  let h=`<div class="card"><h2>${ico('target')}Цели заучивания</h2><div class="sub">Например: «выучить 29-й джуз к Рамадану». Программа посчитает, сколько страниц в день нужно.</div><div class="goals">`;
+  let h=`${bare?'<div>':`<div class="card"><h2>${ico('target')}Цели заучивания</h2>`}<div class="sub">Например: «выучить 29-й джуз к Рамадану». Программа посчитает, сколько страниц в день нужно.</div><div class="goals">`;
   if(!q.goals.length) h+=`<div class="msg">Целей пока нет — добавьте первую ниже.</div>`;
   for(const g of q.goals){ const I=goalInfo(g);
     h+=`<div class="goal"><div class="kv"><span><b>${esc(goalName(g))}</b>${g.deadline?` · к ${fmtD(g.deadline)}`:''}</span><span class="row" style="gap:6px">${I.pill}<button class="btn ghost sm icon" data-act="goal-del" data-id="${g.id}" title="Удалить цель">✕</button></span></div>
@@ -1360,7 +1383,7 @@ function textCard(x){
 function pageTexts(){
   const L=state.texts;
   let h=pageHead('texts','Заучивание текстов','Хадисы, мутуны, дуа, назмы — любые тексты по пунктам: заучивание, дневная норма, дедлайн и умное повторение.',
-    `<button class="btn" data-act="tx-preset">${ico('sparkle')}40 хадисов ан-Навави</button><button class="btn primary" data-act="tx-new">${ico('plus')}Добавить текст</button>`)+(L.length?dayBar():'')+'<div class="stack">';
+    (L.length?dayChip():'')+`<button class="btn" data-act="tx-preset">${ico('sparkle')}40 хадисов ан-Навави</button><button class="btn primary" data-act="tx-new">${ico('plus')}Добавить текст</button>`)+'<div class="stack">';
   if(!L.length) return h+`<div class="empty"><div class="empty-ico">${ico('texts')}</div><div class="empty-t">Пока нет текстов</div><div class="sub">Добавьте сборник хадисов, мутун или список дуа. Можно указать количество пунктов или вставить список названий — по одному на строку.</div><div class="row" style="justify-content:center"><button class="btn" data-act="tx-preset">${ico('sparkle')}40 хадисов ан-Навави (42)</button><button class="btn primary" data-act="tx-new">${ico('plus')}Свой текст</button></div></div></div>`;
   h+=`<div class="grid">${L.map(textCard).join('')}</div>`;
   const agg={}; for(const x of L) for(const d in x.log) agg[d]=r3((agg[d]||0)+x.log[d]);
@@ -1578,13 +1601,13 @@ function pendingTasks(all){
   const t=today(), q=state.quran, T=quranTotals(), out=[];
   const left=(v,g)=>all||v<g-1e-6;
   if(all||q.wd[dow(t)]){
-    if(q.goal>0&&T.pg<TOTAL_PAGES-1e-6&&left(state.log.hifz[t]||0,q.goal)) out.push(all?'заучивание':`заучивание (${fmt(state.log.hifz[t]||0)} из ${fmt(q.goal)} стр.)`);
-    if(revGoal()>0&&T.ay>0&&left(state.log.rev[t]||0,revGoal())) out.push(all?'повторение':`повторение (${fmt(state.log.rev[t]||0)} из ${fmt(revGoal())} стр.)`);
+    if(isOn('hifz')&&q.goal>0&&T.pg<TOTAL_PAGES-1e-6&&left(state.log.hifz[t]||0,q.goal)) out.push(all?'заучивание':`заучивание (${fmt(state.log.hifz[t]||0)} из ${fmt(q.goal)} стр.)`);
+    if(isOn('rev')&&revGoal()>0&&T.ay>0&&left(state.log.rev[t]||0,revGoal())) out.push(all?'повторение':`повторение (${fmt(state.log.rev[t]||0)} из ${fmt(revGoal())} стр.)`);
   }
-  { const L=tasksOn(t), left_=L.filter(k=>!isDone(k,t)).length; if(L.length&&left_) out.push(all?'задачи ежедневника':`задачи ежедневника (${left_})`); }
-  for(const it of state.items) if(!it.finished&&!isPlanned(it)&&it.dMode==='fixed'&&it.daily>0&&(all||it.wd[dow(t)])&&left(it.log[t]||0,it.daily)) out.push(`«${it.title}»`);
-  for(const x of state.texts) if(+x.goal>0&&!isPlanned(x)&&(all||x.wd[dow(t)])&&txMem(x)<x.items.length&&left(x.log[t]||0,x.goal)) out.push(`«${x.title}»`);
-  { const K=state.khatm; if(K.goal>0&&(all||K.wd[dow(t)])&&left(K.log[t]||0,K.goal)) out.push(all?'чтение Корана':`чтение Корана (${fmt(K.log[t]||0)} из ${fmt(K.goal)} стр.)`); }
+  if(isOn('diary')){ const L=tasksOn(t), left_=L.filter(k=>!isDone(k,t)).length; if(L.length&&left_) out.push(all?'задачи ежедневника':`задачи ежедневника (${left_})`); }
+  for(const it of state.items) if(isOn(it.kind==='book'?'books':'lessons')&&!it.finished&&!isPlanned(it)&&it.dMode==='fixed'&&it.daily>0&&(all||it.wd[dow(t)])&&left(it.log[t]||0,it.daily)) out.push(`«${it.title}»`);
+  if(isOn('texts')) for(const x of state.texts) if(+x.goal>0&&!isPlanned(x)&&(all||x.wd[dow(t)])&&txMem(x)<x.items.length&&left(x.log[t]||0,x.goal)) out.push(`«${x.title}»`);
+  { const K=state.khatm; if(isOn('khatm')&&K.goal>0&&(all||K.wd[dow(t)])&&left(K.log[t]||0,K.goal)) out.push(all?'чтение Корана':`чтение Корана (${fmt(K.log[t]||0)} из ${fmt(K.goal)} стр.)`); }
   return out;
 }
 // На телефоне будильник Android сообщит об окончании таймера, даже если приложение свёрнуто.
@@ -1672,20 +1695,19 @@ const CHG={
   'q-wd':el=>{ state.quran.wd[+el.dataset.i]=el.checked; save(); render(); },
   'q-order':el=>{ state.quran.order=el.value; save(); render(); },
   'q-deadline':el=>{ state.quran.deadline=el.value||''; save(); render(); },
-  'q-filter':el=>{ UI.qfilter=el.value; applySurahFilter(); },
   'sur-full':el=>{ const s=+el.dataset.s, S=SUR[s-1]; act(el.checked?`${S.name}: вся сура выучена`+dayNote(LD()):`${S.name}: отметка снята`,()=>applyMem(s,Array(S.ayahs).fill(el.checked),LD())); },
   theme:el=>{ state.ui.theme=el.value; save(); render(); },
   form:()=>formHint(),
 };
 document.addEventListener('click',e=>{ const el=e.target.closest('[data-act]'); if(!el) return; const f=A[el.dataset.act]; if(f){ e.preventDefault(); f(el,e); } });
 document.addEventListener('change',e=>{ const el=e.target.closest('[data-chg]'); if(el&&CHG[el.dataset.chg]) CHG[el.dataset.chg](el,e); });
-document.addEventListener('input',e=>{ if(e.target.id==='qsearch'){ UI.qsearch=e.target.value; applySurahFilter(); } else if(e.target.closest('#modalBox')&&$('#fHint')) formHint(); });
+document.addEventListener('input',e=>{ if(e.target.closest('#modalBox')&&$('#fHint')) formHint(); });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!$('#modal').classList.contains('hidden')) closeModal();
   const typing=e.target.matches('input,select,textarea'), modalOpen=!$('#modal').classList.contains('hidden');
   if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&(e.key==='z'||e.key==='я'||e.code==='KeyZ')&&!typing){ e.preventDefault(); undo(); return; }
   if(!typing&&!modalOpen&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
-    if(/^[1-9]$/.test(e.key)&&PAGES[+e.key-1]){ state.ui.page=PAGES[+e.key-1][0]; save(); render(); window.scrollTo(0,0); return; }
+    if(/^[1-9]$/.test(e.key)&&navPages()[+e.key-1]){ state.ui.page=navPages()[+e.key-1]; save(); render(); window.scrollTo(0,0); return; }
     if(e.code==='KeyT'){ state.ui.theme=isDark()?'light':'dark'; save(); render(); return; }
   }
   if(e.key==='Enter'&&e.target.matches('input[data-enter]')){ e.preventDefault(); const b=e.target.parentElement.querySelector('[data-act]'); if(b) b.click(); }
@@ -1706,7 +1728,7 @@ Object.assign(ICON,{
 Object.assign(A,{
   'juz-open':el=>openJuz(+el.dataset.j),
   'juz-mark':el=>{ const j=+el.dataset.j, m=el.dataset.m;
-    act(m==='clear'?`Джуз ${j}: отметка снята`:`Джуз ${j} отмечен как выученный${m==='earlier'?' ранее':''}`,()=>{ for(const g of juzSegments(j)){ const arr=memArr(g.s); for(let a=g.from;a<=g.to;a++) arr[a-1]=m!=='clear'; applyMem(g.s,arr,m==='today'?today():null); } }); },
+    act(m==='clear'?`Джуз ${j}: отметка снята`:`Джуз ${j} отмечен как выученный${m==='earlier'?' ранее':''}`,()=>{ for(const g of juzSegments(j)){ const arr=memArr(g.s); for(let a=g.from;a<=g.to;a++) arr[a-1]=m!=='clear'; applyMem(g.s,arr,m==='today'?LD():null); } }); },
   'goal-add':()=>{ const kind=$('#gKind').value, g={id:'g'+Date.now().toString(36),kind,deadline:$('#gDate').value||''};
     if(kind==='juz') g.n=+$('#gJuz').value;
     else { let a=parseInt($('#gFrom').value), b=parseInt($('#gTo').value); if(!(a>=1&&a<=114&&b>=1&&b<=114)) return toast('Номера сур — от 1 до 114'); if(a>b)[a,b]=[b,a]; g.from=a; g.to=b; }
@@ -1770,7 +1792,6 @@ Object.assign(ICON,{
   diary:'<rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M9 3v18M12.5 8h3.5M12.5 12h3.5M12.5 16h2"/>',
 });
 // Страницы начала джузов в мединском мусхафе
-const JUZ_PAGE=[1,22,42,62,82,102,121,142,162,182,201,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
 const juzAtPage=p=>{ let j=1; JUZ_PAGE.forEach((s,i)=>{ if(s<=p) j=i+1; }); return j; };
 const surahAtPage=p=>{ let s=SUR[0]; for(const S of SUR) if(S.start<=p) s=S; return s; };
 const khN=()=>state.khatm.done.length+1;
@@ -1799,7 +1820,7 @@ function khatmCard(){
 function pageKhatm(){
   const K=state.khatm, t=today(), rem=TOTAL_PAGES-K.cur.page, pos=khPos(), st=streak(K.log,K.goal,K.wd);
   const p=pace({remaining:rem,goal:K.goal,deadline:K.deadline,wd:K.wd,log:K.log,unit:'стр.'});
-  let h=pageHead('khatm','Чтение Корана',`Хатм — полное прочтение Корана (${TOTAL_PAGES} страниц мединского мусхафа). Отмечайте прочитанное, выберите ежедневный вирд и срок.`)+dayBar()+'<div class="stack">';
+  let h=pageHead('khatm','Чтение Корана',`Хатм — полное прочтение Корана (${TOTAL_PAGES} страниц мединского мусхафа). Отмечайте прочитанное, выберите ежедневный вирд и срок.`,dayChip())+'<div class="stack">';
   h+=`<div class="card"><div class="top">${donut(K.cur.page/TOTAL_PAGES,'хатм №'+khN())}<div class="stats">
     <div class="stat"><div class="v">${fmt(K.cur.page)}</div><div class="l">страниц прочитано</div></div>
     <div class="stat"><div class="v">${fmt(rem)}</div><div class="l">осталось</div></div>
@@ -1879,18 +1900,22 @@ function cycleInfo(){
   // Выученное по джузам (в порядке повторения). Если джузов не меньше, чем дней круга, — режем по границам джузов
   // (7 джузов → по джузу в день, 14 → по два); иначе делим по аятам поровну.
   const juzUnits=[]; for(const J of (ord==='desc'?[...JUZ].reverse():JUZ)){ const segs=[]; let pg=0;
-    for(const g of juzSegments(J.n)){ const S=SUR[g.s-1], m=memStr(g.s), pa=S.pages/S.ayahs; let cur=null;
-      for(let a=g.from;a<=g.to;a++){ if(m.charCodeAt(a-1)===49){ if(cur&&cur.to===a-1) cur.to=a; else { cur={s:g.s,from:a,to:a}; segs.push(cur); } pg+=pa; } } }
+    for(const g of juzSegments(J.n)){ const m=memStr(g.s); let cur=null;
+      for(let a=g.from;a<=g.to;a++){ if(m.charCodeAt(a-1)===49){ if(cur&&cur.to===a-1) cur.to=a; else { cur={s:g.s,from:a,to:a}; segs.push(cur); } pg+=ayW(g.s,a); } } }
     if(pg>0) juzUnits.push({segs,pg}); }
-  if(total>0&&juzUnits.length>=N){ let acc=0;
-    for(const U of juzUnits){ const i=Math.min(N-1,Math.floor((acc+U.pg/2)/per+1e-9)); portions[i].segs.push(...U.segs); portions[i].pg+=U.pg; acc+=U.pg; } }
+  if(total>0&&juzUnits.length>=N){
+    // джузы подряд делим на N групп так, чтобы самый большой день был как можно меньше (у каждого дня хотя бы один джуз)
+    const n=juzUnits.length, pre=[0]; juzUnits.forEach(U=>pre.push(pre[pre.length-1]+U.pg));
+    const dp=Array.from({length:N+1},()=>Array(n+1).fill(Infinity)), cut=Array.from({length:N+1},()=>Array(n+1).fill(0)); dp[0][0]=0;
+    for(let k=1;k<=N;k++) for(let i=k;i<=n;i++) for(let j=k-1;j<i;j++){ const v=Math.max(dp[k-1][j],pre[i]-pre[j]); if(v<dp[k][i]-1e-9){ dp[k][i]=v; cut[k][i]=j; } }
+    for(let k=N,i=n;k>0;k--){ const j=cut[k][i]; for(let u=j;u<i;u++){ portions[k-1].segs.push(...juzUnits[u].segs); portions[k-1].pg+=juzUnits[u].pg; } i=j; } }
   else if(total>0){ let acc=0;
-    for(const S of (ord==='desc'?[...SUR].reverse():SUR)){ const m=memStr(S.n); if(m.indexOf('1')<0) continue; const pa=S.pages/S.ayahs;
+    for(const S of (ord==='desc'?[...SUR].reverse():SUR)){ const m=memStr(S.n); if(m.indexOf('1')<0) continue;
       for(let a=1;a<=S.ayahs;a++){ if(m.charCodeAt(a-1)!==49) continue;
-        const i=Math.min(N-1,Math.floor((acc+pa/2)/per+1e-9)), P=portions[i], L=P.segs[P.segs.length-1];
+        const pa=ayW(S.n,a), i=Math.min(N-1,Math.floor((acc+pa/2)/per+1e-9)), P=portions[i], L=P.segs[P.segs.length-1];
         if(L&&L.s===S.n&&L.to===a-1) L.to=a; else P.segs.push({s:S.n,from:a,to:a}); P.pg+=pa; acc+=pa; } } }
   const start=q.cycleStart||t, dd=Math.max(0,diffDays(start,t)), no=Math.floor(dd/N);
-  return {N,portions,total,per,idx:dd%N,no,curStart:addDays(start,no*N)};
+  return {N,portions,total,per,idx:dd%N,no,curStart:addDays(start,no*N),pending:start>t};
 }
 function portionLabel(P){
   if(!P.segs.length) return '—';
@@ -1904,66 +1929,24 @@ function portionLabel(P){
   if(P.segs.length===1) return `${A.n}. ${A.name}, аяты ${a.from}–${a.to} · джуз ${ja}`;
   return `${one(A,a,a.from===1,'a')} → ${one(B,b,b.to===B.ayahs,'b')} · ${ja===jb?'джуз '+ja:'джузы '+ja+'–'+jb}`;
 }
-const cycKey=(no,i)=>no+':'+i;
+// ключ порции учитывает настройки круга (начало, длину, порядок): при их смене старые отметки не путаются с новыми
+const cycSig=()=>{ const q=state.quran; return `${q.cycleStart}/${q.cycleDays||7}/${q.revOrder||'asc'}`; };
+const cycKey=(no,i)=>cycSig()+'#'+no+':'+i;
 // Отмечает повторение набора отрезков: страницы в журнал, оценка сурам, закрывает порции круга
 function applyRevSegs(segs,quality,date,forcePages){
   const q=state.quran, cov={};
   for(const g of segs){ const m=memStr(g.s); for(let a=g.from;a<=g.to;a++) if(m.charCodeAt(a-1)===49){ (cov[g.s]=cov[g.s]||new Set()).add(a); } }
-  let pages=0; for(const s in cov){ const S=SUR[s-1]; pages+=cov[s].size*S.pages/S.ayahs; }
+  let pages=0; for(const s in cov) for(const a of cov[s]) pages+=ayW(+s,a);
   if(forcePages>0) pages=forcePages; // «повторил стр. с … по …» — засчитываем ровно эти страницы
   if(pages<=0) return 0;
   addLog('rev',date,pages);
   for(const s in cov){ if(cov[s].size===memCount(+s)){ q.rev[s]=srsNext(revRec(+s),quality,date); if(!q.lastRev[s]||q.lastRev[s]<date) q.lastRev[s]=date; } }
   if(q.revMode!=='smart'){ const C=cycleInfo(), d0=diffDays(C.curStart,date);
-    if(d0>=0&&d0<C.N) C.portions.forEach((P,i)=>{ if(i>d0||q.cycleDone[cycKey(C.no,i)]||!P.segs.length) return;
-      if(P.segs.every(g=>{ for(let a=g.from;a<=g.to;a++) if(!(cov[g.s]&&cov[g.s].has(a))) return false; return true; })) q.cycleDone[cycKey(C.no,i)]=date; }); }
+    // порция засчитывается, если повторено ≥90% её аятов (в т.ч. если повторили заранее)
+    if(!C.pending&&d0>=0&&d0<C.N) C.portions.forEach((P,i)=>{ if(q.cycleDone[cycKey(C.no,i)]||!P.segs.length) return; let tot=0,hit=0;
+      for(const g of P.segs) for(let a=g.from;a<=g.to;a++){ tot++; if(cov[g.s]&&cov[g.s].has(a)) hit++; }
+      if(tot&&hit/tot>=0.9) q.cycleDone[cycKey(C.no,i)]=date; }); }
   return pages;
-}
-function revTodayCard(){
-  const t=LD(), dw=dayWord(t,true), q=state.quran, v=state.log.rev[t]||0, g=revGoal(), st=streak(state.log.rev,g,q.wd), T=quranTotals();
-  const cyc=q.revMode!=='smart';
-  let h=`<div class="card task">${cardHead('rev','Повторение Корана',cyc?`круг ${q.cycleDays||7} ${plural(q.cycleDays||7,'день','дня','дней')} · выучено ≈${fmt(T.pg)} стр.`:`${memorizedSurahs().length} сур в повторении`,streakPill(st),'gold')}`;
-  if(!T.ay) return h+`<div class="msg">Когда вы отметите выученные суры, здесь появится план повторения.</div></div>`;
-  const met=g>0&&v>=g-1e-6;
-  h+=`<div class="task-main">${ring(g>0?v/g:(v>0?1:0),fmt(v),g>0?'из '+fmt(g)+' стр.':'стр.',84,'gold')}<div class="task-info">
-    <div style="font-weight:600">${met?(t===today()?'Норма повторения выполнена':`${dw}: норма выполнена`):`${dw}: ${fmt(v)} из ${fmt(g)} стр.`}</div>${met?`<span class="pill ok">${ico('check')}готово</span>`:''}
-    <button class="btn sm" data-act="rev-log">${ico('plus')}Записать повторение</button></div></div>`;
-  h+=revRangeRow();
-  if(cyc){ const C=cycleInfo(), di=diffDays(C.curStart,t), ix=di>=0&&di<C.N?di:C.idx, P=C.portions[ix], done=q.cycleDone[cycKey(C.no,ix)];
-    h+=`<div class="portion-box"><div class="pb-t">Порция дня ${ix+1} из ${C.N} · ≈${fmt(P.pg)} стр.</div><div style="font-weight:600;margin:4px 0 8px">${esc(portionLabel(P))}</div>
-      ${done?`<span class="pill ok">${ico('check')}повторено ${done===today()?'сегодня':fmtDs(done)}</span>`:`<div class="sub" style="margin-bottom:6px">Повторил — оцените:</div>${rateBtns('cyc-done',`data-i="${ix}"`)}`}</div>`;
-    const missed=C.portions.map((P2,i)=>({P2,i})).filter(o=>o.i<C.idx&&o.P2.segs.length&&!q.cycleDone[cycKey(C.no,o.i)]);
-    if(missed.length) h+=`<div class="msg warn">${ico('info')} Пропущено в этом круге: ${missed.map(o=>`день ${o.i+1}`).join(', ')}. <button class="btn sm" data-act="nav" data-p="rev" style="margin-left:6px">Открыть план</button></div>`;
-  } else {
-    const sug=revSuggest();
-    if(sug.length) h+=`<div class="portion-box"><div class="pb-t">Пора повторить — оцените, насколько твёрдо помните</div><ul class="portion rev-list">${sug.slice(0,5).map(x=>`<li><span><b>${x.S.n}. ${esc(x.S.name)}</b> <span class="sub">≈${fmt(x.pg)} стр.</span><br><span class="pill ${x.st.cls}">${x.st.label}</span></span>${rateBtns('rev',`data-s="${x.S.n}"`)}</li>`).join('')}</ul></div>`;
-  }
-  return h+'</div>';
-}
-function pageRev(){
-  const q=state.quran, t=today(), T=quranTotals(), g=revGoal(), st=streak(state.log.rev,g,q.wd), cyc=q.revMode!=='smart';
-  let h=pageHead('rev','Повторение',cyc?`Каждые ${q.cycleDays||7} ${plural(q.cycleDays||7,'день','дня','дней')} — полный круг по всему выученному. Записывать можно и любое другое повторение: джуз, суру или страницы.`:'Умное повторение: суры приходят на повторение тем чаще, чем слабее вы их помните.',`<button class="btn primary" data-act="rev-log">${ico('plus')}Записать повторение</button>`)+dayBar()+'<div class="stack">';
-  h+=`<div class="grid2">${revTodayCard()}<div class="card"><h2>${ico('target')}Система повторения</h2>
-    <div class="seg"><label><input type="radio" name="rvm" value="cycle" data-chg="rev-mode" ${cyc?'checked':''}><span>Круг: всё выученное за N дней</span></label><label><input type="radio" name="rvm" value="smart" data-chg="rev-mode" ${cyc?'':'checked'}><span>Умное (по оценкам)</span></label></div>
-    ${cyc?`<label class="f"><span>За сколько дней проходить всё выученное (7 = каждую неделю)</span><input type="number" min="1" max="60" step="1" value="${q.cycleDays||7}" data-chg="cyc-days"></label>
-    <label class="f"><span>Порядок повторения</span><select data-chg="cyc-order" style="width:100%"><option value="asc" ${q.revOrder!=='desc'?'selected':''}>С начала мусхафа (аль-Фатиха → ан-Нас)</option><option value="desc" ${q.revOrder==='desc'?'selected':''}>С конца (ан-Нас → аль-Бакара)</option></select></label>
-    <div class="msg">Выучено ≈${fmt(T.pg)} стр. (≈${fmt(T.pg/20)} джуза) → <b>≈${fmt(g)} стр. в день</b>${g>=19?` (≈${fmt(g/20)} джуза)`:''}.</div>
-    <div class="row" style="margin-top:10px"><button class="btn sm" data-act="cyc-restart">Начать новый круг с сегодняшнего дня</button></div>`
-    :`<label class="f"><span>Страниц повторения в день (0 = без цели)</span><input type="number" min="0" step="0.5" value="${q.revGoal}" data-chg="q-revgoal"></label>`}
-    <div class="stats" style="margin-top:16px"><div class="stat"><div class="v">≈${fmt(T.pg)}</div><div class="l">стр. в повторении</div></div><div class="stat"><div class="v">${st}</div><div class="l">серия, ${plural(st,'день','дня','дней')}</div></div>${cyc?`<div class="stat"><div class="v">${Object.keys(q.cycleDone).length}</div><div class="l">порций повторено</div></div>`:''}</div></div></div>`;
-  if(cyc&&T.ay){ const C=cycleInfo();
-    h+=`<div class="card"><h2>${ico('list')}План текущего круга</h2><div class="sub">Круг ${C.no+1}: ${fmtD(C.curStart)} — ${fmtD(addDays(C.curStart,C.N-1))}</div><div class="cyc-list">${C.portions.map((P,i)=>{ const d=addDays(C.curStart,i), done=q.cycleDone[cycKey(C.no,i)], isT=i===C.idx, past=i<C.idx;
-      const status=done?`<span class="pill ok">${ico('check')}${done===d?'':fmtDs(done)}</span>`:isT?'<span class="pill warn">сегодня</span>':past?'<span class="pill bad">пропущено</span>':'<span class="pill">впереди</span>';
-      return `<div class="cyc-row${isT?' today':''}"><div class="cyc-d"><b>${WD[dow(d)]}</b><span>${fmtDs(d)}</span></div><div class="cyc-t"><div>${esc(portionLabel(P))}</div><div class="sub">≈${fmt(P.pg)} стр.</div></div><div class="cyc-s">${status}${!done&&P.segs.length&&i<=C.idx?rateBtns('cyc-done',`data-i="${i}"`):''}</div></div>`; }).join('')}</div></div>`; }
-  h+=`<div class="grid2"><div class="card"><h2>${ico('chart')}Повторение по дням</h2><div class="sub">страниц за день, последние 30 дней</div>${barChart(state.log.rev,{goal:g,unit:'стр.'})}</div>
-    <div class="card"><h2>${ico('cal')}Календарь повторения</h2>${heatmap(state.log.rev,{goal:g,wd:q.wd,unit:'стр.'})}</div></div>`;
-  const mem=memorizedSurahs();
-  if(!mem.length) h+=`<div class="empty"><div class="empty-ico">${ico('rev')}</div><div class="empty-t">Пока нечего повторять</div><div class="sub">Отметьте выученные суры на странице «Заучивание».</div><button class="btn primary" data-act="nav" data-p="hifz">Перейти к заучиванию</button></div>`;
-  else{ const rows=mem.map(S=>{ const r=revRec(S.n); return {S,r,st:srsState(r),pg:surPagesMem(S.n),c:memCount(S.n)}; }).sort((a,b)=>b.st.over-a.st.over||a.S.n-b.S.n);
-    h+=`<div class="card"><h2>${ico('list')}Состояние сур</h2><div class="sub">Когда каждая сура повторялась и с какой оценкой.</div><div class="scroll" style="margin-top:10px"><table class="list revtab"><thead><tr><th>№</th><th>Сура</th><th></th><th class="right">≈Стр.</th><th>Последнее повторение</th><th>Оценка</th><th class="right">Повторил</th></tr></thead><tbody>
-    ${rows.map(x=>`<tr><td><span class="n-badge ${x.c===x.S.ayahs?'full':'part'}">${x.S.n}</span></td><td style="font-weight:550">${esc(x.S.name)}${x.c<x.S.ayahs?`<div class="sub">${x.c} из ${x.S.ayahs} аятов</div>`:''}</td><td class="ar">${ARABIC[x.S.n-1]}</td><td class="num right">${fmt(x.pg)}</td><td class="nowrap">${x.r&&x.r.last?(x.r.last===t?'сегодня':fmtDs(x.r.last)+' · '+diffDays(x.r.last,t)+' дн. назад'):'<span class="muted">ещё нет</span>'}</td><td class="sub nowrap">${x.r&&x.r.last?(QL[x.r.q]||'—'):'—'}</td><td class="right">${x.r&&x.r.last===t?`<span class="pill ok">${ico('check')}</span>`:rateBtns('rev',`data-s="${x.S.n}"`)}</td></tr>`).join('')}
-    </tbody></table></div></div>`; }
-  return h+'</div>';
 }
 UI.rl={mode:'juz',sel:{},q:3};
 function openRevLog(mode){
@@ -1996,7 +1979,7 @@ function rlSegs(){
 }
 // страницы мусхафа a…b → отрезки аятов
 function pagesToSegs(a,b){ const segs=[];
-  for(const S of SUR){ const pa=S.pages/S.ayahs; let cur=null; for(let x=1;x<=S.ayahs;x++){ const p=Math.floor(S.pos+(x-0.5)*pa)+1; if(p>=a&&p<=b){ if(!cur) cur={s:S.n,from:x,to:x}; else cur.to=x; } } if(cur) segs.push(cur); }
+  for(const S of SUR){ if(S.start>b) break; let cur=null; for(let x=1;x<=S.ayahs;x++){ const p=ayahPage(S.n,x); if(p>=a&&p<=b){ if(!cur) cur={s:S.n,from:x,to:x}; else cur.to=x; } } if(cur) segs.push(cur); }
   return segs; }
 // строка «Повторил стр. с … по …» — следующая страница подставляется сама
 function revRangeRow(){ const q=state.quran, nx=q.lastRevTo?(q.lastRevTo%TOTAL_PAGES)+1:'';
@@ -2007,13 +1990,6 @@ function revRangeRow(){ const q=state.quran, nx=q.lastRevTo?(q.lastRevTo%TOTAL_P
 function LD(){ const t=today(); return UI.ld&&UI.ld<t?UI.ld:t; }
 function dayWord(d,cap){ const n=diffDays(d,today()), w=n===0?'сегодня':n===1?'вчера':n===2?'позавчера':fmtDs(d); return cap?w.charAt(0).toUpperCase()+w.slice(1):w; }
 function dayNote(d){ return d===today()?'':` (за ${dayWord(d)})`; }
-function dayBar(){
-  const t=today(), d=LD(), y=addDays(t,-1), y2=addDays(t,-2), past=d<t;
-  return `<div class="daybar${past?' past':''}"><span class="db-l">${ico('cal')}Отмечаю за:</span>
-    <div class="seg">${[[t,'Сегодня'],[y,'Вчера'],[y2,'Позавчера']].map(([v,l])=>`<label><input type="radio" name="ldd" value="${v}" data-chg="ld-set" ${d===v?'checked':''}><span>${l}</span></label>`).join('')}</div>
-    <input type="date" value="${d}" max="${t}" data-chg="ld-set" title="Другая дата">
-    ${past?`<span class="db-msg">${ico('info')}Все отметки сейчас сохраняются за <b>${fmtD(d)}</b></span><button class="btn sm" data-act="ld-today">Вернуться к сегодня</button>`:''}</div>`;
-}
 // книги и уроки: «Прочитал стр. с … по …» / «Прошёл уроки с № … по № …»
 function rangeRow(it,pre){ if(it.finished||isPlanned(it)) return ''; const bk=it.kind==='book', from=Math.min(it.total,Math.floor(itemDone(it))+1);
   return `<div class="row rng">${ico(bk?'books':'lessons')}<span>${bk?'Прочитал стр. с':'Прошёл уроки с №'}</span><input type="number" min="1" step="1" id="${pre}rf-${it.id}" value="${from}"><span>по${bk?'':' №'}</span><input type="number" min="1" step="1" id="${pre}rt-${it.id}" placeholder="${Math.min(it.total,from+(it.daily>0?Math.ceil(it.daily)-1:9))}" data-enter><button class="btn sm" data-act="it-range" data-id="${it.id}" data-pre="${pre}">${ico('check')}Записать</button></div>`; }
@@ -2312,7 +2288,7 @@ Object.assign(A,{
   'rl-save':()=>{ const date=$('#rlDate').value||today(); if(date>today()) return $('#rlErr').textContent='Дата не может быть в будущем.';
     const segs=rlSegs(); if(!segs||!segs.length) return $('#rlErr').textContent=UI.rl.mode==='pages'?'Укажите страницы.':'Выберите, что повторили.';
     const R=UI.rl, forced=R.mode==='pages'?R.to-R.from+1:0;
-    const pages=forced||(()=>{ let p=0; for(const g of segs){ const S=SUR[g.s-1], m=memStr(g.s); for(let a=g.from;a<=g.to;a++) if(m.charCodeAt(a-1)===49) p+=S.pages/S.ayahs; } return p; })();
+    const pages=forced||(()=>{ let p=0; for(const g of segs){ const m=memStr(g.s); for(let a=g.from;a<=g.to;a++) if(m.charCodeAt(a-1)===49) p+=ayW(g.s,a); } return p; })();
     if(pages<=0) return $('#rlErr').textContent='В выбранном нет выученных аятов.';
     closeModal(); act(`Повторение записано: ${forced?`стр. ${R.from}–${R.to}, `:'≈'}${fmt(pages)} стр.`+dayNote(date),()=>{ applyRevSegs(segs,R.q,date,forced); if(forced) state.quran.lastRevTo=R.to; }); UI.rl.sel={}; },
   'rev-range':()=>{ let a=parseInt(($('#rrA')||{}).value), b=parseInt(($('#rrB')||{}).value); if(!(a>=1&&b>=1)) return toast('Укажите страницы: с какой по какую');
@@ -2383,6 +2359,209 @@ ACH.push(
   {id:'cyc4',icon:'rev',t:'Четыре круга',d:'Пройти 4 полных круга повторения',p:()=>{ const by={}; for(const k in state.quran.cycleDone){ const no=k.split(':')[0]; by[no]=(by[no]||0)+1; } return [Object.values(by).filter(c=>c>=(state.quran.cycleDays||7)).length,4]; }},
   {id:'ram30',icon:'ramadan',t:'Весь Рамадан',d:'Отметить пост во все дни Рамадана',p:()=>{ const R=ramadanRange(); if(!R) return [0,1]; const Y=state.ramadan[R.year]||{}; let f=0; for(let i=1;i<=R.days;i++) if((Y[i]||{}).f==='y') f++; return [f,R.days]; }}
 );
+
+/* ===================== 1.4: ЗАУЧИВАНИЕ И ПОВТОРЕНИЕ ПО СТРАНИЦАМ ===================== */
+Object.assign(ICON,{chev:'<path d="M6 9l6 6 6-6"/>'});
+
+// --- за какой день отмечать: маленькая кнопка в заголовке → окно выбора
+function dayChip(){ const t=today(), d=LD(), past=d<t;
+  return `<button class="btn sm daychip${past?' past':''}" data-act="ld-open" title="За какой день вносить отметки">${ico('cal')}<span>${past?dayWord(d,true)+(diffDays(d,t)<=2?' · '+fmtDs(d):''):'Сегодня'}</span><span class="caret">▾</span></button>`; }
+function openDaySheet(){ const t=today(), d=LD();
+  openModal(`<div class="mhead"><h2>За какой день отмечать</h2><button class="btn ghost icon" data-act="close" title="Закрыть">✕</button></div>
+  <div class="sheet-list">${[[t,'Сегодня'],[addDays(t,-1),'Вчера'],[addDays(t,-2),'Позавчера']].map(([v,l])=>`<button class="sheet-opt${d===v?' on':''}" data-act="ld-pick" data-d="${v}"><span><b>${l}</b><span class="sub">${fmtD(v)}</span></span>${d===v?ico('check'):''}</button>`).join('')}</div>
+  <label class="f"><span>Другая дата</span><input type="date" value="${d}" max="${t}" data-chg="ld-date"></label>
+  <div class="sub" style="margin-top:10px">Все отметки — заучивание, повторение, чтение, книги, уроки, тексты — будут сохраняться за выбранный день. После полуночи снова «Сегодня».</div>`,'small'); }
+
+// --- раскрывающийся блок; открытые блоки запоминаются
+function fold(id,icon,title,sub,body){ const open=!!state.ui.open[id];
+  return `<details class="card fold" data-fold="${id}"${open?' open':''}><summary>${ico(icon)}<span class="fold-t"><b>${title}</b>${sub?`<span class="sub">${sub}</span>`:''}</span><span class="fold-c">${ico('chev')}</span></summary><div class="fold-b">${body}</div></details>`; }
+document.addEventListener('toggle',e=>{ const el=e.target; if(!el.matches||!el.matches('details[data-fold]')) return; const k=el.dataset.fold;
+  if(el.open) state.ui.open[k]=1; else delete state.ui.open[k]; save(); },true);
+
+// --- страницы мусхафа (внутри суры — пропорционально числу аятов)
+const pgText=(a,b)=>a===b?`стр. ${a}`:`стр. ${a}–${b}`;
+function nextHifzPage(){ const r=nextPortion(0.01).ranges[0]; return r?ayahPage(r.s,r.from):0; }
+function pagesMemStat(a,b){ let tot=0,mem=0; for(const g of pagesToSegs(a,b)){ const m=memStr(g.s); for(let x=g.from;x<=g.to;x++){ tot++; if(m.charCodeAt(x-1)===49) mem++; } } return {tot,mem}; }
+function markPages(a,b,on,date){ for(const g of pagesToSegs(a,b)){ const arr=memArr(g.s); for(let x=g.from;x<=g.to;x++) arr[x-1]=on; applyMem(g.s,arr,date); } }
+function readPages(ida,idb){ const A=$('#'+ida), B=$('#'+idb); let a=parseInt(A&&A.value), b=parseInt(B&&(B.value||B.placeholder)); if(!(a>=1&&b>=1)) return null; if(a>b)[a,b]=[b,a]; return [Math.min(a,TOTAL_PAGES),Math.min(b,TOTAL_PAGES)]; }
+function portionPages(P){ const iv=P.segs.map(g=>[ayahPage(g.s,g.from),ayahPage(g.s,g.to)]).sort((x,y)=>x[0]-y[0]), out=[];
+  for(const [a,b] of iv){ const L=out[out.length-1]; if(L&&a<=L[1]+1) L[1]=Math.max(L[1],b); else out.push([a,b]); }
+  return 'стр. '+out.map(([a,b])=>a===b?a:a+'–'+b).join(', '); }
+const methodBtn=(act,list,cur)=>`<button class="btn sm method-btn" data-act="${act}" title="Сменить способ">${(list.find(x=>x[0]===cur)||list[0])[1]}<span class="caret">▾</span></button>`;
+function methodSheet(title,list,cur,act){
+  openModal(`<div class="mhead"><h2>${title}</h2><button class="btn ghost icon" data-act="close" title="Закрыть">✕</button></div>
+  <div class="sheet-list">${list.map(([k,l,d])=>`<button class="sheet-opt${cur===k?' on':''}" data-act="${act}" data-m="${k}"><span><b>${l}</b><span class="sub">${d}</span></span>${cur===k?ico('check'):''}</button>`).join('')}</div>`,'small'); }
+
+/* ---------- Заучивание ---------- */
+const HIFZ_METHODS=[['pages','Страницы','«Выучил стр. с … по …» — основной способ'],['sura','Сура и аяты','Выбрать суру: целиком или аяты с … по …'],['juz','Джуз','Отметить джуз целиком'],
+  ['earlier','Выучено раньше','То, что вы знали до начала: суры, джузы или страницы — без записи в статистику дня'],['clear','Снять отметку','Если отметили по ошибке. Только что отмеченное проще вернуть кнопкой «Отменить»']];
+function hifzMarkBody(){
+  const q=state.quran, m=q.hifzMethod||'pages', d=LD(), nx=nextHifzPage();
+  if(m==='pages'){
+    if(!nx) return `<div class="msg ok">${ico('check')} Весь Коран отмечен как выученный. Ма ша Аллах!</div>`;
+    const v=state.log.hifz[d]||0, g=q.goal>0?q.goal:1, over=q.goal>0&&v>=g-1e-6, n=Math.max(1,Math.ceil(over?g:g-v)), b=Math.min(TOTAL_PAGES,nx+n-1);
+    return `<div class="next-pg"><div><div class="sub">${over?'Норма выполнена — следующее':'Следующее по порядку'}</div><b>${pgText(nx,b)}</b> <span class="sub">· ${esc(surahAtPage(nx).name)}</span></div><button class="btn primary" data-act="hm-next" data-a="${nx}" data-b="${b}">${ico('check')}Выучил</button></div>
+      <div class="row rng"><span>Выучил стр. с</span><input type="number" id="hmA" min="1" max="${TOTAL_PAGES}" value="${nx}"><span>по</span><input type="number" id="hmB" min="1" max="${TOTAL_PAGES}" placeholder="${b}" data-enter><button class="btn sm" data-act="hm-pages">${ico('check')}Записать</button></div>`; }
+  const jSel=(id,def)=>`<select id="${id}">${JUZ.map(J=>{ const f=juzStats(J.n).frac; return `<option value="${J.n}" ${J.n===def?'selected':''}>Джуз ${J.n}${f>=1?' ✓':f>0?' ('+Math.floor(f*100)+'%)':''}</option>`; }).join('')}</select>`;
+  const defJ=nx?juzAtPage(nx):30;
+  if(m==='sura'){ const s=UI.hmS||(nx?surahAtPage(nx).n:1), S=SUR[s-1];
+    return `<div class="row rng"><select id="hmS" data-chg="hm-sura" class="grow">${SUR.map(x=>{ const c=memCount(x.n); return `<option value="${x.n}" ${x.n===s?'selected':''}>${x.n}. ${esc(x.name)}${c===x.ayahs?' ✓':c>0?` (${c}/${x.ayahs})`:''}</option>`; }).join('')}</select></div>
+      <div class="row rng"><span>аяты с</span><input type="number" id="hmSa" min="1" max="${S.ayahs}" value="1"><span>по</span><input type="number" id="hmSb" min="1" max="${S.ayahs}" value="${S.ayahs}" data-enter><button class="btn sm primary" data-act="hm-sura-mark">${ico('check')}Выучил</button><button class="btn sm ghost" data-act="hm-ayahs">По аятам…</button></div>`; }
+  if(m==='juz') return `<div class="row rng">${jSel('hmJ',defJ)}<button class="btn sm primary" data-act="hm-juz" data-sel="hmJ" data-m="today">${ico('check')}Выучил джуз</button></div>`;
+  if(m==='earlier') return `<div class="sub">Войдёт в общий прогресс и в повторение, но не в статистику дня.</div>
+    <div class="row rng"><span>Суры с №</span><input type="number" id="bulkFrom" min="1" max="114" value="78"><span>по №</span><input type="number" id="bulkTo" min="1" max="114" value="114"><button class="btn sm primary" data-act="bulk" data-v="1">${ico('check')}Отметить</button></div>
+    <div class="row rng"><span>Страницы с</span><input type="number" id="hmEa" min="1" max="${TOTAL_PAGES}"><span>по</span><input type="number" id="hmEb" min="1" max="${TOTAL_PAGES}"><button class="btn sm" data-act="hm-pages-earlier">${ico('check')}Отметить</button></div>
+    <div class="row rng">${jSel('hmJe',defJ)}<button class="btn sm" data-act="hm-juz" data-sel="hmJe" data-m="earlier">${ico('check')}Отметить джуз</button></div>`;
+  return `<div class="sub">Отметка снимается, статистика прошлых дней не меняется.</div>
+    <div class="row rng"><span>Страницы с</span><input type="number" id="hmCa" min="1" max="${TOTAL_PAGES}"><span>по</span><input type="number" id="hmCb" min="1" max="${TOTAL_PAGES}"><button class="btn sm danger" data-act="hm-clear-pages">Снять</button></div>
+    <div class="row rng"><span>Суры с №</span><input type="number" id="bulkFrom" min="1" max="114"><span>по №</span><input type="number" id="bulkTo" min="1" max="114"><button class="btn sm danger" data-act="bulk" data-v="0">Снять</button></div>
+    <div class="row rng">${jSel('hmJc',defJ)}<button class="btn sm danger" data-act="hm-juz" data-sel="hmJc" data-m="clear">Снять с джуза</button></div>`;
+}
+function hifzTodayCard(){
+  const t=LD(), dw=dayWord(t,true), q=state.quran, T=quranTotals(), v=state.log.hifz[t]||0, g=q.goal, st=streak(state.log.hifz,g,q.wd), met=g>0&&v>=g-1e-6;
+  let h=`<div class="card task">${cardHead('hifz','Заучивание Корана',`выучено ≈${fmt(T.pg)} из ${TOTAL_PAGES} стр.`,streakPill(st))}`;
+  if(T.pg>=TOTAL_PAGES-1e-6) return h+`<div class="msg ok">Ма ша Аллах! Весь Коран отмечен как выученный.</div></div>`;
+  h+=`<div class="task-main">${ring(g>0?v/g:(v>0?1:0),fmt(v),g>0?'из '+fmt(g)+' стр.':'стр.',84)}<div class="task-info">
+    <div style="font-weight:600">${g>0?(met?(t===today()?'Норма на сегодня выполнена':`${dw}: норма выполнена`):`${dw}: ${fmt(v)} из ${fmt(g)} стр.`):`${dw}: ${fmt(v)} стр.`}</div>
+    ${met?`<span class="pill ok">${ico('check')}готово</span>`:''}${!q.wd[dow(t)]?'<span class="pill">выходной по плану</span>':''}
+    ${methodBtn('hm-method',HIFZ_METHODS,q.hifzMethod)}</div></div>`;
+  const G=q.goals.map(g=>({g,I:goalInfo(g)})).find(o=>!o.I.done);
+  if(G) h+=`<div class="goal-mini">${ico('target')}<span style="flex:1"><b>${esc(goalName(G.g))}</b>${G.g.deadline?' · к '+fmtD(G.g.deadline):''} — ${Math.floor(G.I.st.frac*100)}%</span>${G.I.pill}</div>`;
+  return h+`<div class="mark-box">${hifzMarkBody()}</div></div>`;
+}
+function pageHifz(){
+  const q=state.quran, T=quranTotals(), rem=Math.max(0,TOTAL_PAGES-T.pg), st=streak(state.log.hifz,q.goal,q.wd), d=LD(), v=state.log.hifz[d]||0, g=q.goal;
+  const p=pace({remaining:rem,goal:q.goal,deadline:q.deadline,wd:q.wd,log:state.log.hifz,unit:'стр.'});
+  let h=pageHead('hifz','Заучивание Корана',`Мединский мусхаф: 114 сур, ${TOTAL_AYAHS} аятов, ${TOTAL_PAGES} страниц. Отмечайте выученное страницами; деление страницы между сурами — приблизительное, пропорционально числу аятов. Другие способы — кнопка рядом с «Отметить выученное».`,dayChip())+'<div class="stack">';
+  h+=`<div class="grid2 al"><div class="card">${cardHead('check','Отметить выученное',`${dayWord(d,true)}: ${fmt(v)}${g>0?' из '+fmt(g):''} стр.`,methodBtn('hm-method',HIFZ_METHODS,q.hifzMethod))}${g>0?bar(v/g):''}<div class="mark-box">${hifzMarkBody()}</div></div>
+    <div class="card"><div class="top">${donut(T.pg/TOTAL_PAGES,'выучено')}<div class="stats">
+      <div class="stat"><div class="v">≈${fmt(T.pg)}</div><div class="l">страниц выучено</div></div>
+      <div class="stat"><div class="v">≈${fmt(rem)}</div><div class="l">осталось</div></div>
+      <div class="stat"><div class="v">${T.full}</div><div class="l">сур полностью</div></div>
+      <div class="stat"><div class="v">${st}</div><div class="l">серия, ${plural(st,'день','дня','дней')}</div></div></div></div>
+      <div class="row" style="margin-top:10px">${p.short||''}</div></div></div>`;
+  h+=juzCard();
+  h+=fold('h-plan','target','План и темп',`${g>0?fmt(g)+' стр. в день':'без нормы'} · ${wdText(q.wd)}${q.deadline?' · до '+fmtD(q.deadline):''}`,
+    `<label class="f"><span>Норма — страниц в день (0,5 = полстраницы; 0 = без нормы)</span><input type="number" min="0" step="0.25" value="${q.goal}" data-chg="q-goal"></label>
+    <label class="f"><span>Дни занятий</span></label>${wdChips(q.wd,'q-wd')}
+    <label class="f"><span>Порядок заучивания (какая страница «следующая»)</span><select data-chg="q-order" style="width:100%"><option value="asc" ${q.order==='asc'?'selected':''}>С начала — от аль-Фатихи</option><option value="desc" ${q.order==='desc'?'selected':''}>С конца — от суры ан-Нас к аль-Бакаре</option></select></label>
+    <label class="f"><span>Дедлайн (необязательно)</span></label><div class="row"><input type="date" value="${q.deadline}" min="${today()}" data-chg="q-deadline">${q.deadline?'<button class="btn sm" data-act="q-nodeadline">Убрать дедлайн</button>':''}</div>
+    <h3>Расчёт</h3>${p.html}<h3>Сколько времени займёт</h3><div class="sub">Остаток ≈${fmt(rem)} стр. при разном темпе.</div>${paceTable(rem)}`);
+  h+=fold('h-goals','target','Цели заучивания',q.goals.length?`${q.goals.length} ${plural(q.goals.length,'цель','цели','целей')}`:'например, «джуз 29 к Рамадану»',goalsCard(true));
+  h+=fold('h-stats','chart','Статистика','по дням, общий прогресс, календарь',
+    `<h3>По дням</h3><div class="sub">страниц выучено за день, последние 30 дней</div>${barChart(state.log.hifz,{goal:q.goal,unit:'стр.'})}
+    <h3>Общий прогресс</h3>${lineChart(state.log.hifz,{baseline:T.pg-sumLog(state.log.hifz),unit:'стр.'})}
+    <h3>Календарь привычки</h3>${heatmap(state.log.hifz,{goal:q.goal,wd:q.wd,unit:'стр.'})}`);
+  return h+'</div>';
+}
+
+/* ---------- Повторение ---------- */
+const REV_METHODS=[['pages','Страницы','«Повторил стр. с … по …» — основной способ'],['juz','Джузы','Отметить один или несколько джузов'],['sura','Суры','Выбрать суры из выученных']];
+const modeChip=()=>{ const q=state.quran, N=q.cycleDays||7; return `<button class="btn sm method-btn" data-act="rv-mode" title="Система повторения">${ico('repeat')}${q.revMode==='smart'?'Умное':`Круг · ${N} ${plural(N,'день','дня','дней')}`}<span class="caret">▾</span></button>`; };
+function revMarkBody(){
+  const q=state.quran, m=q.revMethod||'pages', smart=q.revMode==='smart';
+  if(!quranTotals().ay) return `<div class="msg">Когда вы отметите выученное в «Заучивании», здесь можно будет записывать повторение.</div>`;
+  if(m==='pages') return revRangeRow();
+  if(UI.rl.mode!==m) UI.rl={mode:m,sel:{},q:3};
+  const R=UI.rl, qsel=smart?`<div class="row rng"><span>Как помню:</span><div class="seg">${[3,2,1].map(k=>`<label><input type="radio" name="rvq" value="${k}" data-chg="rl-q" ${R.q===k?'checked':''}><span>${QL[k]}</span></label>`).join('')}</div></div>`:'';
+  const save=`<div class="row rng"><button class="btn sm primary" data-act="rv-save">${ico('check')}Записать</button></div>`;
+  if(m==='juz') return `<div class="juz-pick" style="margin-top:10px">${JUZ.map(J=>{ const s=juzStats(J.n); return `<label class="chip jp"><input type="checkbox" data-chg="rl-sel" data-k="${J.n}" ${R.sel[J.n]?'checked':''} ${s.mem?'':'disabled'}><span>${J.n}<small>${s.mem?Math.floor(s.frac*100)+'%':'—'}</small></span></label>`; }).join('')}</div>${qsel}${save}`;
+  return `<div class="row rng"><button class="btn sm ghost" data-act="rv-all">Все выученные</button><button class="btn sm ghost" data-act="rv-none">Снять выбор</button></div>
+    <div class="sura-pick" style="margin-top:8px">${memorizedSurahs().map(S=>`<label class="sp"><input type="checkbox" data-chg="rl-sel" data-k="${S.n}" ${R.sel[S.n]?'checked':''}><span><b>${S.n}.</b> ${esc(S.name)}</span><span class="sub">≈${fmt(surPagesMem(S.n))} стр.</span></label>`).join('')}</div>${qsel}${save}`;
+}
+const portionText=P=>`${portionLabel(P)} · ${portionPages(P)}`;
+function revTodayCard(){
+  const t=LD(), dw=dayWord(t,true), q=state.quran, v=state.log.rev[t]||0, g=revGoal(), st=streak(state.log.rev,g,q.wd), T=quranTotals(), cyc=q.revMode!=='smart';
+  let h=`<div class="card task">${cardHead('rev','Повторение Корана',cyc?`круг ${q.cycleDays||7} ${plural(q.cycleDays||7,'день','дня','дней')} · выучено ≈${fmt(T.pg)} стр.`:`умное · ${memorizedSurahs().length} сур`,streakPill(st),'gold')}`;
+  if(!T.ay) return h+`<div class="msg">Когда вы отметите выученное, здесь появится план повторения.</div></div>`;
+  const met=g>0&&v>=g-1e-6;
+  h+=`<div class="task-main">${ring(g>0?v/g:(v>0?1:0),fmt(v),g>0?'из '+fmt(g)+' стр.':'стр.',84,'gold')}<div class="task-info">
+    <div style="font-weight:600">${met?(t===today()?'Норма повторения выполнена':`${dw}: норма выполнена`):`${dw}: ${fmt(v)}${g>0?' из '+fmt(g):''} стр.`}</div>${met?`<span class="pill ok">${ico('check')}готово</span>`:''}
+    ${methodBtn('rv-method',REV_METHODS,q.revMethod)}</div></div><div class="mark-box">${revMarkBody()}</div>`;
+  if(cyc){ const C=cycleInfo();
+    if(C.pending) return h+`<div class="msg">${ico('info')} Круг начнётся ${fmtD(C.curStart)}.</div></div>`;
+    const di=diffDays(C.curStart,t), ix=di>=0&&di<C.N?di:C.idx, P=C.portions[ix], done=q.cycleDone[cycKey(C.no,ix)];
+    if(P.segs.length) h+=`<div class="portion-box"><div class="pb-t">Порция дня ${ix+1} из ${C.N} · ≈${fmt(P.pg)} стр.</div><div class="row" style="justify-content:space-between;margin-top:4px"><b>${esc(portionText(P))}</b>
+      ${done?`<span class="pill ok">${ico('check')}повторено${done===today()?'':' '+fmtDs(done)}</span>`:`<button class="btn primary sm" data-act="cyc-done" data-i="${ix}" data-q="3">${ico('check')}Повторил</button>`}</div></div>`;
+    const missed=C.portions.map((P2,i)=>({P2,i})).filter(o=>o.i<C.idx&&o.P2.segs.length&&!q.cycleDone[cycKey(C.no,o.i)]);
+    if(missed.length) h+=`<div class="msg warn">${ico('info')} Пропущено в этом круге: ${missed.map(o=>`день ${o.i+1}`).join(', ')}. <button class="btn sm" data-act="nav" data-p="rev" style="margin-left:6px">Открыть план</button></div>`;
+  } else { const sug=revSuggest();
+    if(sug.length) h+=`<div class="portion-box"><div class="pb-t">Пора повторить — оцените, насколько твёрдо помните</div><ul class="portion rev-list">${sug.slice(0,5).map(x=>`<li><span><b>${x.S.n}. ${esc(x.S.name)}</b> <span class="sub">≈${fmt(x.pg)} стр.</span><br><span class="pill ${x.st.cls}">${x.st.label}</span></span>${rateBtns('rev',`data-s="${x.S.n}"`)}</li>`).join('')}</ul></div>`; }
+  return h+'</div>';
+}
+function cycleCard(){
+  const q=state.quran, C=cycleInfo();
+  if(C.pending) return `<div class="card">${cardHead('repeat','Круг повторения',`начнётся ${fmtD(C.curStart)}`)}<div class="msg">До начала круга ${daysW(diffDays(today(),C.curStart))}. Дату начала можно изменить кнопкой «Круг» вверху.</div></div>`;
+  const done=C.portions.map((P,i)=>q.cycleDone[cycKey(C.no,i)]), act_=C.portions.filter(P=>P.segs.length).length, nDone=done.filter(Boolean).length;
+  const leftPg=C.portions.reduce((a,P,i)=>a+(done[i]?0:P.pg),0);
+  const cells=C.portions.map((P,i)=>`<span class="cyc-cell ${done[i]?'ok':i<C.idx&&P.segs.length?'miss':i===C.idx?'now':''}" title="День ${i+1}"></span>`).join('');
+  return `<div class="card">${cardHead('repeat',`Круг ${C.no+1}`,`${fmtD(C.curStart)} — ${fmtD(addDays(C.curStart,C.N-1))}`)}
+    <div class="cyc-prog"><div class="kv"><span><b>${nDone}</b> из ${act_} ${plural(act_,'порции','порций','порций')} повторено</span><span class="sub">${leftPg>0.05?`осталось ≈${fmt(leftPg)} стр.`:'круг пройден'}</span></div><div class="cyc-cells">${cells}</div></div>
+    <div class="cyc-list">${C.portions.map((P,i)=>{ const d=addDays(C.curStart,i), isT=i===C.idx, past=i<C.idx;
+      const status=done[i]?`<span class="pill ok">${ico('check')}${done[i]===d?'':fmtDs(done[i])}</span>`:!P.segs.length?'<span class="sub">—</span>':isT?'<span class="pill warn">сегодня</span>':past?'<span class="pill bad">пропущено</span>':'<span class="pill">впереди</span>';
+      return `<div class="cyc-row${isT?' today':''}"><div class="cyc-d"><b>${WD[dow(d)]}</b><span>${fmtDs(d)}</span></div><div class="cyc-t"><div>${esc(portionLabel(P))}</div><div class="sub">${P.segs.length?portionPages(P)+' · ≈'+fmt(P.pg)+' стр.':''}</div></div><div class="cyc-s">${status}${!done[i]&&P.segs.length&&i<=C.idx?`<button class="btn sm" data-act="cyc-done" data-i="${i}" data-q="3" title="Повторил">${ico('check')}</button>`:''}</div></div>`; }).join('')}</div></div>`;
+}
+function pageRev(){
+  const q=state.quran, T=quranTotals(), g=revGoal(), cyc=q.revMode!=='smart', N=q.cycleDays||7, d=LD(), v=state.log.rev[d]||0;
+  let h=pageHead('rev','Повторение',cyc?`Каждые ${N} ${plural(N,'день','дня','дней')} — полный круг по всему выученному. Записывать можно любое повторение: страницы, джузы или суры. Систему и начало круга меняет кнопка «Круг».`:'Умное повторение: суры приходят на повторение тем чаще, чем слабее вы их помните. Систему меняет кнопка «Умное».',modeChip()+dayChip())+'<div class="stack">';
+  if(!T.ay) return h+`<div class="empty"><div class="empty-ico">${ico('rev')}</div><div class="empty-t">Пока нечего повторять</div><div class="sub">Отметьте выученное в разделе «Заучивание».</div><button class="btn primary" data-act="nav" data-p="hifz">Перейти к заучиванию</button></div></div>`;
+  h+=`<div class="grid2 al"><div class="card">${cardHead('check','Записать повторение',`${dayWord(d,true)}: ${fmt(v)}${g>0?' из '+fmt(g):''} стр.`,methodBtn('rv-method',REV_METHODS,q.revMethod),'gold')}${g>0?bar(v/g):''}<div class="mark-box">${revMarkBody()}</div></div>`;
+  if(cyc) h+=cycleCard()+'</div>';
+  else { const sug=revSuggest();
+    h+=`<div class="card">${cardHead('sparkle','Пора повторить','оцените, насколько твёрдо помните','','gold')}${sug.length?`<ul class="portion rev-list">${sug.slice(0,8).map(x=>`<li><span><b>${x.S.n}. ${esc(x.S.name)}</b> <span class="sub">≈${fmt(x.pg)} стр.</span><br><span class="pill ${x.st.cls}">${x.st.label}</span></span>${rateBtns('rev',`data-s="${x.S.n}"`)}</li>`).join('')}</ul>`:'<div class="msg ok">Сейчас повторять нечего.</div>'}</div></div>`;
+    const t=today(), rows=memorizedSurahs().map(S=>{ const r=revRec(S.n); return {S,r,st:srsState(r),pg:surPagesMem(S.n),c:memCount(S.n)}; }).sort((a,b)=>b.st.over-a.st.over||a.S.n-b.S.n);
+    h+=fold('r-table','list','Состояние сур','когда каждая сура повторялась и с какой оценкой',`<div class="scroll"><table class="list revtab"><thead><tr><th>№</th><th>Сура</th><th class="right">≈Стр.</th><th>Последнее повторение</th><th>Оценка</th><th class="right">Повторил</th></tr></thead><tbody>
+      ${rows.map(x=>`<tr><td><span class="n-badge ${x.c===x.S.ayahs?'full':'part'}">${x.S.n}</span></td><td style="font-weight:550">${esc(x.S.name)}</td><td class="num right">${fmt(x.pg)}</td><td class="nowrap">${x.r&&x.r.last?(x.r.last===t?'сегодня':fmtDs(x.r.last)):'<span class="muted">ещё нет</span>'}</td><td class="sub nowrap">${x.r&&x.r.last?(QL[x.r.q]||'—'):'—'}</td><td class="right">${x.r&&x.r.last===t?`<span class="pill ok">${ico('check')}</span>`:rateBtns('rev',`data-s="${x.S.n}"`)}</td></tr>`).join('')}</tbody></table></div>`); }
+  h+=fold('r-stats','chart','Статистика','по дням и календарь',`<h3>По дням</h3><div class="sub">страниц за день, последние 30 дней</div>${barChart(state.log.rev,{goal:g,unit:'стр.'})}<h3>Календарь повторения</h3>${heatmap(state.log.rev,{goal:g,wd:q.wd,unit:'стр.'})}`);
+  return h+'</div>';
+}
+function openRevModeSheet(){ const q=state.quran, smart=q.revMode==='smart', N=q.cycleDays||7;
+  openModal(`<div class="mhead"><h2>Система повторения</h2><button class="btn ghost icon" data-act="close" title="Закрыть">✕</button></div>
+  <div class="sheet-list">${[['cycle','Круг','Всё выученное за N дней — каждый день своя порция'],['smart','Умное','Суры приходят на повторение тем чаще, чем слабее вы их помните (с оценками)']].map(([k,l,dsc])=>{ const on=(k==='smart')===smart; return `<button class="sheet-opt${on?' on':''}" data-act="rv-setmode" data-m="${k}"><span><b>${l}</b><span class="sub">${dsc}</span></span>${on?ico('check'):''}</button>`; }).join('')}</div>
+  ${smart?`<label class="f"><span>Страниц повторения в день (0 = без цели)</span><input type="number" id="smGoal" min="0" step="0.5" value="${q.revGoal}"></label>
+    <div class="mfoot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="rv-smart-save">Сохранить</button></div>`
+  :`<label class="f"><span>Круг за сколько дней (7 = каждую неделю)</span><input type="number" id="cyDays" min="1" max="60" value="${N}"></label>
+    <label class="f"><span>Порядок</span><select id="cyOrder" style="width:100%"><option value="asc" ${q.revOrder!=='desc'?'selected':''}>С начала мусхафа (аль-Фатиха → ан-Нас)</option><option value="desc" ${q.revOrder==='desc'?'selected':''}>С конца (ан-Нас → аль-Бакара)</option></select></label>
+    <label class="f"><span>Начало круга — день 1</span><input type="date" id="cyStart" value="${q.cycleStart}"></label>
+    <div class="sub">Можно выбрать прошлую или будущую дату: дальше круги идут друг за другом от неё.</div>
+    <div class="mfoot"><button class="btn" data-act="rv-restart">Новый круг с сегодня</button><span class="spacer"></span><button class="btn primary" data-act="rv-cyc-save">Сохранить</button></div>`}`,'small'); }
+
+Object.assign(A,{
+  'ph-help':()=>{ UI.help=UI.help===state.ui.page?null:state.ui.page; render(); },
+  'ld-open':()=>openDaySheet(),
+  'ld-pick':el=>{ const v=el.dataset.d; UI.ld=v<today()?v:null; closeModal(); render(); },
+  'hm-method':()=>methodSheet('Способ отметки',HIFZ_METHODS,state.quran.hifzMethod,'hm-set'),
+  'hm-set':el=>{ closeModal(); state.quran.hifzMethod=el.dataset.m; save(); render(); },
+  'hm-next':el=>{ const a=+el.dataset.a, b=+el.dataset.b, d=LD(); act(`Выучено: ${pgText(a,b)}`+dayNote(d),()=>{ markPages(a,b,true,d); state.quran.lastHifzTo=b; }); },
+  'hm-pages':()=>{ const r=readPages('hmA','hmB'); if(!r) return toast('Укажите страницы: с какой по какую'); const [a,b]=r, d=LD(), s=pagesMemStat(a,b);
+    if(s.tot&&s.mem===s.tot) return toast(`${pgText(a,b)} уже отмечены как выученные`);
+    act(`Выучено: ${pgText(a,b)}`+dayNote(d),()=>{ markPages(a,b,true,d); state.quran.lastHifzTo=b; }); },
+  'hm-pages-earlier':()=>{ const r=readPages('hmEa','hmEb'); if(!r) return toast('Укажите страницы'); const [a,b]=r; act(`${pgText(a,b)}: выучено ранее`,()=>markPages(a,b,true,null)); },
+  'hm-clear-pages':()=>{ const r=readPages('hmCa','hmCb'); if(!r) return toast('Укажите страницы'); const [a,b]=r; if(!confirm(`Снять отметку «выучено» со ${pgText(a,b)}?`)) return; act(`${pgText(a,b)}: отметка снята`,()=>markPages(a,b,false,null)); },
+  'hm-sura-mark':()=>{ const s=+$('#hmS').value, S=SUR[s-1]; let a=parseInt($('#hmSa').value)||1, b=parseInt($('#hmSb').value)||S.ayahs; if(a>b)[a,b]=[b,a]; a=Math.max(1,a); b=Math.min(S.ayahs,b); const d=LD();
+    act(`${S.name}: ${a===1&&b===S.ayahs?'вся сура':'аяты '+a+'–'+b} — выучено`+dayNote(d),()=>{ const arr=memArr(s); for(let x=a;x<=b;x++) arr[x-1]=true; applyMem(s,arr,d); }); },
+  'hm-ayahs':()=>openSurah(+$('#hmS').value),
+  'hm-juz':el=>{ const j=+$('#'+el.dataset.sel).value, m=el.dataset.m; if(m==='clear'&&!confirm(`Снять отметку «выучено» с джуза ${j}?`)) return; A['juz-mark']({dataset:{j,m}}); },
+  'rv-method':()=>methodSheet('Как записать повторение',REV_METHODS,state.quran.revMethod,'rv-set'),
+  'rv-set':el=>{ closeModal(); state.quran.revMethod=el.dataset.m; UI.rl={mode:el.dataset.m,sel:{},q:3}; save(); render(); },
+  'rv-mode':()=>openRevModeSheet(),
+  'rv-setmode':el=>{ const m=el.dataset.m; act(null,()=>{ const q=state.quran; q.revMode=m; if(m==='cycle'&&!q.cycleStart) q.cycleStart=today(); }); openRevModeSheet(); },
+  'rv-cyc-save':()=>{ const n=Math.max(1,Math.min(60,parseInt($('#cyDays').value)||7)), o=$('#cyOrder').value, st=$('#cyStart').value||today(); closeModal();
+    act(`Круг: ${n} ${plural(n,'день','дня','дней')}, начало ${fmtD(st)}`,()=>{ const q=state.quran; q.cycleDays=n; q.revOrder=o; q.cycleStart=st; }); },
+  'rv-restart':()=>{ closeModal(); act('Новый круг начат сегодня',()=>{ state.quran.cycleStart=today(); }); },
+  'rv-smart-save':()=>{ const v=parseFloat($('#smGoal').value); closeModal(); act('Сохранено',()=>{ state.quran.revGoal=isFinite(v)&&v>0?v:0; }); },
+  'rv-all':()=>{ memorizedSurahs().forEach(S=>UI.rl.sel[S.n]=true); render(); },
+  'rv-none':()=>{ UI.rl.sel={}; render(); },
+  'rv-save':()=>{ const R=UI.rl, segs=rlSegs(); if(!segs||!segs.length) return toast(R.mode==='juz'?'Выберите джузы':'Выберите суры');
+    let pg=0; for(const g of segs){ const m=memStr(g.s); for(let a=g.from;a<=g.to;a++) if(m.charCodeAt(a-1)===49) pg+=ayW(g.s,a); }
+    if(pg<=0) return toast('В выбранном нет выученных аятов'); const d=LD(), k=state.quran.revMode==='smart'?R.q:3;
+    act(`Повторение записано: ≈${fmt(pg)} стр.`+dayNote(d),()=>{ applyRevSegs(segs,k,d); }); UI.rl.sel={}; },
+});
+Object.assign(CHG,{
+  'ld-date':el=>{ const v=el.value, t=today(); if(v&&v>t) return toast('Нельзя отмечать будущие дни'); UI.ld=v&&v<t?v:null; closeModal(); render(); },
+  'hm-sura':el=>{ UI.hmS=+el.value; render(); },
+  'nav-show':el=>{ const k=el.dataset.k; if(el.checked) delete state.ui.hide[k]; else state.ui.hide[k]=1; save(); render(); },
+});
 
 // обновлять «сегодня» после полуночи
 let lastDay=today(); setInterval(()=>{ if(today()!==lastDay){ lastDay=today(); UI.ld=null; render(); } },60000);
