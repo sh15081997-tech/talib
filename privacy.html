@@ -18,17 +18,22 @@
 <body>
 <main>
   <h1>Политика конфиденциальности</h1>
-  <div class="muted">Приложение «Талиб — трекер знаний» · действует с 12 ноября 2026 г.</div>
+  <div class="muted">Приложение «Талиб — трекер знаний» · действует с 19 ноября 2026 г.</div>
 
   <div class="card">
     <h2>Коротко</h2>
-    <p>«Талиб» не собирает, не передаёт и не продаёт никакие ваши данные. В приложении нет регистрации, рекламы, аналитики и сторонних SDK. Всё, что вы вводите, хранится только на вашем устройстве.</p>
+    <p>«Талиб» не собирает, не передаёт и не продаёт никакие ваши данные. В приложении нет регистрации, рекламы, аналитики и сторонних SDK. Всё, что вы вводите, хранится на вашем устройстве — и, только если вы сами включите синхронизацию, на вашем личном сервере.</p>
   </div>
 
   <div class="card">
     <h2>Какие данные обрабатываются</h2>
     <p>Приложение хранит то, что вы сами в него вводите: отметки о заучивании и повторении Корана, чтении (хатме), изучаемых текстах, книгах и уроках, задачи и заметки ежедневника, время занятий и настройки.</p>
-    <p>Эти данные хранятся <b>только локально</b> во внутренней памяти вашего устройства. Разработчик к ним доступа не имеет; на серверы они не отправляются.</p>
+    <p>Эти данные хранятся во внутренней памяти вашего устройства. Разработчик к ним доступа не имеет; серверов разработчика у приложения нет.</p>
+  </div>
+
+  <div class="card">
+    <h2>Синхронизация между устройствами (по желанию)</h2>
+    <p>Синхронизация выключена по умолчанию. Чтобы её включить, вы сами создаёте личный сервер в своём аккаунте Cloudflare и вводите в приложении его адрес и придуманный вами пароль. После этого приложение отправляет ваши записи только на этот сервер — по защищённому соединению (HTTPS), с доступом по вашему паролю. Разработчик к вашему серверу и данным доступа не имеет. Данные на сервере хранятся по правилам Cloudflare; удалить их можно в вашем аккаунте Cloudflare. Отключить синхронизацию можно в настройках приложения в любой момент.</p>
   </div>
 
   <div class="card">
@@ -44,6 +49,7 @@
     <ul>
       <li><b>Уведомления</b> — чтобы напоминать о занятиях в выбранное вами время и сообщать об окончании таймера.</li>
       <li><b>Запуск после перезагрузки</b> — чтобы восстановить напоминания после перезагрузки телефона.</li>
+      <li><b>Интернет</b> — только для синхронизации с вашим личным сервером (если вы её включили) и для открытия ссылок на уроки.</li>
     </ul>
     <p>Приложение не запрашивает доступ к контактам, местоположению, камере, микрофону или файлам (кроме файла, который вы сами выбираете при сохранении или восстановлении копии).</p>
   </div>
@@ -55,7 +61,7 @@
 
   <div class="card">
     <h2>Удаление данных</h2>
-    <p>Все данные удаляются при удалении приложения или кнопкой «Удалить все данные» в настройках приложения.</p>
+    <p>Данные на устройстве удаляются при удалении приложения или кнопкой «Удалить все данные» в настройках приложения. Данные на вашем личном сервере синхронизации вы удаляете в своём аккаунте Cloudflare.</p>
   </div>
 
   <div class="card">
@@ -65,7 +71,7 @@
 
   <div class="card">
     <h2>Privacy Policy (English)</h2>
-    <p>“Talib” does not collect, transmit, sell or share any personal data. There is no sign-up, no ads, no analytics and no third-party SDKs. Everything you enter (Quran memorization and revision progress, reading, texts, books, lessons, planner tasks and notes, study time, settings) is stored only locally on your device and is never sent to the developer or any server. You can export a backup file yourself and choose where to store it. If Android system backup is enabled on your device, the operating system may back up app data to your Google account under Google’s terms. Notifications are used only for the reminders and timer you set. All data is deleted when you uninstall the app or use “Delete all data” in the settings. Contact: <a href="mailto:sh.15.08.1997@gmail.com">sh.15.08.1997@gmail.com</a>.</p>
+    <p>“Talib” does not collect, transmit, sell or share any personal data. There is no sign-up, no ads, no analytics and no third-party SDKs. Everything you enter (Quran memorization and revision progress, reading, texts, books, lessons, planner tasks and notes, study time, settings) is stored on your device and is never sent to the developer. Optional sync is off by default: if you turn it on, the app sends your records only to your own personal server in your own Cloudflare account, over HTTPS and protected by a password you choose; the developer has no access to it. You can export a backup file yourself and choose where to store it. If Android system backup is enabled on your device, the operating system may back up app data to your Google account under Google’s terms. Notifications are used only for the reminders and timer you set. All data is deleted when you uninstall the app or use “Delete all data” in the settings. Contact: <a href="mailto:sh.15.08.1997@gmail.com">sh.15.08.1997@gmail.com</a>.</p>
   </div>
 </main>
 </body>

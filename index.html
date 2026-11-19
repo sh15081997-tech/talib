@@ -653,6 +653,17 @@ div.juz{cursor:default}
   .page-head>.row{flex-wrap:wrap}
 }
 
+/* ---------- 1.5: синхронизация ---------- */
+.sy-box{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);margin-top:10px}
+.sy-state{font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
+.sy-state.bad{color:var(--bad)}
+.sy-state svg{width:15px;height:15px;flex:none}
+.sy-help{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.sy-help summary{cursor:pointer;font-weight:600;color:var(--accent-strong)}
+.sy-help ol{margin:10px 0 8px;padding-left:22px;line-height:1.55;font-size:14px}
+.sy-help li{margin-bottom:6px}
+.sy-help code{font-size:12.5px;background:var(--surface2);border-radius:5px;padding:1px 5px}
+
 /* ---------- Печать / PDF ---------- */
 @media print{
   :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
@@ -779,10 +790,10 @@ const IS_TOUCH=matchMedia('(pointer: coarse)').matches;
 if(!HOST&&navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); // просим браузер не стирать данные
 function load(){ try{ return normalize(JSON.parse(HOST?(window.TALIB_INITIAL||'null'):localStorage.getItem(KEY))); }catch(e){ return defState(); } }
 let state=load();
-function save(){ try{ if(HOST) hostSend('save\n'+JSON.stringify(state)); else localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){ toast('Не удалось сохранить данные: '+e.message); } }
+function save(){ try{ if(syStamp()&&!SY_APPLYING) syncSoon(); }catch(e){} try{ if(HOST) hostSend('save\n'+JSON.stringify(state)); else localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){ toast('Не удалось сохранить данные: '+e.message); } }
 function importText(text){
   try{ const obj=JSON.parse(text); if(!obj||!obj.quran||!Array.isArray(obj.items)) throw new Error('это не файл резервной копии Талиба');
-    if(!confirm('Заменить текущие данные данными из файла?')) return; act('Данные восстановлены из файла',()=>{ state=normalize(obj); }); }
+    if(!confirm('Заменить текущие данные данными из файла?')) return; act('Данные восстановлены из файла',()=>{ const sync=state.ui.sync, sy=state.sy, dev=state.ui.devId; state=normalize(obj); state.ui.sync=sync; state.sy=sy; state.ui.devId=dev; }); }
   catch(err){ toast('Не удалось прочитать файл: '+err.message); }
 }
 function onHostMsg(e){
@@ -1230,6 +1241,7 @@ function pageSettings(){
     <div class="nav-toggles">${NAV_GROUPS.map(([g,ks])=>ks.filter(k=>!NAV_FIXED.includes(k)).map(k=>`<label class="chip"><input type="checkbox" data-chg="nav-show" data-k="${k}" ${isOn(k)?'checked':''}><span>${ico(k)}${pageTitle(k)}</span></label>`).join('')).join('')}</div></div>
   <div class="card"><h2>${ico('download')}Резервная копия</h2><div class="sub">Данные хранятся только на этом компьютере. Регулярно сохраняйте копию в файл (например, в облачную папку) — из неё можно всё восстановить или перенести на другой компьютер.</div>
     <div class="row" style="margin-top:14px"><button class="btn primary" data-act="export">${ico('download')}Сохранить копию в файл…</button><button class="btn" data-act="import">${ico('upload')}Восстановить из файла…</button><span class="sub">${s.lastBackup?'Последняя копия: '+fmtD(s.lastBackup):'Копий ещё не было'}</span></div></div>
+  ${syncCard()}
   ${remindCard()}
   ${ANDROID?`<div class="card"><h2>${ico('folder')}Хранение данных</h2><div class="sub">Данные хранятся во внутренней памяти телефона и сохраняются сразу при каждом изменении и при сворачивании приложения. Раз в день делается автокопия (последние 30). Если в телефоне включено резервное копирование Google, данные приложения тоже попадут в него.<br>Для переноса на другой телефон или компьютер: «Сохранить копию в файл» здесь → «Восстановить из файла» там.</div></div>`
   :HOST?`<div class="card"><h2>${ico('folder')}Программа</h2><div class="sub">Файл данных: ${esc(window.TALIB_DATA_PATH||'')}<br>Каждое изменение сохраняется сразу, а раз в день делается автокопия (хранятся последние 30) в папке backups рядом с файлом данных.</div>
@@ -1683,11 +1695,11 @@ const A={
   'theme-set':el=>{ state.ui.theme=el.dataset.v; save(); render(); },
   opendata:()=>hostSend('opendata'),
   shortcut:()=>hostSend('shortcut'),
-  export:()=>{ if(HOST) return hostSend('export\n'+JSON.stringify(state,null,1));
-    saveFileWeb(`talib-backup-${today()}.json`,JSON.stringify(state,null,1),'application/json').then(r=>{ if(r==='cancel') return; state.ui.lastBackup=today(); save(); render(); toast(r==='shared'?'Копия передана — сохраните её в «Файлы» или отправьте себе':'Копия сохранена в папку «Загрузки»'); }); },
+  export:()=>{ if(HOST) return hostSend('export\n'+exportJSON());
+    saveFileWeb(`talib-backup-${today()}.json`,exportJSON(),'application/json').then(r=>{ if(r==='cancel') return; state.ui.lastBackup=today(); save(); render(); toast(r==='shared'?'Копия передана — сохраните её в «Файлы» или отправьте себе':'Копия сохранена в папку «Загрузки»'); }); },
   'hide-install':()=>{ state.ui.hideInstall=true; save(); render(); },
   import:()=>HOST?hostSend('import'):$('#importFile').click(),
-  reset:()=>{ if(!confirm('Удалить ВСЕ данные? Перед этим лучше сохранить резервную копию.')) return; if(!confirm('Точно удалить? Это действие можно отменить только сразу, кнопкой «Отменить».')) return; act('Все данные удалены',()=>{ const th=state.ui.theme; state=defState(); state.ui.page='settings'; state.ui.theme=th; }); },
+  reset:()=>{ if(!confirm('Удалить ВСЕ данные? Перед этим лучше сохранить резервную копию.')) return; if(!confirm('Точно удалить? Это действие можно отменить только сразу, кнопкой «Отменить».'+(syOn()?' Синхронизация на этом устройстве будет отключена, данные в облаке останутся.':''))) return; act('Все данные удалены',()=>{ const th=state.ui.theme; state=defState(); state.ui.page='settings'; state.ui.theme=th; }); },
 };
 const CHG={
   'q-goal':el=>{ const v=parseFloat(el.value); state.quran.goal=isFinite(v)&&v>0?v:0; save(); render(); },
@@ -2562,6 +2574,174 @@ Object.assign(CHG,{
   'hm-sura':el=>{ UI.hmS=+el.value; render(); },
   'nav-show':el=>{ const k=el.dataset.k; if(el.checked) delete state.ui.hide[k]; else state.ui.hide[k]=1; save(); render(); },
 });
+
+/* ===================== 1.5: СИНХРОНИЗАЦИЯ ===================== */
+// Свой сервер пользователя на Cloudflare (server/worker.js). Данные разбиты на записи (день заучивания, сура,
+// книга, задача…); у каждой — время последнего изменения. При синхронизации для каждой записи берётся более
+// свежая версия, удаление передаётся «надгробием». Оформление, напоминания и таймер не синхронизируются.
+Object.assign(ICON,{cloud:'<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.7 4.7 0 0 0 7 18.5z"/>'});
+var SY_READY=false, SY_FLAT=null, SY_CNTV=null, SY_TIMER=0, SY_BUSY=false, SY_AGAIN=false, SY_APPLYING=false, SY_PENDING_RENDER=false;
+const SY_SEP='\u001f', SY_SKIP=new Set(['ui','timer','sy']), SY_TOMB_DAYS=365;
+const SY_IDARR=['items','tasks','texts','quran\u001fgoals'];
+const syPats=a=>a.map(p=>p.split('/'));
+// «словари»: каждый ключ — отдельная запись (побеждает более свежее изменение)
+const SY_MAPS=syPats(['quran/mem','quran/rev','quran/lastRev','quran/cycleDone','diary','ach','ramadan/*','texts/*/mem','texts/*/rev','tasks/*/doneOn']);
+// «счётчики» (страниц за день, минут…): каждое устройство хранит свой вклад, итог — сумма вкладов
+const SY_CNTS=syPats(['log/hifz','log/rev','khatm/log','items/*/log','texts/*/log','texts/*/revLog','time/*']);
+const syMatch=(pats,segs)=>{ const g=segs.map(s=>s[0]==='#'?'*':s); return pats.some(p=>p.length===g.length&&p.every((x,i)=>x==='*'||x===g[i])); };
+const syDev=()=>state.ui.devId||(state.ui.devId=Math.random().toString(36).slice(2,10));
+// state → записи {путь: JSON} и счётчики {путь: число}; элементы массивов с id — «#id» (+ отметка существования)
+function syScan(st){ const out={}, cnt={};
+  const walkObj=(o,segs)=>{ for(const k of Object.keys(o)){ if(!segs.length&&SY_SKIP.has(k)) continue; if(o[k]!==undefined) walk(o[k],[...segs,k]); } };
+  const walk=(v,segs)=>{ const key=segs.join(SY_SEP);
+    if(syMatch(SY_CNTS,segs)&&v&&typeof v==='object'&&!Array.isArray(v)){ for(const k of Object.keys(v)){ const n=+v[k]; if(isFinite(n)&&Math.abs(n)>1e-9) cnt[key+SY_SEP+k]=n; } return; }
+    if(syMatch(SY_MAPS,segs)){ if(v&&typeof v==='object'&&!Array.isArray(v)){ for(const k of Object.keys(v)) if(v[k]!==undefined) out[key+SY_SEP+k]=JSON.stringify(v[k]); } else out[key]=JSON.stringify(v); return; }
+    if(SY_IDARR.includes(key)&&Array.isArray(v)){ for(const el of v){ if(!el||el.id==null) continue; const p=[...segs,'#'+el.id]; out[p.join(SY_SEP)]='1'; walkObj(el,p); } return; }
+    if(v&&typeof v==='object'&&!Array.isArray(v)){ walkObj(v,segs); return; }
+    out[key]=JSON.stringify(v===undefined?null:v); };
+  walkObj(st,[]); return {out,cnt}; }
+function syFlat(st){ return syScan(st).out; }
+// отметить время изменения у записей, которые изменились с прошлого сохранения
+function syStamp(){ if(!SY_READY||SY_APPLYING) return 0;
+  if(!state.sy||!state.sy.t){ syRebase(); return 0; } // после «Удалить все данные» — без надгробий
+  const {out:f,cnt:cv}=syScan(state), S=state.sy, now=Date.now(), dev=syDev(); let ch=0; S.c=S.c||{};
+  for(const k in f) if(SY_FLAT[k]!==f[k]){ S.t[k]=now; delete S.d[k]; ch++; }
+  for(const k in SY_FLAT) if(!(k in f)){ S.t[k]=now; S.d[k]=1; ch++; }
+  for(const k of new Set([...Object.keys(cv),...Object.keys(SY_CNTV)])){ const d=(cv[k]||0)-(SY_CNTV[k]||0); if(Math.abs(d)<1e-9) continue;
+    const m=S.c[k]=S.c[k]||{}; m[dev]=r3((m[dev]||0)+d); S.t[k+SY_SEP+'@'+dev]=now; ch++; }
+  SY_FLAT=f; SY_CNTV=cv; if(ch) S.dirty=1; return ch; }
+// журнал с нуля: всё текущее — «давнее», вклад в счётчики — этого устройства
+function syRebase(){ const {out,cnt}=syScan(state), dev=syDev(); state.sy={t:{},d:{},c:{}};
+  for(const k in out) state.sy.t[k]=1; for(const k in cnt){ state.sy.c[k]={[dev]:cnt[k]}; state.sy.t[k+SY_SEP+'@'+dev]=1; }
+  SY_FLAT=out; SY_CNTV=cnt; }
+function syDoc(){ const f=SY_FLAT||syFlat(state), S=state.sy||{t:{},d:{},c:{}}, r={}, old=Date.now()-SY_TOMB_DAYS*864e5;
+  for(const k in f) r[k]=[S.t[k]||1,f[k]];
+  for(const k in S.d) if(!(k in f)&&(S.t[k]||0)>old) r[k]=[S.t[k]||1,null];
+  for(const k in (S.c||{})) for(const dv in S.c[k]){ const kk=k+SY_SEP+'@'+dv; r[kk]=[S.t[kk]||1,JSON.stringify(S.c[k][dv])]; }
+  return {v:1,r}; }
+// слияние: у каждой записи побеждает более позднее изменение (при равенстве — облако)
+function syMerge(a,b){ const r=Object.assign({},b.r); for(const k in a.r){ const x=a.r[k], y=r[k]; if(!y||x[0]>y[0]) r[k]=x; } return syNorm({v:1,r}); }
+function syNorm(doc){ const r={}; for(const k of Object.keys(doc.r).sort()) r[k]=doc.r[k]; return {v:1,r}; }
+const syCntOf=k=>{ const i=k.lastIndexOf(SY_SEP); return i>0&&k[i+1]==='@'?[k.slice(0,i),k.slice(i+2)]:null; };
+// первое объединение: история, которая уже есть в облаке, не должна задвоиться — свой вклад = сколько у нас сверх облака
+function syFirstMergeFix(rdoc){ const S=state.sy, dev=syDev(), others={}, now=Date.now(); S.c=S.c||{};
+  for(const k in rdoc.r){ const c=syCntOf(k); if(c&&c[1]!==dev&&rdoc.r[k][1]!=null) others[c[0]]=(others[c[0]]||0)+(+JSON.parse(rdoc.r[k][1])||0); }
+  // свой вклад = сколько у нас сверх того, что в облаке от других устройств
+  for(const k of new Set([...Object.keys(SY_CNTV||{}),...Object.keys(S.c)])){ const own=r3(Math.max(0,((SY_CNTV&&SY_CNTV[k])||0)-(others[k]||0))), m=S.c[k]=S.c[k]||{};
+    m[dev]=own; S.t[k+SY_SEP+'@'+dev]=now; } }
+function syPut(o,segs,val){ let cur=o;
+  for(let i=0;i<segs.length;i++){ const s=segs[i], last=i===segs.length-1;
+    if(Array.isArray(cur)){ const id=s.slice(1); let el=cur.find(e=>String(e.id)===id); if(!el){ el={id}; cur.push(el); } if(last) return; cur=el; continue; }
+    if(last){ cur[s]=val; return; }
+    if(cur[s]==null||typeof cur[s]!=='object') cur[s]=segs[i+1][0]==='#'?[]:{};
+    cur=cur[s]; } }
+// документ → новое состояние (своё оформление и настройки устройства сохраняются)
+function syBuild(doc,old){ const r=doc.r, obj={}, sums={};
+  const deadEl=segs=>{ for(let i=0;i<segs.length;i++) if(segs[i][0]==='#'){ const m=r[segs.slice(0,i+1).join(SY_SEP)]; if(!m||m[1]==null) return true; } return false; };
+  for(const k of Object.keys(r)){ const v=r[k][1]; if(v==null) continue; const c=syCntOf(k);
+    if(c){ sums[c[0]]=(sums[c[0]]||0)+(+JSON.parse(v)||0); continue; }
+    const segs=k.split(SY_SEP); if(deadEl(segs)) continue; try{ syPut(obj,segs,JSON.parse(v)); }catch(e){} }
+  for(const k in sums){ const n=r3(sums[k]); if(Math.abs(n)<1e-9) continue; const segs=k.split(SY_SEP); if(deadEl(segs)) continue; syPut(obj,segs,n); }
+  const order=(a,b)=>{ const idx=new Map((b||[]).map((e,i)=>[String(e.id),i])); return (a||[]).sort((x,y)=>{ const i=idx.has(String(x.id))?idx.get(String(x.id)):1e9, j=idx.has(String(y.id))?idx.get(String(y.id)):1e9; return i-j||(String(x.id)<String(y.id)?-1:1); }); };
+  for(const k of ['items','tasks','texts']) if(obj[k]) order(obj[k],old[k]);
+  if(obj.quran&&obj.quran.goals) order(obj.quran.goals,old.quran&&old.quran.goals);
+  obj.ui=old.ui; obj.timer=old.timer;
+  return normalize(obj); }
+function syApplyDoc(doc){ const ns=syBuild(doc,state); ns.sy={t:{},d:{},c:{},dirty:0};
+  for(const k in doc.r){ ns.sy.t[k]=doc.r[k][0]; const v=doc.r[k][1], c=syCntOf(k);
+    if(v==null){ ns.sy.d[k]=1; continue; } if(c){ (ns.sy.c[c[0]]=ns.sy.c[c[0]]||{})[c[1]]=+JSON.parse(v)||0; } }
+  state=ns; const sc=syScan(state); SY_FLAT=sc.out; SY_CNTV=sc.cnt; }
+const syCfg=()=>state.ui.sync||{};
+const syOn=()=>{ const c=syCfg(); return !!(c.on&&c.url&&c.pw); };
+async function syFetch(method,path,body,cfg){ const c=cfg||syCfg(); let r;
+  try{ r=await fetch(c.url+path,{method,headers:{'Authorization':'Bearer '+c.pw,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'}); }
+  catch(e){ throw new Error(navigator.onLine===false?'нет интернета':'сервер недоступен — проверьте адрес и интернет'); }
+  let j=null; try{ j=await r.json(); }catch(e){}
+  if(r.status===409) return Object.assign({conflict:true},j);
+  if(r.status===401) throw new Error('неверный пароль синхронизации');
+  if(!r.ok) throw new Error((j&&j.message)||('сервер ответил '+r.status));
+  if(!j) throw new Error('это не сервер Талиба — проверьте адрес');
+  return j; }
+// mode: 'merge' (обычно) | 'replace' (данные устройства заменить облачными) | 'push' (облако пустое — отправить своё)
+async function syncNow(opt){ opt=opt||{}; if(!syOn()) return; if(SY_BUSY){ SY_AGAIN=true; return; }
+  SY_BUSY=true; syStatus(); let mode=opt.mode||'merge', changedHere=false; const c=syCfg(), hadErr=!!c.err;
+  try{ syStamp();
+    for(let attempt=0;attempt<4;attempt++){
+      const remote=await syFetch('GET','/data'); let rdoc={v:1,r:{}};
+      if(remote.data){ try{ rdoc=JSON.parse(remote.data); }catch(e){ throw new Error('данные на сервере повреждены'); } if(!rdoc||!rdoc.r) rdoc={v:1,r:{}}; }
+      if(mode==='merge'&&opt.first&&attempt===0) syFirstMergeFix(rdoc);
+      const ldoc=syNorm(syDoc()), merged=mode==='replace'?syNorm(rdoc):mode==='push'?ldoc:syMerge(ldoc,rdoc);
+      if(JSON.stringify(merged)!==JSON.stringify(ldoc)){ syApplyDoc(merged); changedHere=true; }
+      const mtxt=JSON.stringify(merged);
+      if(mtxt!==remote.data){ const w=await syFetch('PUT','/data',{ver:remote.ver||0,data:mtxt}); if(w.conflict){ if(mode==='push') mode='merge'; continue; } c.ver=w.ver; }
+      else c.ver=remote.ver;
+      c.last=Date.now(); c.err=''; if(state.sy) state.sy.dirty=0; break; }
+    if(opt.manual) toast(changedHere?'Синхронизировано — получены изменения с других устройств':'Синхронизировано');
+  }catch(e){ c.err=e.message||String(e); if(opt.manual||!hadErr) toast('Синхронизация не удалась: '+c.err+'. Подробнее — Настройки → Синхронизация'); }
+  finally{ SY_BUSY=false; SY_APPLYING=true; save(); SY_APPLYING=false; if(changedHere) undoStack.length=0;
+    const typing=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#main input,#main textarea,#main select');
+    if(changedHere&&typing) SY_PENDING_RENDER=true; else if(changedHere||state.ui.page==='settings') render(); else syStatus();
+    if(SY_AGAIN){ SY_AGAIN=false; syncSoon(1500); } } }
+function syncSoon(ms){ if(!syOn()) return; clearTimeout(SY_TIMER); SY_TIMER=setTimeout(()=>syncNow(),ms==null?4000:ms); }
+document.addEventListener('focusout',()=>{ if(SY_PENDING_RENDER) setTimeout(()=>{ const a=document.activeElement; if(SY_PENDING_RENDER&&!(a&&a.closest&&a.closest('#main input,#main textarea,#main select'))){ SY_PENDING_RENDER=false; render(); } },300); });
+addEventListener('online',()=>syncSoon(800));
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&Date.now()-(syCfg().last||0)>60000) syncSoon(600); });
+setInterval(()=>{ if(document.visibilityState==='visible'&&Date.now()-(syCfg().last||0)>4*60000) syncNow(); },60000);
+function syAgo(t){ if(!t) return 'ещё не было'; const s=(Date.now()-t)/1000; if(s<60) return 'только что'; if(s<3600) return Math.floor(s/60)+' мин назад';
+  const d=new Date(t), hm=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); return ds(d)===today()?'сегодня в '+hm:ds(d)===addDays(today(),-1)?'вчера в '+hm:fmtDs(ds(d))+' в '+hm; }
+function syStatusHtml(){ const c=syCfg(); return SY_BUSY?'Синхронизация…':c.err?`${ico('info')}Не удалось: ${esc(c.err)}`:`Последняя синхронизация: ${syAgo(c.last)}`; }
+function syStatus(){ const el=$('#syState'); if(!el) return; el.className='sy-state'+(syCfg().err?' bad':''); el.innerHTML=syStatusHtml(); }
+const syHost=u=>{ try{ return new URL(u).host; }catch(e){ return u; } };
+function syncCard(){ const c=syCfg(), on=syOn();
+  if(on) return `<div class="card"><h2>${ico('cloud')}Синхронизация</h2>
+    <div class="sy-box"><div><b>${esc(syHost(c.url))}</b><div id="syState" class="sy-state${syCfg().err?' bad':''}">${syStatusHtml()}</div></div></div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" data-act="sy-now">${ico('repeat')}Синхронизировать сейчас</button><button class="btn" data-act="sy-off">Отключить это устройство</button>${state.ui.presync?`<button class="btn ghost" data-act="sy-presync">${ico('download')}Копия данных до подключения</button>`:''}</div>
+    <div class="sub" style="margin-top:10px">Изменения отправляются сами — при открытии программы и через несколько секунд после каждой отметки. Синхронизируются все записи; оформление, напоминания, таймер и файлы PDF у каждого устройства свои.</div></div>`;
+  return `<div class="card"><h2>${ico('cloud')}Синхронизация</h2>
+    <div class="sub">Одни и те же данные на компьютере, телефоне и iPad. Нужен ваш личный бесплатный сервер на Cloudflare — настраивается один раз, 10–15 минут. Данные хранятся только в вашем аккаунте и защищены паролем.</div>
+    <label class="f"><span>Адрес сервера</span><input type="url" id="syUrl" placeholder="talib-sync.ваше-имя.workers.dev" value="${esc(c.url||'')}" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <label class="f"><span>Пароль синхронизации</span><input type="password" id="syPw" placeholder="тот, что вы задали в Cloudflare" autocomplete="off" data-enter></label>
+    <div class="row" style="margin-top:12px"><button class="btn primary" data-act="sy-connect">${ico('cloud')}Проверить и подключить</button></div>
+    <div class="err" id="syErr"></div>
+    <details class="sy-help"><summary>Как создать свой сервер</summary><ol>
+      <li>Зарегистрируйтесь на <b>dash.cloudflare.com</b> (бесплатно) и подтвердите почту.</li>
+      <li><b>Storage &amp; databases → D1</b> → «Create database», имя <code>talib-sync</code>.</li>
+      <li><b>Workers &amp; Pages → Create → Worker</b> («Start with Hello World»), имя <code>talib-sync</code> → Deploy.</li>
+      <li>«Edit code»: удалите всё и вставьте код сервера → Deploy. <button class="btn sm" data-act="sy-copycode">${ico('link')}Скопировать код сервера</button><div class="sub">Код также лежит в папке программы (<code>server/worker.js</code>) и на сайте: sh15081997-tech.github.io/talib/worker.js</div></li>
+      <li>Сервис → <b>Bindings → Add binding → D1 database</b>: имя переменной <code>DB</code>, база <code>talib-sync</code>.</li>
+      <li>Сервис → <b>Settings → Variables and Secrets → Add</b>: тип <b>Secret</b>, имя <code>SYNC_PASSWORD</code>, значение — придумайте пароль.</li>
+      <li>Скопируйте адрес сервиса (вида <code>talib-sync.имя.workers.dev</code>) и введите его здесь вместе с паролем.</li></ol>
+      <div class="sub">Забыли пароль — задайте новый в Cloudflare (шаг 6) и введите его на устройствах. Данные не пропадут.</div></details></div>`; }
+function syFirstModal(cfg,hasData){ UI.syPending=cfg;
+  openModal(`<div class="mhead"><h2>${hasData?'В облаке уже есть данные':'Сервер подключён'}</h2><button class="btn ghost icon" data-act="close" title="Закрыть">✕</button></div>
+  ${hasData?`<div class="sub" style="margin-bottom:12px">Что сделать с данными этого устройства? Перед этим программа сохранит их копию — её можно будет скачать в настройках синхронизации.</div>
+  <div class="sheet-list"><button class="sheet-opt" data-act="sy-first" data-m="replace"><span><b>Заменить данными из облака</b><span class="sub">Записи этого устройства будут стёрты — подходит, если здесь были пробные данные</span></span></button>
+    <button class="sheet-opt" data-act="sy-first" data-m="merge"><span><b>Объединить</b><span class="sub">Сохранится всё с обоих сторон; если запись есть и там, и здесь — останется более свежая</span></span></button></div>`
+  :`<div class="sub" style="margin-bottom:12px">Облако пока пустое. Данные этого устройства станут основой — другие устройства подключатся к ним.</div>
+  <div class="mfoot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="sy-first" data-m="push">${ico('cloud')}Отправить данные в облако</button></div>`}`,'small'); }
+Object.assign(A,{
+  'sy-connect':async el=>{ const er=$('#syErr'); er.textContent=''; let url=($('#syUrl').value||'').trim(), pw=$('#syPw').value||'';
+    if(!url) return er.textContent='Введите адрес сервера.'; if(!pw) return er.textContent='Введите пароль синхронизации.';
+    if(!/^https?:\/\//i.test(url)) url='https://'+url; url=url.replace(/\/+$/,'');
+    const cfg={url,pw}; el.disabled=true; el.textContent='Проверяю…';
+    try{ const p=await syFetch('GET','/ping',null,cfg); if(!p.ok) throw new Error('это не сервер Талиба — проверьте адрес'); const d=await syFetch('GET','/data',null,cfg); syFirstModal(cfg,!!d.data); }
+    catch(e){ er.textContent='Не удалось подключиться: '+e.message+'.'; }
+    finally{ el.disabled=false; el.innerHTML=`${ico('cloud')}Проверить и подключить`; } },
+  'sy-first':el=>{ const m=el.dataset.m, cfg=UI.syPending; if(!cfg) return closeModal(); closeModal();
+    if(m!=='push'){ const snap=Object.assign({},state); delete snap.sy; snap.ui=Object.assign({},state.ui); delete snap.ui.sync; delete snap.ui.presync; state.ui.presync=JSON.stringify(snap); }
+    state.ui.sync={url:cfg.url,pw:cfg.pw,on:true,ver:0,last:0,err:''}; UI.syPending=null; SY_APPLYING=true; save(); SY_APPLYING=false; render(); syncNow({mode:m,manual:true,first:true}); },
+  'sy-now':()=>syncNow({manual:true}),
+  'sy-copycode':async()=>{ let code; try{ code=await fetch('https://sh15081997-tech.github.io/talib/worker.js',{cache:'no-store'}).then(r=>{ if(!r.ok) throw 0; return r.text(); }); }catch(e){ return toast('Не удалось загрузить код — нужен интернет. Код также есть в папке программы: server/worker.js'); }
+    const done=()=>toast('Код сервера скопирован — вставьте его в редактор Cloudflare');
+    try{ await navigator.clipboard.writeText(code); return done(); }catch(e){}
+    const ta=document.createElement('textarea'); ta.value=code; ta.style.cssText='position:fixed;opacity:0;top:0'; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(e){} ta.remove(); ok?done():toast('Не удалось скопировать — откройте sh15081997-tech.github.io/talib/worker.js и скопируйте текст оттуда'); },
+  'sy-off':()=>{ if(!confirm('Отключить синхронизацию на этом устройстве? Данные на устройстве и в облаке останутся.')) return; state.ui.sync={}; SY_APPLYING=true; save(); SY_APPLYING=false; render(); toast('Синхронизация на этом устройстве отключена'); },
+  'sy-presync':()=>{ const txt=state.ui.presync; if(!txt) return; if(HOST) return hostSend('export\n'+txt); saveFileWeb(`talib-do-sinhronizacii-${today()}.json`,txt,'application/json'); },
+});
+// резервная копия в файл — без пароля синхронизации и служебного журнала
+function exportJSON(){ const s=Object.assign({},state); delete s.sy; s.ui=Object.assign({},state.ui); delete s.ui.sync; delete s.ui.presync; delete s.ui.devId; return JSON.stringify(s,null,1); }
+// запуск: время изменения записей, которых ещё нет в журнале, считаем «давним»
+(function(){ if(!state.sy||!state.sy.t||!state.sy.c) syRebase(); else { const sc=syScan(state); SY_FLAT=sc.out; SY_CNTV=sc.cnt; for(const k in SY_FLAT) if(!(k in state.sy.t)) state.sy.t[k]=1; } SY_READY=true; if(syOn()) syncSoon(800); })();
 
 // обновлять «сегодня» после полуночи
 let lastDay=today(); setInterval(()=>{ if(today()!==lastDay){ lastDay=today(); UI.ld=null; render(); } },60000);
