@@ -664,6 +664,41 @@ div.juz{cursor:default}
 .sy-help li{margin-bottom:6px}
 .sy-help code{font-size:12.5px;background:var(--surface2);border-radius:5px;padding:1px 5px}
 
+/* ---------- 1.5.1: меню в логотипе (узкий экран) ---------- */
+.brand{background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:default}
+.b-cur,.b-caret{display:none}
+.nav-menu{display:none}
+@media (max-width:860px){
+  .side{gap:0;transition:transform .25s ease}
+  .side.hid{transform:translateY(-110%)}
+  .side>.nav-list{display:none}
+  .brand{cursor:pointer;flex:1;min-width:0;gap:10px;padding:2px 10px 2px 2px;border-radius:12px;-webkit-tap-highlight-color:transparent}
+  .brand:active{background:var(--surface2)}
+  .b-cur{display:block;font-weight:650;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .b-caret{display:inline-flex;color:var(--muted);transition:transform .2s}
+  .b-caret svg{width:16px;height:16px}
+  .brand[aria-expanded=true] .b-caret{transform:rotate(180deg)}
+  .nav-menu{display:block;position:fixed;inset:0;z-index:45;pointer-events:none}
+  .nav-menu.open{pointer-events:auto}
+  .nm-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .2s ease}
+  .nav-menu.open .nm-scrim{opacity:1}
+  .nm-panel{position:absolute;top:calc(6px + env(safe-area-inset-top));left:8px;width:min(330px,calc(100vw - 16px));max-height:calc(100vh - 20px - env(safe-area-inset-top));overflow-y:auto;overscroll-behavior:contain;
+    background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lg);padding:8px 8px 10px;
+    transform-origin:22px 22px;transform:scale(.5);opacity:0;transition:transform .24s cubic-bezier(.2,.9,.3,1.15),opacity .16s ease}
+  .nav-menu.open .nm-panel{transform:none;opacity:1}
+  .nm-head{display:flex;align-items:center;gap:10px;padding:2px 2px 6px}
+  .nm-head .logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-strong));display:grid;place-items:center;flex:none}
+  .nm-head .logo svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:1.8}
+  .nm-panel .nav-list{display:flex;flex-direction:column;gap:2px}
+  .nm-panel .nav-btn{padding:8px 12px;font-size:15px}
+  .nm-panel .nav-btn kbd{display:none}
+  .nm-panel .nav-g{width:auto;height:auto;background:none;margin:0;padding:12px 12px 4px}
+  .nm-panel .nav-g span{display:inline}
+  .nm-foot{border-top:1px solid var(--line);margin-top:8px;padding:12px 6px 2px;display:flex;flex-direction:column;gap:12px}
+}
+.modal-wrap,.modal{overscroll-behavior:contain}
+
+.rep-sum{margin-top:12px;font-size:14px}
 /* ---------- Печать / PDF ---------- */
 @media print{
   :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
@@ -686,6 +721,7 @@ div.juz{cursor:default}
 <body>
 <div class="app">
   <nav class="side" id="nav"></nav>
+  <div id="navMenu" class="nav-menu"></div>
   <main id="main"></main>
 </div>
 <div id="modal" class="modal-wrap hidden"><div class="modal" id="modalBox" role="dialog" aria-modal="true"></div></div>
@@ -809,7 +845,7 @@ function onHostMsg(e){
 if(ANDROID) window.__talibMsg=s=>onHostMsg({data:s});
 else if(HOST) window.chrome.webview.addEventListener('message',onHostMsg);
 // Кнопка «Назад» на Android: закрыть окно → вернуться на «Сегодня» → свернуть приложение.
-window.talibBack=()=>{ if(!$('#modal').classList.contains('hidden')){ closeModal(); return true; } if(state.ui.page!=='today'){ state.ui.page='today'; save(); render(); window.scrollTo(0,0); return true; } return false; };
+window.talibBack=()=>{ if(!$('#modal').classList.contains('hidden')){ closeModal(); return true; } if(UI.navOpen){ setNav(false); return true; } if(state.ui.page!=='today'){ state.ui.page='today'; save(); render(); window.scrollTo(0,0); return true; } return false; };
 function act(msg,fn){
   const prev=JSON.stringify(state);
   const r=fn(); const na=checkAch(); save(); render(); if(na.length) achPop(na);
@@ -1064,12 +1100,14 @@ function render(){
   applyTheme();
   if(!isOn(state.ui.page)) state.ui.page='today';
   const T=quranTotals(), pct=T.pg/TOTAL_PAGES*100;
-  $('#nav').innerHTML=`<div class="brand"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><div><div class="b-name">Талиб</div><div class="b-sub">трекер знаний</div></div></div>
-    <div class="nav-list">${(()=>{ let n=0; return NAV_GROUPS.map(([g,ks])=>{ const vis=ks.filter(isOn); if(!vis.length) return '';
-      return `${g?`<div class="nav-g"><span>${g}</span></div>`:''}${vis.map(k=>{ n++; const l=pageTitle(k); return `<button class="nav-btn${state.ui.page===k?' on':''}" data-act="nav" data-p="${k}" title="${l}${n<10?' — клавиша '+n:''}">${ico(k)}<span>${l}</span>${n<10?`<kbd>${n}</kbd>`:''}</button>`; }).join('')}`; }).join(''); })()}</div>
-    <div class="side-bottom">${timerWidget()}<div class="mini"><div class="kv"><span>Коран выучен</span><b>${pct>0&&pct<1?nf.format(Math.round(pct*10)/10):Math.floor(pct)}%</b></div>${bar(T.pg/TOTAL_PAGES)}<div class="sub">≈${fmt(T.pg)} из ${TOTAL_PAGES} страниц</div></div>
-    <div class="theme-switch">${[['light','sun','Светлая тема'],['dark','moon','Тёмная тема'],['auto','monitor','Как в системе']].map(([k,i,l])=>`<button class="${state.ui.theme===k?'on':''}" data-act="theme-set" data-v="${k}" title="${l}" aria-label="${l}">${ico(i)}</button>`).join('')}</div></div>`;
-  const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,khatm:pageKhatm,diary:pageDiary,calendar:pageCalendar,ramadan:pageRamadan,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings}[state.ui.page]||pageToday;
+  const navList=`<div class="nav-list">${(()=>{ let n=0; return NAV_GROUPS.map(([g,ks])=>{ const vis=ks.filter(isOn); if(!vis.length) return '';
+      return `${g?`<div class="nav-g"><span>${g}</span></div>`:''}${vis.map(k=>{ n++; const l=pageTitle(k); return `<button class="nav-btn${state.ui.page===k?' on':''}" data-act="nav" data-p="${k}" title="${l}${n<10?' — клавиша '+n:''}">${ico(k)}<span>${l}</span>${n<10?`<kbd>${n}</kbd>`:''}</button>`; }).join('')}`; }).join(''); })()}</div>`;
+  const mini=`<div class="mini"><div class="kv"><span>Коран выучен</span><b>${pct>0&&pct<1?nf.format(Math.round(pct*10)/10):Math.floor(pct)}%</b></div>${bar(T.pg/TOTAL_PAGES)}<div class="sub">≈${fmt(T.pg)} из ${TOTAL_PAGES} страниц</div></div>`;
+  const themeSw=`<div class="theme-switch">${[['light','sun','Светлая тема'],['dark','moon','Тёмная тема'],['auto','monitor','Как в системе']].map(([k,i,l])=>`<button class="${state.ui.theme===k?'on':''}" data-act="theme-set" data-v="${k}" title="${l}" aria-label="${l}">${ico(i)}</button>`).join('')}</div>`;
+  // широкий экран — боковая панель; узкий (телефон, iPad вертикально, узкое окно) — полоса с логотипом, разделы — в выезжающем окне
+  $('#nav').innerHTML=`<button class="brand" data-act="nav-menu" aria-label="Разделы" aria-expanded="${UI.navOpen?'true':'false'}"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><div class="b-text"><div class="b-name">Талиб</div><div class="b-sub">трекер знаний</div></div><span class="b-cur">${pageTitle(state.ui.page)}</span><span class="b-caret">${ico('chev')}</span></button>
+    ${navList}<div class="side-bottom">${timerWidget()}${mini}${themeSw}</div>`;
+  $('#navMenu').innerHTML=`<div class="nm-scrim" data-act="nav-close"></div><div class="nm-panel" role="dialog" aria-label="Разделы"><div class="nm-head"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><b>Талиб</b><span class="spacer"></span><button class="btn ghost icon" data-act="nav-close" title="Закрыть" aria-label="Закрыть">✕</button></div>${navList}<div class="nm-foot">${mini}${themeSw}</div></div>`;  const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,khatm:pageKhatm,diary:pageDiary,calendar:pageCalendar,ramadan:pageRamadan,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings}[state.ui.page]||pageToday;
   $('#main').innerHTML=P();
   const fab=$('#timerFab'); if(fab) fab.innerHTML=state.timer?timerWidget():'';
   applyRamPlan(); sendRemind(); sendWidget();
@@ -1290,13 +1328,13 @@ function portionPart(){
 
 /* ===================== МОДАЛКА / ТОСТ / ПОДСКАЗКИ ===================== */
 // cls='small' — компактное окно выбора (на телефоне все окна выезжают снизу и закрываются свайпом вниз)
-function openModal(html,cls){ const b=$('#modalBox'); b.className='modal'+(cls?' '+cls:''); b.style.transform=''; b.innerHTML=html; $('#modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function openModal(html,cls){ const b=$('#modalBox'), was=!$('#modal').classList.contains('hidden'); b.className='modal'+(cls?' '+cls:''); b.style.transform=''; b.innerHTML=html; $('#modal').classList.remove('hidden'); if(!was) lockScroll(); }
 (()=>{ const box=$('#modalBox'); let y0=null, dy=0;
   box.addEventListener('touchstart',e=>{ if(innerWidth>860||box.scrollTop>0||e.target.closest('input,select,textarea,.ayah-grid,.sura-pick')) { y0=null; return; } y0=e.touches[0].clientY; dy=0; },{passive:true});
   box.addEventListener('touchmove',e=>{ if(y0==null) return; dy=e.touches[0].clientY-y0; if(dy>0){ box.style.transition='none'; box.style.transform=`translateY(${dy}px)`; } },{passive:true});
   box.addEventListener('touchend',()=>{ if(y0==null) return; box.style.transition=''; if(dy>90) closeModal(); else box.style.transform=''; y0=null; });
 })();
-function closeModal(){ $('#modal').classList.add('hidden'); $('#modalBox').innerHTML=''; document.body.style.overflow=''; UI.modalRefresh=null; draft=null; }
+function closeModal(){ const was=!$('#modal').classList.contains('hidden'); $('#modal').classList.add('hidden'); $('#modalBox').innerHTML=''; if(was) unlockScroll(); UI.modalRefresh=null; draft=null; }
 let toastTimer=null;
 function toast(msg,undo){ const el=$('#toast'); el.innerHTML=`${ico(undo?'check':'info')}<span>${esc(msg)}</span>${undo?'<button id="undoBtn">Отменить <span style="opacity:.6;font-weight:500">Ctrl+Z</span></button>':''}`; el.style.display='flex'; if(undo) $('#undoBtn').onclick=()=>{ el.style.display='none'; undo(); }; clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.style.display='none',6000); }
 const tt=$('#tt');
@@ -1563,24 +1601,33 @@ function pageReports(){
   // Текущий период ещё идёт — сравниваем с тем же числом дней прошлого периода.
   const ongoing=R.to>today(); if(ongoing){ const pe=addDays(P.from,diffDays(R.from,today())); if(pe<P.to) P.to=pe; }
   const M=metrics(L,R.from,R.to), PM=metrics(L,P.from,P.to);
+  // книги и курсы: с которыми занимались в периоде и которые завершили в нём
+  const inP=it=>sumR(it.log,R.from,R.to)>0, finP=it=>!!it.finished&&it.finished>=R.from&&it.finished<=R.to;
+  const BK=state.items.filter(i=>i.kind==='book'), LS=state.items.filter(i=>i.kind==='lesson');
+  const bAct=BK.filter(inP), bFin=BK.filter(finP), lAct=LS.filter(inP), lFin=LS.filter(finP);
+  const cnt=(n,a,b,c)=>n+' '+plural(n,a,b,c);
+  const itemsSum=(act,fin,book)=>{ const list=[...new Set([...act,...fin])]; if(!list.length) return '<div class="sub" style="margin-top:10px">За этот период записей нет.</div>';
+    return `<div class="rep-sum"><b>${book?cnt(act.length,'книга','книги','книг'):cnt(act.length,'курс','курса','курсов')}</b>${fin.length?` · ${book?'завершено':'завершено курсов'}: ${fin.length}`:''}</div>
+    <div class="hist" style="max-height:none">${list.map(it=>`<div><span><b>${esc(it.title)}</b>${finP(it)?` <span class="pill ok">${ico('check')}завершено ${fmtDs(it.finished)}</span>`:''}</span><span class="num nowrap">+${fmt(sumR(it.log,R.from,R.to))} ${esc(it.unit)}</span></div>`).join('')}</div>`; };
   const tile=(icon,tone,v,l,d)=>`<div class="tile"><div class="t-ico ${tone}">${ico(icon)}</div><div style="min-width:0"><div class="t-v">${v}</div><div class="t-l">${l}</div>${d?`<div style="margin-top:4px">${d}</div>`:''}</div></div>`;
   let h=pageHead('reports','Отчёты','Итоги за неделю, месяц или год и сравнение с прошлым периодом.',`<button class="btn" data-act="rep-csv">${ico('download')}Excel</button><button class="btn primary" data-act="rep-pdf">${ico('download')}PDF</button>`);
   h+=`<div class="toolbar no-print"><div class="seg">${[['week','Неделя'],['month','Месяц'],['year','Год']].map(([k,l])=>`<label><input type="radio" name="rk" value="${k}" data-chg="rep-kind" ${R0.kind===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
     <span class="spacer"></span><button class="btn icon" data-act="rep-nav" data-d="-1" title="Предыдущий период">‹</button><b class="rep-label">${R.label}</b><button class="btn icon" data-act="rep-nav" data-d="1" title="Следующий период" ${R0.off>=0?'disabled':''}>›</button>${R0.off?'<button class="btn sm" data-act="rep-nav" data-d="0">Текущий</button>':''}</div>
     <div class="print-only"><h2>Отчёт: ${R.label}</h2></div>
     <div class="sub" style="margin:-4px 0 12px">Стрелки — сравнение с прошлым периодом (${fmtDs(P.from)} – ${fmtDs(P.to)})${ongoing?', взято то же число дней':''}.</div>
-    <div class="tiles">${tile('hifz','',fmt(M.hifz)+' <span class="sub">стр.</span>','выучено Корана',delta(M.hifz,PM.hifz))}${tile('rev','gold',fmt(M.rev)+' <span class="sub">стр.</span>','повторено',delta(M.rev,PM.rev))}${tile('books','',fmt(M.book)+' <span class="sub">стр.</span>','прочитано книг',delta(M.book,PM.book))}${tile('lessons','',fmt(M.lesson),'пройдено уроков (ед.)',delta(M.lesson,PM.lesson))}
+    <div class="tiles">${tile('hifz','',fmt(M.hifz)+' <span class="sub">стр.</span>','выучено Корана',delta(M.hifz,PM.hifz))}${tile('rev','gold',fmt(M.rev)+' <span class="sub">стр.</span>','повторено',delta(M.rev,PM.rev))}${tile('books','',fmt(M.book)+' <span class="sub">стр.</span>','прочитано книг'+(bAct.length?' · '+cnt(bAct.length,'книга','книги','книг'):''),delta(M.book,PM.book))}${tile('lessons','',fmt(M.lesson)+' <span class="sub">'+plural(M.lesson,'урок','урока','уроков')+'</span>','пройдено уроков'+(lAct.length?' · '+cnt(lAct.length,'курс','курса','курсов'):''),delta(M.lesson,PM.lesson))}
     ${tile('khatm','gold',fmt(M.khatm)+' <span class="sub">стр.</span>','прочитано Корана',delta(M.khatm,PM.khatm))}${tile('texts','gold',fmt(M.text),'выучено пунктов текстов',delta(M.text,PM.text))}${tile('clock','fire',hm(M.time),'время занятий',delta(M.time,PM.time))}${tile('cal','',`${M.active} <span class="sub">из ${M.days}</span>`,'активных дней',delta(M.active,PM.active))}${tile('target','',M.studyDays?Math.round(M.goalDays/M.studyDays*100)+'%':'—','дней с выполненной целью заучивания','')}</div>`;
   const unitL=R0.kind==='year'?'по месяцам':'по дням';
   h+=`<div class="grid2" style="margin-top:18px"><div class="card"><h2>${ico('hifz')}Заучивание</h2><div class="sub">страниц ${unitL}</div>${periodChart(L.hifz,R,R0.kind,'стр.',R0.kind==='year'?0:state.quran.goal)}</div>
     <div class="card"><h2>${ico('rev')}Повторение</h2><div class="sub">страниц ${unitL}</div>${periodChart(L.rev,R,R0.kind,'стр.',R0.kind==='year'?0:revGoal())}</div>
-    <div class="card"><h2>${ico('books')}Чтение книг</h2><div class="sub">страниц ${unitL}</div>${periodChart(L.book,R,R0.kind,'стр.',0)}</div>
+    <div class="card"><h2>${ico('books')}Чтение книг</h2><div class="sub">страниц ${unitL}</div>${periodChart(L.book,R,R0.kind,'стр.',0)}${itemsSum(bAct,bFin,true)}</div>
+    <div class="card"><h2>${ico('lessons')}Уроки</h2><div class="sub">уроков ${unitL}</div>${periodChart(L.lesson,R,R0.kind,'ур.',0)}${itemsSum(lAct,lFin,false)}</div>
     <div class="card"><h2>${ico('clock')}Время занятий</h2><div class="sub">часов ${unitL}</div>${periodChart(L.time,R,R0.kind,'ч',0,v=>v/60)}</div></div>`;
   const cats={}; for(const d in state.time) if(d>=R.from&&d<=R.to) for(const c in state.time[d]) cats[c]=(cats[c]||0)+state.time[d][c];
   const ck=Object.keys(cats).sort((a,b)=>cats[b]-cats[a]), cmax=Math.max(1,...ck.map(c=>cats[c]));
   const rows=state.items.map(it=>({it,v:sumR(it.log,R.from,R.to)})).filter(o=>o.v);
   for(const x of state.texts){ const v=sumR(x.log,R.from,R.to); if(v) rows.push({x,v}); }
-  h+=`<div class="grid2" style="margin-top:18px"><div class="card"><h2>${ico('list')}Книги, курсы и тексты за период</h2>${rows.length?`<table class="list"><thead><tr><th>Название</th><th class="right">За период</th><th class="right">Всего</th></tr></thead><tbody>${rows.map(o=>o.it?`<tr><td><b>${esc(o.it.title)}</b><div class="sub">${o.it.kind==='book'?'книга':'уроки'}</div></td><td class="num right nowrap">+${fmt(o.v)} ${esc(o.it.unit)}</td><td class="num right">${Math.floor(Math.min(1,itemDone(o.it)/o.it.total)*100)}%</td></tr>`:`<tr><td><b>${esc(o.x.title)}</b><div class="sub">текст</div></td><td class="num right nowrap">+${fmt(o.v)} пунктов</td><td class="num right">${Math.floor(txMem(o.x)/Math.max(1,o.x.items.length)*100)}%</td></tr>`).join('')}</tbody></table>`:'<div class="msg">За этот период записей нет.</div>'}</div>
+  h+=`<div class="grid2" style="margin-top:18px"><div class="card"><h2>${ico('list')}Книги, курсы и тексты за период</h2>${rows.length?`<table class="list"><thead><tr><th>Название</th><th class="right">За период</th><th class="right">Всего</th></tr></thead><tbody>${rows.map(o=>o.it?`<tr><td><b>${esc(o.it.title)}</b><div class="sub">${o.it.kind==='book'?'книга':'уроки'}${finP(o.it)?' · завершено '+fmtDs(o.it.finished):''}</div></td><td class="num right nowrap">+${fmt(o.v)} ${esc(o.it.unit)}</td><td class="num right">${Math.floor(Math.min(1,itemDone(o.it)/o.it.total)*100)}%</td></tr>`:`<tr><td><b>${esc(o.x.title)}</b><div class="sub">текст</div></td><td class="num right nowrap">+${fmt(o.v)} пунктов</td><td class="num right">${Math.floor(txMem(o.x)/Math.max(1,o.x.items.length)*100)}%</td></tr>`).join('')}</tbody></table>`:'<div class="msg">За этот период записей нет.</div>'}</div>
     <div class="card"><h2>${ico('clock')}Время по занятиям</h2>${ck.length?ck.map(c=>`<div class="hbar"><div class="kv"><span>${esc(catName(c))}</span><b>${hm(cats[c])}</b></div><div class="bar"><span style="width:${cats[c]/cmax*100}%"></span></div></div>`).join(''):'<div class="msg">Время за этот период не записывалось. Включите таймер занятий в боковой панели.</div>'}</div></div>`;
   return h;
 }
@@ -1590,8 +1637,10 @@ function reportCsv(){
   const tot=[0,0,0,0,0,0,0]; const end=R.to>today()?today():R.to;
   for(let d=R.from,i=0;d<=end&&i<400;d=addDays(d,1),i++){ const v=[L.hifz[d],L.rev[d],L.khatm[d],L.book[d],L.lesson[d],L.text[d],L.time[d]].map(x=>x||0); v.forEach((x,j)=>tot[j]+=x); rows.push([parseD(d).toLocaleDateString('ru-RU'),...v.map(n)]); }
   rows.push(['Итого',...tot.map(n)]);
-  rows.push([]); rows.push(['Книги и курсы','Тип','За период','Пройдено всего','Всего','Единица']);
-  for(const it of state.items) rows.push([it.title,it.kind==='book'?'книга':'уроки',n(sumR(it.log,R.from,R.to)),n(itemDone(it)),n(it.total),it.unit]);
+  const inP=it=>sumR(it.log,R.from,R.to)>0, finP=it=>!!it.finished&&it.finished>=R.from&&it.finished<=R.to, B=state.items.filter(i=>i.kind==='book'), Ls=state.items.filter(i=>i.kind==='lesson');
+  rows.push([]); rows.push(['Книг читали',B.filter(inP).length]); rows.push(['Книг завершено',B.filter(finP).length]); rows.push(['Курсов уроков занимались',Ls.filter(inP).length]); rows.push(['Курсов завершено',Ls.filter(finP).length]);
+  rows.push([]); rows.push(['Книги и курсы','Тип','За период','Пройдено всего','Всего','Единица','Завершено']);
+  for(const it of state.items) rows.push([it.title,it.kind==='book'?'книга':'уроки',n(sumR(it.log,R.from,R.to)),n(itemDone(it)),n(it.total),it.unit,it.finished?parseD(it.finished).toLocaleDateString('ru-RU'):'']);
   for(const x of state.texts) rows.push([x.title,'текст',n(sumR(x.log,R.from,R.to)),n(txMem(x)),n(x.items.length),'пунктов']);
   const csv='﻿'+rows.map(r=>r.map(c=>{ c=String(c==null?'':c); return /[;"\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(';')).join('\r\n');
   const name=`talib-otchet-${R.from}_${R.to}.csv`;
@@ -1715,7 +1764,7 @@ document.addEventListener('click',e=>{ const el=e.target.closest('[data-act]'); 
 document.addEventListener('change',e=>{ const el=e.target.closest('[data-chg]'); if(el&&CHG[el.dataset.chg]) CHG[el.dataset.chg](el,e); });
 document.addEventListener('input',e=>{ if(e.target.closest('#modalBox')&&$('#fHint')) formHint(); });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&!$('#modal').classList.contains('hidden')) closeModal();
+  if(e.key==='Escape'&&!$('#modal').classList.contains('hidden')) closeModal(); else if(e.key==='Escape'&&UI.navOpen){ setNav(false); return; }
   const typing=e.target.matches('input,select,textarea'), modalOpen=!$('#modal').classList.contains('hidden');
   if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&(e.key==='z'||e.key==='я'||e.code==='KeyZ')&&!typing){ e.preventDefault(); undo(); return; }
   if(!typing&&!modalOpen&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
@@ -2742,6 +2791,27 @@ Object.assign(A,{
 function exportJSON(){ const s=Object.assign({},state); delete s.sy; s.ui=Object.assign({},state.ui); delete s.ui.sync; delete s.ui.presync; delete s.ui.devId; return JSON.stringify(s,null,1); }
 // запуск: время изменения записей, которых ещё нет в журнале, считаем «давним»
 (function(){ if(!state.sy||!state.sy.t||!state.sy.c) syRebase(); else { const sc=syScan(state); SY_FLAT=sc.out; SY_CNTV=sc.cnt; for(const k in SY_FLAT) if(!(k in state.sy.t)) state.sy.t[k]=1; } SY_READY=true; if(syOn()) syncSoon(800); })();
+
+/* ===================== 1.5.1: МЕНЮ В ЛОГОТИПЕ, ЗАМОРОЗКА СТРАНИЦЫ ПОД ОКНАМИ ===================== */
+const narrow=()=>innerWidth<=860;
+// Пока открыто окно или меню, страница под ним не прокручивается (iOS не слушается overflow:hidden — фиксируем body).
+var LOCKS=0, LOCK_Y=0, NAV_Y=0;
+function lockScroll(){ LOCKS=(LOCKS||0)+1; if(LOCKS>1) return; LOCK_Y=scrollY; const b=document.body.style; b.position='fixed'; b.top=(-LOCK_Y)+'px'; b.left='0'; b.right='0'; b.width='100%'; }
+function unlockScroll(){ if(!LOCKS) return; LOCKS--; if(LOCKS) return; const b=document.body.style; b.position=b.top=b.left=b.right=b.width=''; scrollTo(0,LOCK_Y); NAV_Y=scrollY; }
+function setNav(open){ open=!!open&&narrow(); if(open===!!UI.navOpen) return; UI.navOpen=open;
+  $('#navMenu').classList.toggle('open',open); const br=document.querySelector('#nav .brand'); if(br) br.setAttribute('aria-expanded',String(open));
+  if(open){ $('#nav').classList.remove('hid'); lockScroll(); } else unlockScroll(); }
+{ const goNav=A.nav; Object.assign(A,{
+  'nav-menu':()=>{ if(narrow()) setNav(!UI.navOpen); },
+  'nav-close':()=>setNav(false),
+  nav:el=>{ if(UI.navOpen) setNav(false); goNav(el); },
+}); }
+addEventListener('resize',()=>{ if(UI.navOpen&&!narrow()) setNav(false); if(!narrow()) $('#nav').classList.remove('hid'); });
+// полоса с логотипом прячется, когда листаете вниз, и появляется, когда вверх
+function navScroll(){ const y=scrollY, nav=$('#nav'); if(LOCKS||!narrow()){ NAV_Y=y; return; }
+  if(y<40) nav.classList.remove('hid'); else if(y>NAV_Y+8&&y>80) nav.classList.add('hid'); else if(y<NAV_Y-8) nav.classList.remove('hid');
+  if(Math.abs(y-NAV_Y)>8||y<40) NAV_Y=y; }
+addEventListener('scroll',navScroll,{passive:true});
 
 // обновлять «сегодня» после полуночи
 let lastDay=today(); setInterval(()=>{ if(today()!==lastDay){ lastDay=today(); UI.ld=null; render(); } },60000);
