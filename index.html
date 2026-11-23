@@ -699,6 +699,10 @@ div.juz{cursor:default}
 .modal-wrap,.modal{overscroll-behavior:contain}
 
 .rep-sum{margin-top:12px;font-size:14px}
+.upd-bar{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));width:min(520px,calc(100vw - 24px));z-index:70;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--accent);box-shadow:var(--shadow-lg);font-size:14px}
+.upd-bar.show{display:flex}
+.upd-bar>span{flex:1}
+.upd-bar>svg{width:18px;height:18px;color:var(--accent-strong);flex:none}
 /* ---------- Печать / PDF ---------- */
 @media print{
   :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
@@ -1293,7 +1297,7 @@ function pageSettings(){
     <span><kbd class="k">Esc</kbd></span><span>закрыть окно</span>
     <span><kbd class="k">Shift</kbd> + клик</span><span>отметить диапазон аятов</span></div></div>
   <div class="card"><h2>${ico('trash')}Сброс</h2><div class="sub">Удалить все данные: прогресс по Корану, книги, уроки и историю.</div><div class="row" style="margin-top:14px"><button class="btn danger" data-act="reset">${ico('trash')}Удалить все данные…</button></div></div>
-  <div class="card"><h2>${ico('info')}О программе</h2><div class="sub">Талиб — трекер заучивания Корана, повторения, чтения книг и прослушивания уроков. Работает без интернета. Страницы рассчитываются по мединскому мусхафу (604 стр.); объём части суры считается пропорционально числу аятов.</div></div>
+  <div class="card"><h2>${ico('info')}О программе</h2><div class="row" style="margin-bottom:8px"><b>Версия ${APP_VER}</b><span class="sub">${HOST?(ANDROID?'Android':'Windows'):'веб-версия'}</span>${HOST?'':`<span class="spacer"></span><button class="btn sm" data-act="upd-check">${ico('download')}Проверить обновления</button>`}</div><div class="sub">Талиб — трекер заучивания Корана, повторения, чтения книг и прослушивания уроков. Работает без интернета. Страницы рассчитываются по мединскому мусхафу (604 стр.); объём части суры считается пропорционально числу аятов.</div></div>
   </div>`;
 }
 
@@ -2812,6 +2816,24 @@ function navScroll(){ const y=scrollY, nav=$('#nav'); if(LOCKS||!narrow()){ NAV_
   if(y<40) nav.classList.remove('hid'); else if(y>NAV_Y+8&&y>80) nav.classList.add('hid'); else if(y<NAV_Y-8) nav.classList.remove('hid');
   if(Math.abs(y-NAV_Y)>8||y<40) NAV_Y=y; }
 addEventListener('scroll',navScroll,{passive:true});
+
+/* ===================== 1.5.2: ВЕРСИЯ И ОБНОВЛЕНИЯ ВЕБ-ВЕРСИИ ===================== */
+// Номер версии (менять при каждом выпуске). Веб-версия сама проверяет сайт и предлагает обновиться.
+const APP_VER='1.5.2';
+const verNum=v=>String(v).split('.').map(n=>+n||0).reduce((a,n,i)=>a+n*Math.pow(1000,2-i),0);
+var UPD_LAST=0;
+async function checkUpdate(force){ if(HOST||!('serviceWorker' in navigator)) return false; if(!force&&Date.now()-UPD_LAST<10*60000) return false; UPD_LAST=Date.now();
+  try{ const t=await fetch('index.html?upd='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():''); const m=t.match(new RegExp("const APP_"+"VER='([\\d.]+)'"));
+    if(m&&verNum(m[1])>verNum(APP_VER)){ showUpd(m[1]); return true; } }catch(e){} return false; }
+function showUpd(v){ let el=$('#updBar'); if(!el){ el=document.createElement('div'); el.id='updBar'; el.className='upd-bar'; document.body.appendChild(el); }
+  el.innerHTML=`${ico('download')}<span>Доступна новая версия ${esc(v)}</span><button class="btn sm primary" data-act="upd-go">Обновить</button><button class="btn sm ghost icon" data-act="upd-later" title="Позже" aria-label="Позже">✕</button>`; el.classList.add('show'); }
+Object.assign(A,{
+  'upd-go':async()=>{ const el=$('#updBar'); if(el) el.innerHTML='<span>Обновляю…</span>'; try{ const r=await navigator.serviceWorker.getRegistration(); if(r) await r.update(); }catch(e){} location.reload(); },
+  'upd-later':()=>{ const el=$('#updBar'); if(el) el.classList.remove('show'); },
+  'upd-check':async()=>{ if(!(await checkUpdate(true))) toast('У вас последняя версия — '+APP_VER); },
+});
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') checkUpdate(); });
+setTimeout(()=>checkUpdate(true),3000);
 
 // обновлять «сегодня» после полуночи
 let lastDay=today(); setInterval(()=>{ if(today()!==lastDay){ lastDay=today(); UI.ld=null; render(); } },60000);
