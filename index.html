@@ -755,6 +755,82 @@ html.no-orn .hero::after,html.no-orn .empty::before{display:none}
 .mr-s{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 @media (max-width:860px){ .mr-row{flex-wrap:wrap} .mr-s{width:100%;justify-content:flex-start;padding-left:30px} }
 
+/* ---------- 1.7: история записей, читалка PDF ---------- */
+.jr{display:flex;flex-direction:column;gap:12px}
+.jr-dh{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.jr-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.jr-row:last-child{border-bottom:0}
+.jr-time{width:40px;flex:none;color:var(--muted);font-size:12px}
+.jr-l{flex:1;min-width:0;overflow-wrap:anywhere}
+.jr-n{white-space:nowrap}
+.jr-sp{width:30px;flex:none}
+.jr-row.rest .jr-l{color:var(--muted)}
+.pdfv{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;background:#525659}
+.pdfv-bar{display:flex;align-items:center;gap:10px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:var(--accent);color:var(--accent-ink)}
+.pdfv-bar .btn.ghost{color:var(--accent-ink);font-size:24px}
+.pdfv-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pdfv-i{font-size:12.5px;opacity:.85;white-space:nowrap}
+.pdfv-body{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+.pdfv-pg{width:min(100%,900px);margin:0 auto 8px;background:#fff}
+.pdfv-pg canvas{width:100%;height:100%;display:block}
+
+/* ---------- 1.8: ИИ-помощник ---------- */
+.ai-pw{position:relative}
+.ai-pb{gap:8px}
+.ai-pb .ico:last-child{width:15px;height:15px;transition:transform .2s}
+.ai-pb[aria-expanded="true"] .ico:last-child{transform:rotate(180deg)}
+.ai-provs{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:min(300px,calc(100vw - 32px));background:linear-gradient(var(--surface),var(--surface)),var(--bg2);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:6px;
+  opacity:0;transform:translateY(-8px) scale(.98);transform-origin:top right;pointer-events:none;transition:opacity .18s,transform .18s}
+.ai-provs.open{opacity:1;transform:none;pointer-events:auto}
+.ai-pi{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border:0;background:none;border-radius:10px;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+.ai-pi:hover{background:var(--surface2)} .ai-pi.on{background:var(--accent-soft)}
+.ai-pn{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.ai-ok{width:18px;color:var(--accent)}
+.ai-tag{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold);white-space:nowrap}
+.ai-tag.free{background:var(--ok-soft);color:var(--ok)}
+.ai-kh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.ai-kh h2{margin:0}
+.ai-steps{margin:10px 0 8px;padding-left:22px;line-height:1.55}.ai-steps li{margin:4px 0}
+.ai-steps code,.ai-md code,.ai-m details code{font-size:12.5px;background:var(--surface2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ai-note{font-size:13px;color:var(--ink2);background:var(--surface2);border-radius:10px;padding:10px 12px}
+.ai-keyrow{display:flex;gap:8px}.ai-keyrow input{flex:1;min-width:0}
+.ai-feat{margin:6px 0 12px;padding-left:20px;line-height:1.55}.ai-feat li{margin:5px 0}
+.ai-priv{display:flex;gap:10px;font-size:13px;background:var(--warn-soft);border-radius:12px;padding:12px;color:var(--ink)}
+.ai-priv .ico{color:var(--warn);margin-top:2px}
+.ai-cb{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13.5px;cursor:pointer}
+.ai-chat{display:flex;flex-direction:column;gap:10px;padding:12px}
+.ai-log{height:min(62vh,640px);min-height:260px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:4px 2px}
+.ai-m{display:flex}.ai-m.u{justify-content:flex-end}
+.ai-b{max-width:88%;padding:10px 13px;border-radius:16px;background:var(--surface2);overflow-wrap:anywhere}
+.ai-m.u .ai-b{background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:5px}
+.ai-m.a .ai-b{border-bottom-left-radius:5px}
+.ai-m.e .ai-b{display:flex;gap:8px;background:var(--bad-soft);color:var(--ink)}.ai-m.e .ai-b>.ico{color:var(--bad);margin-top:2px}
+.ai-m.e details{margin-top:6px;font-size:12px;color:var(--muted)}
+.ai-md p{margin:0 0 6px}.ai-md p:last-child{margin-bottom:0}
+.ai-md ul,.ai-md ol{margin:4px 0 8px;padding-left:20px}.ai-md li{margin:2px 0}
+.ai-md .md-h{font-weight:700;margin:8px 0 4px}
+.ai-md blockquote{margin:6px 0;padding:4px 10px;border-left:3px solid var(--gold-mid);color:var(--ink2)}
+.ai-chk{display:flex;gap:6px;align-items:flex-start;margin-top:8px;font-size:12px;color:var(--warn)}.ai-chk .ico{width:14px;height:14px;margin-top:2px}
+.ai-meta{margin-top:6px;font-size:11px;color:var(--muted)}
+.ai-empty{margin:auto;max-width:460px;text-align:center;padding:20px;display:flex;flex-direction:column;align-items:center;gap:6px}.ai-empty>.ico{width:30px;height:30px;color:var(--accent)}
+.ai-typing{display:flex;gap:5px;padding:14px 16px}.ai-typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:aiDot 1.2s infinite}
+.ai-typing i:nth-child(2){animation-delay:.2s}.ai-typing i:nth-child(3){animation-delay:.4s}
+@keyframes aiDot{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.ai-act{margin-top:10px;background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:10px 12px}
+.ai-act.done{border-color:var(--accent-mid)}.ai-act.cancel{opacity:.65}
+.ai-act-h{display:flex;gap:6px;align-items:center;font-weight:650;margin-bottom:6px}.ai-act-h .ico{color:var(--accent)}
+.ai-fr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.ai-fr>span{color:var(--ink2)}.ai-fr>b{text-align:right}.ai-fr input,.ai-fr select{max-width:60%;min-width:0}
+.ai-btns{margin-top:10px;gap:6px}
+.ai-st{margin-top:8px;font-size:13px;color:var(--muted);display:flex;gap:5px;align-items:center}.ai-st.ok{color:var(--ok)}
+.ai-quick{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.ai-quick::-webkit-scrollbar{display:none}
+.ai-quick button{flex:none;border:1px solid var(--line2);background:var(--surface);color:var(--ink2);border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.ai-quick button:hover{border-color:var(--accent);color:var(--accent)}
+.ai-in{display:flex;gap:8px;align-items:flex-end}
+.ai-in textarea{flex:1;min-width:0;resize:none;min-height:42px;max-height:180px;line-height:1.4}
+.ai-foot{display:flex;gap:6px;align-items:center;font-size:11.5px;color:var(--muted)}.ai-foot .ico{width:13px;height:13px}
+.ai-setm{max-height:70vh;overflow-y:auto}
+@media (max-width:860px){ .ai-log{height:calc(100dvh - 330px)} .ai-b{max-width:94%} .ai-provs{right:auto;left:0;transform-origin:top left} }
+
 /* ---------- Печать / PDF ---------- */
 @media print{
   :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
@@ -867,6 +943,12 @@ function normalize(s){
   for(const k of ['time','ach']) if(!out[k]||typeof out[k]!=='object') out[k]={};
   if(!Array.isArray(out.quran.goals)) out.quran.goals=[];
   for(const k of ['hide','open']) if(!out.ui[k]||typeof out.ui[k]!=='object') out.ui[k]={};
+  // 1.7: скрытые разделы — общие для всех устройств (синхронизируются)
+  if(!out.prefs||typeof out.prefs!=='object') out.prefs={}; if(!out.prefs.hide||typeof out.prefs.hide!=='object') out.prefs.hide=Object.assign({},out.ui.hide);
+  // 1.8: ИИ-помощник — ключи и выбор модели общие (синхронизируются), переписка — у каждого устройства своя
+  out.prefs.ai=Object.assign({prov:'gemini',ok:0,noNotes:0},out.prefs.ai||{}); for(const k of ['keys','models','levels']) if(!out.prefs.ai[k]||typeof out.prefs.ai[k]!=='object') out.prefs.ai[k]={}; if(!['gemini','claude','openai','deepseek'].includes(out.prefs.ai.prov)) out.prefs.ai.prov='gemini';
+  if(!out.ui.ai||!Array.isArray(out.ui.ai.msgs)) out.ui.ai={msgs:[]};
+  if(!Array.isArray(out.journal)) out.journal=[]; { const old=Date.now()-420*864e5; out.journal=out.journal.filter(e=>e&&e.id&&(e.ts||0)>old); }
   // 1.4: первичная отметка «всего выученного» в первый день попала в статистику дня — переносим в «выучено раньше»
   if(!(s.ui&&s.ui.mig14)){ const v=out.log.hifz[out.created]; if(v>20) delete out.log.hifz[out.created]; out.ui.mig14=1; }
   return out;
@@ -896,8 +978,8 @@ function onHostMsg(e){
   else if(cmd==='imported') importText(body);
   else if(cmd==='shortcut') toast('Ярлык создан на рабочем столе');
   else if(cmd==='saved') toast('Файл сохранён: '+body);
-  else if(cmd==='pdf-attached'){ const [id,name,size]=body.split('\n'); act('PDF прикреплён: '+name,()=>{ const it=findItem(id); if(it) it.pdf={name,size:+size||0}; }); }
-  else if(cmd==='pdf-page'){ const [id,pg]=body.split('\n'), it=findItem(id), p=+pg; if(it&&p>0){ const d=p-itemDone(it); if(Math.abs(d)>1e-9) act(`«${it.title}»: отмечено — стр. ${p}`,()=>itemAdd(it,today(),d)?`Ма ша Аллах! «${it.title}» завершено`:null); } }
+  else if(cmd==='pdf-attached'){ const [id,name,size]=body.split('\n'); act('PDF прикреплён: '+name,()=>{ const it=findAny(id); if(it) it.pdf={name,size:+size||0}; }); }
+  else if(cmd==='pdf-page'){ const [id,pg]=body.split('\n'), it=findItem(id), p=+pg; if(!it&&findText(id)&&p>0){ const x=findText(id); act(`«${x.title}»: отмечено — стр. ${p} PDF`,()=>{ x.pdfPage=p; }); } if(it&&p>0){ const d=p-itemDone(it); if(Math.abs(d)>1e-9) act(`«${it.title}»: отмечено — стр. ${p}`,()=>itemAdd(it,today(),d)?`Ма ша Аллах! «${it.title}» завершено`:null); } }
   else if(cmd==='error') toast('Ошибка: '+body);
 }
 if(ANDROID) window.__talibMsg=s=>onHostMsg({data:s});
@@ -905,8 +987,10 @@ else if(HOST) window.chrome.webview.addEventListener('message',onHostMsg);
 // Кнопка «Назад» на Android: закрыть окно → вернуться на «Сегодня» → свернуть приложение.
 window.talibBack=()=>{ if(!$('#modal').classList.contains('hidden')){ closeModal(); return true; } if(UI.navOpen){ setNav(false); return true; } if(state.ui.page!=='today'){ state.ui.page='today'; save(); render(); window.scrollTo(0,0); return true; } return false; };
 function act(msg,fn){
-  const prev=JSON.stringify(state);
-  const r=fn(); const na=checkAch(); save(); render(); if(na.length) achPop(na);
+  const prev=JSON.stringify(state), c0=JOURNAL_OFF?null:counterSnap(), m0=JOURNAL_OFF?null:Object.assign({},state.quran.mem);
+  const r=fn();
+  if(c0&&!journalize(c0,m0,(typeof r==='string'?r:msg))){ state=normalize(JSON.parse(prev)); render(); return; } // повтор отменён
+  const na=checkAch(); save(); render(); if(na.length) achPop(na);
   const m=typeof r==='string'?r:msg;
   undoStack.push(prev); if(undoStack.length>30) undoStack.shift();
   if(m) toast(m,()=>undo());
@@ -1104,12 +1188,12 @@ Object.assign(ICON,{
   edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
   sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
 });
-const PAGES=[['today','Сегодня'],['calendar','Календарь'],['hifz','Заучивание'],['rev','Повторение'],['khatm','Чтение Корана'],['diary','Ежедневник'],['texts','Матны'],['books','Книги'],['lessons','Уроки'],['ramadan','Рамадан'],['reports','Отчёты'],['ach','Достижения'],['settings','Настройки']];
+const PAGES=[['today','Сегодня'],['calendar','Календарь'],['hifz','Заучивание'],['rev','Повторение'],['khatm','Чтение Корана'],['diary','Ежедневник'],['texts','Матны'],['books','Книги'],['lessons','Уроки'],['ramadan','Рамадан'],['ai','ИИ-помощник'],['reports','Отчёты'],['ach','Достижения'],['settings','Настройки']];
 const UI={qsearch:'',qfilter:'all',modalRefresh:null,lastDark:null};
 // Меню по группам; «Сегодня» и «Настройки» скрыть нельзя
-const NAV_GROUPS=[['',['today','calendar','diary']],['Коран',['hifz','rev','khatm','ramadan']],['Учёба',['books','lessons','texts']],['Прочее',['reports','ach','settings']]];
+const NAV_GROUPS=[['',['today','calendar','diary']],['Коран',['hifz','rev','khatm','ramadan']],['Учёба',['books','lessons','texts']],['Прочее',['ai','reports','ach','settings']]];
 const NAV_FIXED=['today','settings'];
-const isOn=k=>NAV_FIXED.includes(k)||!(state.ui.hide&&state.ui.hide[k]);
+const isOn=k=>NAV_FIXED.includes(k)||!(state.prefs&&state.prefs.hide&&state.prefs.hide[k]);
 const navPages=()=>NAV_GROUPS.flatMap(([,ks])=>ks).filter(isOn);
 const pageTitle=k=>(PAGES.find(p=>p[0]===k)||[k,k])[1];
 const isDark=()=>state.ui.theme==='dark'||(state.ui.theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
@@ -1165,7 +1249,7 @@ function render(){
   // широкий экран — боковая панель; узкий (телефон, iPad вертикально, узкое окно) — полоса с логотипом, разделы — в выезжающем окне
   $('#nav').innerHTML=`<button class="brand" data-act="nav-menu" aria-label="Разделы" aria-expanded="${UI.navOpen?'true':'false'}"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><div class="b-text"><div class="b-name">Талиб</div><div class="b-sub">трекер знаний</div></div><span class="b-cur">${pageTitle(state.ui.page)}</span><span class="b-caret">${ico('chev')}</span></button>
     ${navList}<div class="side-bottom">${timerWidget()}${mini}<div class="theme-row">${themeSw}${palDot()}</div></div>`;
-  $('#navMenu').innerHTML=`<div class="nm-scrim" data-act="nav-close"></div><div class="nm-panel" role="dialog" aria-label="Разделы"><div class="nm-head"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><b>Талиб</b><span class="spacer"></span><button class="btn ghost icon" data-act="nav-close" title="Закрыть" aria-label="Закрыть">✕</button></div>${navList}<div class="nm-foot">${mini}<div class="theme-row">${themeSw}${palDot()}</div></div></div>`;  const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,khatm:pageKhatm,diary:pageDiary,calendar:pageCalendar,ramadan:pageRamadan,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings}[state.ui.page]||pageToday;
+  $('#navMenu').innerHTML=`<div class="nm-scrim" data-act="nav-close"></div><div class="nm-panel" role="dialog" aria-label="Разделы"><div class="nm-head"><span class="logo"><svg viewBox="0 0 24 24">${ICON.hifz}</svg></span><b>Талиб</b><span class="spacer"></span><button class="btn ghost icon" data-act="nav-close" title="Закрыть" aria-label="Закрыть">✕</button></div>${navList}<div class="nm-foot">${mini}<div class="theme-row">${themeSw}${palDot()}</div></div></div>`;  const P={today:pageToday,hifz:pageHifz,rev:pageRev,texts:pageTexts,khatm:pageKhatm,diary:pageDiary,calendar:pageCalendar,ramadan:pageRamadan,books:()=>pageItems('book'),lessons:()=>pageItems('lesson'),reports:pageReports,ach:pageAch,settings:pageSettings,ai:pageAi}[state.ui.page]||pageToday;
   $('#main').innerHTML=P();
   const fab=$('#timerFab'); if(fab) fab.innerHTML=state.timer?timerWidget():'';
   applyRamPlan(); sendRemind(); sendWidget();
@@ -1213,7 +1297,7 @@ function itemCard(it){
   const fixed=it.dMode==='fixed'&&it.daily>0, st=streak(it.log,fixed?it.daily:0,it.wd);
   const p=pace({remaining:rem,goal:fixed?it.daily:0,deadline:it.dlMode==='deadline'?it.deadline:'',wd:it.wd,log:it.log,unit:it.unit,start:it.start});
   let h=`<div class="card task">${cardHead(it.kind==='book'?'books':'lessons',esc(it.title),(it.kind==='book'?'Книга':'Уроки')+(it.author?' · '+esc(it.author):''),
-      streakPill(st)+`<button class="btn ghost sm icon" data-act="it-detail" data-id="${it.id}" title="Подробнее и статистика">${ico('chart')}</button>`,it.kind==='book'?'':'ink')}
+      streakPill(st)+(it.kind==='book'?pdfIconBtn(it):'')+`<button class="btn ghost sm icon" data-act="it-detail" data-id="${it.id}" title="Подробнее и статистика">${ico('chart')}</button>`,it.kind==='book'?'':'ink')}
     <div class="prog"><div class="kv"><span><b>${fmt(Math.min(done,it.total))}</b> из ${fmt(it.total)} ${esc(it.unit)}</span><b>${Math.floor(Math.min(1,done/it.total)*100)}%</b></div>${bar(done/it.total)}</div>
     <div class="item-meta"><span class="pill">${ico('cal')}${it.dlMode==='deadline'&&it.deadline?'до '+fmtD(it.deadline):'без дедлайна'}</span><span class="pill">${ico('target')}${fixed?fmt(it.daily)+' '+esc(it.unit)+'/день':'свободный темп'}</span>${p.short}</div>`;
   h+=itemLinksHtml(it,false);
@@ -1324,6 +1408,7 @@ function itemDetailHtml(it){
   <h3>Календарь</h3>${heatmap(it.log,{goal:fixed?it.daily:0,wd:it.wd,unit:it.unit})}
   <h3>История</h3>${hist.length?`<div class="hist">${hist.map(d=>`<div><span>${fmtD(d)}</span><span><b>${it.log[d]>0?'+':''}${fmt(it.log[d])}</b> ${esc(it.unit)} <button class="btn ghost sm icon" data-act="it-dellog" data-id="${it.id}" data-d="${d}" title="Удалить запись">✕</button></span></div>`).join('')}</div>`:'<div class="muted">Записей пока нет.</div>'}
   ${+it.startDone?`<div class="sub" style="margin-top:8px">Пройдено до начала отслеживания: ${fmt(it.startDone)} ${esc(it.unit)}</div>`:''}
+  ${historyFold('i-hist',['item:'+it.id])}
   <div class="mfoot"><button class="btn danger" data-act="it-del" data-id="${it.id}">${ico('trash')}Удалить</button><span class="spacer"></span><button class="btn" data-act="it-edit" data-id="${it.id}">${ico('edit')}Изменить настройки</button><button class="btn primary" data-act="close">Готово</button></div>`;
 }
 
@@ -1338,6 +1423,7 @@ function pageSettings(){
   <div class="card"><h2>${ico('download')}Резервная копия</h2><div class="sub">Данные хранятся только на этом компьютере. Регулярно сохраняйте копию в файл (например, в облачную папку) — из неё можно всё восстановить или перенести на другой компьютер.</div>
     <div class="row" style="margin-top:14px"><button class="btn primary" data-act="export">${ico('download')}Сохранить копию в файл…</button><button class="btn" data-act="import">${ico('upload')}Восстановить из файла…</button><span class="sub">${s.lastBackup?'Последняя копия: '+fmtD(s.lastBackup):'Копий ещё не было'}</span></div></div>
   ${syncCard()}
+  ${aiSettingsCard()}
   ${remindCard()}
   ${ANDROID?`<div class="card"><h2>${ico('folder')}Хранение данных</h2><div class="sub">Данные хранятся во внутренней памяти телефона и сохраняются сразу при каждом изменении и при сворачивании приложения. Раз в день делается автокопия (последние 30). Если в телефоне включено резервное копирование Google, данные приложения тоже попадут в него.<br>Для переноса на другой телефон или компьютер: «Сохранить копию в файл» здесь → «Восстановить из файла» там.</div></div>`
   :HOST?`<div class="card"><h2>${ico('folder')}Программа</h2><div class="sub">Файл данных: ${esc(window.TALIB_DATA_PATH||'')}<br>Каждое изменение сохраняется сразу, а раз в день делается автокопия (хранятся последние 30) в папке backups рядом с файлом данных.</div>
@@ -1477,7 +1563,7 @@ function txDue(x){ const t=today(); return Object.keys(x.mem).map(Number).map(i=
 function txAddLog(x,key,date,v){ const L=x[key]; L[date]=r3((L[date]||0)+v); if(Math.abs(L[date])<1e-9) delete L[date]; }
 function textCard(x){
   const t=LD(), dw=dayWord(t,true), tot=x.items.length, m=txMem(x), tv=x.log[t]||0, g=+x.goal||0, st=streak(x.log,g,x.wd), due=txDue(x);
-  let h=`<div class="card task">${cardHead('texts',esc(x.title),(x.author?esc(x.author)+' · ':'')+uN(x.mu,tot),streakPill(st)+`<button class="btn ghost sm icon" data-act="tx-detail" data-id="${x.id}" title="Открыть">${ico('chart')}</button>`,'gold')}
+  let h=`<div class="card task">${cardHead('texts',esc(x.title),(x.author?esc(x.author)+' · ':'')+uN(x.mu,tot),streakPill(st)+pdfIconBtn(x)+`<button class="btn ghost sm icon" data-act="tx-detail" data-id="${x.id}" title="Открыть">${ico('chart')}</button>`,'gold')}
     <div class="task-main">${ring(tot?m/tot:0,m+'/'+tot,'выучено',84,'gold')}<div class="task-info">
     <div style="font-weight:600">${m>=tot?'Всё выучено — ма ша Аллах!':g>0?`${dw}: ${fmt(tv)} из ${fmt(g)}`:`${dw} выучено: ${fmt(tv)}`}</div>
     ${startPill(x)}${g>0&&tv>=g-1e-6&&m<tot?`<span class="pill ok">${ico('check')}цель выполнена</span>`:''}${x.deadline&&m<tot?`<span class="pill">${ico('cal')}до ${fmtD(x.deadline)}</span>`:''}</div></div>`;
@@ -1528,11 +1614,13 @@ function textDetailHtml(x){
   return `<div class="mhead">${cardHead('texts',esc(x.title),(x.author?esc(x.author)+' · ':'')+uN(x.mu,tot),'','gold')}<button class="btn ghost icon" data-act="close">✕</button></div>
   <div class="top" style="gap:24px">${ring(tot?m/tot:0,Math.floor(tot?m/tot*100:0)+'%','выучено',112,'gold')}<div class="stats"><div class="stat"><div class="v">${m}</div><div class="l">из ${tot} выучено</div></div><div class="stat"><div class="v">${tot-m}</div><div class="l">осталось</div></div><div class="stat"><div class="v">${due.length}</div><div class="l">к повторению</div></div><div class="stat"><div class="v">${st}</div><div class="l">серия, ${plural(st,'день','дня','дней')}</div></div></div></div>
   <div style="margin-top:14px">${p.html}</div>
+  <div class="row" style="margin-top:10px">${x.pdf?`<button class="btn primary sm" data-act="pdf-open" data-id="${x.id}">${ico('file')}Читать PDF</button><span class="sub">${esc(x.pdf.name||'')}</span><button class="btn ghost sm" data-act="pdf-remove" data-id="${x.id}">Убрать PDF</button>`:`<button class="btn sm" data-act="pdf-attach" data-id="${x.id}">${ico('file')}Прикрепить PDF матна</button>`}</div>
   <h3>${MU[x.mu][3]}</h3><div class="row" style="margin-bottom:8px"><span class="sub" style="flex:1">Нажмите на номер, чтобы отметить выученным (или снять отметку).</span><label class="row" style="gap:6px;cursor:pointer"><input type="checkbox" data-chg="tx-earlier" ${UI.txEarlier?'checked':''}> выучено раньше — не учитывать в статистике</label></div>
   <div class="ayah-grid">${x.items.map((nm,i)=>`<button class="ayah${i in x.mem?' on':''}" data-act="tx-toggle" data-id="${x.id}" data-i="${i}" data-tt="${esc(txLabel(x,i))}">${i+1}</button>`).join('')}</div>
   <h3 id="txRevSec">Повторение <button class="btn ghost sm" data-act="mr-set" data-id="${x.id}">${ico('edit')}настроить</button></h3>${x.rv.mode!=='smart'?(mrTodayHtml(x)||'<div class="msg">Повторение по кругу начнётся, когда будет что-то выучено.</div>'):due.length?`<div class="sub" style="margin-bottom:6px">Оцените, насколько твёрдо помните: от оценки зависит, когда пункт попадёт на повторение снова.</div><div class="hist" style="max-height:300px">${due.map(o=>`<div><span>${esc(txLabel(x,o.i))} <span class="pill ${o.st.cls}">${o.st.label}</span></span>${rateBtns('tx-rev',`data-id="${x.id}" data-i="${o.i}"`)}</div>`).join('')}</div>`:'<div class="msg ok">Сегодня повторять нечего.</div>'}
   <h3>По дням</h3>${barChart(x.log,{goal:g,unit:'пунктов'})}
   <h3>Календарь</h3>${heatmap(x.log,{goal:g,wd:x.wd,unit:'пунктов'})}
+  ${historyFold('t-hist',['text:'+x.id,'trev:'+x.id])}
   <div class="mfoot"><button class="btn danger" data-act="tx-del" data-id="${x.id}">${ico('trash')}Удалить</button><span class="spacer"></span><button class="btn" data-act="tx-edit" data-id="${x.id}">${ico('edit')}Изменить</button><button class="btn primary" data-act="close">Готово</button></div>`;
 }
 
@@ -1688,6 +1776,7 @@ function pageReports(){
   for(const x of state.texts){ const v=sumR(x.log,R.from,R.to); if(v) rows.push({x,v}); }
   h+=`<div class="grid2" style="margin-top:18px"><div class="card"><h2>${ico('list')}Книги, курсы и тексты за период</h2>${rows.length?`<table class="list"><thead><tr><th>Название</th><th class="right">За период</th><th class="right">Всего</th></tr></thead><tbody>${rows.map(o=>o.it?`<tr><td><b>${esc(o.it.title)}</b><div class="sub">${o.it.kind==='book'?'книга':'уроки'}${finP(o.it)?' · завершено '+fmtDs(o.it.finished):''}</div></td><td class="num right nowrap">+${fmt(o.v)} ${esc(o.it.unit)}</td><td class="num right">${Math.floor(Math.min(1,itemDone(o.it)/o.it.total)*100)}%</td></tr>`:`<tr><td><b>${esc(o.x.title)}</b><div class="sub">текст</div></td><td class="num right nowrap">+${fmt(o.v)} пунктов</td><td class="num right">${Math.floor(txMem(o.x)/Math.max(1,o.x.items.length)*100)}%</td></tr>`).join('')}</tbody></table>`:'<div class="msg">За этот период записей нет.</div>'}</div>
     <div class="card"><h2>${ico('clock')}Время по занятиям</h2>${ck.length?ck.map(c=>`<div class="hbar"><div class="kv"><span>${esc(catName(c))}</span><b>${hm(cats[c])}</b></div><div class="bar"><span style="width:${cats[c]/cmax*100}%"></span></div></div>`).join(''):'<div class="msg">Время за этот период не записывалось. Включите таймер занятий в боковой панели.</div>'}</div></div>`;
+  h+=`<div style="margin-top:18px">${historyFold('rep-hist',null,true)}</div>`;
   return h;
 }
 function reportCsv(){
@@ -1965,6 +2054,7 @@ function pageKhatm(){
     <div class="card"><h2>${ico('cal')}Календарь чтения</h2>${heatmap(K.log,{goal:K.goal,wd:K.wd,unit:'стр.'})}</div></div>`;
   h+=`<div class="card"><h2>${ico('trophy')}Завершённые хатмы</h2>${K.done.length?`<div class="hist">${K.done.slice().reverse().map(d=>`<div><span><b>Хатм №${d.n}</b></span><span class="sub">${fmtD(d.start)} — ${fmtD(d.end)} · ${daysW(diffDays(d.start,d.end)+1)}</span></div>`).join('')}</div>`:'<div class="muted">Пока нет — первый хатм впереди, ин ша Аллах.</div>'}
     <div class="row" style="margin-top:12px"><span class="sub">Текущий хатм начат ${fmtD(K.cur.start)}.</span><span class="spacer"></span><button class="btn sm danger" data-act="kh-restart">Начать текущий хатм заново</button></div></div>`;
+  h+=historyFold('k-hist',['khatm']);
   return h+'</div>';
 }
 
@@ -2135,7 +2225,7 @@ const IDB={ db:null,
   put(k,v){ return this.run('readwrite',s=>s.put(v,k)); }, get(k){ return this.run('readonly',s=>s.get(k)); }, del(k){ return this.run('readwrite',s=>s.delete(k)); } };
 document.body.insertAdjacentHTML('beforeend','<input type="file" id="pdfFile" accept="application/pdf,.pdf" hidden>');
 $('#pdfFile').addEventListener('change',async e=>{ const f=e.target.files[0], id=e.target.dataset.id; e.target.value=''; if(!f||!id) return;
-  try{ await IDB.put(id,f); act('PDF прикреплён: '+f.name,()=>{ const it=findItem(id); if(it) it.pdf={name:f.name,size:f.size}; }); }catch(err){ toast('Не удалось сохранить PDF: '+err.message); } });
+  try{ await IDB.put(id,f); act('PDF прикреплён: '+f.name,()=>{ const it=findAny(id); if(it) it.pdf={name:f.name,size:f.size}; }); }catch(err){ toast('Не удалось сохранить PDF: '+err.message); } });
 
 /* ===================== ЕЖЕДНЕВНИК 2.0 ===================== */
 UI.dday=today();
@@ -2438,10 +2528,11 @@ Object.assign(A,{
   'st-now':el=>{ const id=el.dataset.id, x=findItem(id)||findText(id); if(!x) return; act('Начато сегодня',()=>{ x.start=''; }); },
   'link-open':el=>{ const it=findItem(el.dataset.id); const l=it&&(it.links||[])[+el.dataset.i]; if(l) openUrl(l.u); },
   'pdf-attach':el=>{ const id=el.dataset.id; if(HOST) hostSend('pdf-attach\n'+id); else { const f=$('#pdfFile'); f.dataset.id=id; f.click(); } },
-  'pdf-open':el=>{ const it=findItem(el.dataset.id); if(!it||!it.pdf) return; const page=Math.max(1,Math.floor(itemDone(it))+1);
+  'pdf-open':el=>{ const it=findAny(el.dataset.id); if(!it||!it.pdf) return; const page=it.kind?Math.max(1,Math.floor(itemDone(it))+1):Math.max(1,it.pdfPage||1);
     if(HOST) return hostSend('pdf-open\n'+it.id+'\n'+page+'\n'+it.title);
+    return openPdfViewer(it.id,it.title,page);
     const w=window.open('','_blank'); IDB.get(it.id).then(b=>{ if(!b){ if(w) w.close(); return toast('PDF не найден на этом устройстве — прикрепите его заново'); } const u=URL.createObjectURL(b)+'#page='+page; if(w) w.location.href=u; else location.href=u; }).catch(e=>{ if(w) w.close(); toast('Не удалось открыть PDF: '+e.message); }); },
-  'pdf-remove':el=>{ const id=el.dataset.id; if(!confirm('Убрать прикреплённый PDF?')) return; if(HOST) hostSend('pdf-remove\n'+id); else IDB.del(id).catch(()=>{}); act('PDF убран',()=>{ const it=findItem(id); if(it) delete it.pdf; }); },
+  'pdf-remove':el=>{ const id=el.dataset.id; if(!confirm('Убрать прикреплённый PDF?')) return; if(HOST) hostSend('pdf-remove\n'+id); else IDB.del(id).catch(()=>{}); act('PDF убран',()=>{ const it=findAny(id); if(it) delete it.pdf; }); },
   'ram-khatm':el=>{ const k=+el.dataset.k, R=ramadanRange(), t=today(), K=state.khatm, from=t>R.start?t:R.start, dleft=Math.max(1,diffDays(from,R.end)+1), pages=TOTAL_PAGES-K.cur.page+(k-1)*TOTAL_PAGES, g=Math.ceil(pages/dleft);
     if(t<R.start) return act(`План сохранён: ${k} ${plural(k,'хатм','хатма','хатмов')} за Рамадан — включится сам ${fmtD(R.start)}`,()=>{ K.ramPlan={k,start:R.start,end:R.end}; });
     act(`План на Рамадан: ${k} ${plural(k,'хатм','хатма','хатмов')}, ${g} стр. в день`,()=>{ K.goal=g; K.deadline=R.end; delete K.ramPlan; }); },
@@ -2572,6 +2663,7 @@ function pageHifz(){
     `<h3>По дням</h3><div class="sub">страниц выучено за день, последние 30 дней</div>${barChart(state.log.hifz,{goal:q.goal,unit:'стр.'})}
     <h3>Общий прогресс</h3>${lineChart(state.log.hifz,{baseline:T.pg-sumLog(state.log.hifz),unit:'стр.'})}
     <h3>Календарь привычки</h3>${heatmap(state.log.hifz,{goal:q.goal,wd:q.wd,unit:'стр.'})}`);
+  h+=historyFold('h-hist',['hifz']);
   return h+'</div>';
 }
 
@@ -2632,6 +2724,7 @@ function pageRev(){
   }
   h+=fold('r-state','list','Состояние','суры и страницы — когда повторялись и как помнятся',revStateHtml());
   h+=fold('r-stats','chart','Статистика','по дням и календарь',`<h3>По дням</h3><div class="sub">страниц за день, последние 30 дней</div>${barChart(state.log.rev,{goal:g,unit:'стр.'})}<h3>Календарь повторения</h3>${heatmap(state.log.rev,{goal:g,wd:q.wd,unit:'стр.'})}`);
+  h+=historyFold('r-hist',['rev']);
   return h+'</div>';
 }
 function openRevModeSheet(){ const q=state.quran, smart=q.revMode==='smart', N=q.cycleDays||7;
@@ -2679,7 +2772,7 @@ Object.assign(A,{
 Object.assign(CHG,{
   'ld-date':el=>{ const v=el.value, t=today(); if(v&&v>t) return toast('Нельзя отмечать будущие дни'); UI.ld=v&&v<t?v:null; closeModal(); render(); },
   'hm-sura':el=>{ UI.hmS=+el.value; render(); },
-  'nav-show':el=>{ const k=el.dataset.k; if(el.checked) delete state.ui.hide[k]; else state.ui.hide[k]=1; save(); render(); },
+  'nav-show':el=>{ const k=el.dataset.k, H=state.prefs.hide; if(el.checked) delete H[k]; else H[k]=1; save(); render(); },
 });
 
 /* ===================== 1.5: СИНХРОНИЗАЦИЯ ===================== */
@@ -2689,10 +2782,10 @@ Object.assign(CHG,{
 Object.assign(ICON,{cloud:'<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.7 4.7 0 0 0 7 18.5z"/>'});
 var SY_READY=false, SY_FLAT=null, SY_CNTV=null, SY_TIMER=0, SY_BUSY=false, SY_AGAIN=false, SY_APPLYING=false, SY_PENDING_RENDER=false;
 const SY_SEP='\u001f', SY_SKIP=new Set(['ui','timer','sy']), SY_TOMB_DAYS=365;
-const SY_IDARR=['items','tasks','texts','quran\u001fgoals'];
+const SY_IDARR=['items','tasks','texts','quran\u001fgoals','journal'];
 const syPats=a=>a.map(p=>p.split('/'));
 // «словари»: каждый ключ — отдельная запись (побеждает более свежее изменение)
-const SY_MAPS=syPats(['quran/mem','quran/rev','quran/lastRev','quran/cycleDone','diary','ach','ramadan/*','texts/*/mem','texts/*/rev','texts/*/rv/done','tasks/*/doneOn','quran/pages']);
+const SY_MAPS=syPats(['quran/mem','quran/rev','quran/lastRev','quran/cycleDone','diary','ach','ramadan/*','texts/*/mem','texts/*/rev','texts/*/rv/done','tasks/*/doneOn','quran/pages','prefs/hide']);
 // «счётчики» (страниц за день, минут…): каждое устройство хранит свой вклад, итог — сумма вкладов
 const SY_CNTS=syPats(['log/hifz','log/rev','khatm/log','items/*/log','texts/*/log','texts/*/revLog','time/*']);
 const syMatch=(pats,segs)=>{ const g=segs.map(s=>s[0]==='#'?'*':s); return pats.some(p=>p.length===g.length&&p.every((x,i)=>x==='*'||x===g[i])); };
@@ -2873,7 +2966,7 @@ addEventListener('scroll',navScroll,{passive:true});
 
 /* ===================== 1.5.2: ВЕРСИЯ И ОБНОВЛЕНИЯ ВЕБ-ВЕРСИИ ===================== */
 // Номер версии (менять при каждом выпуске). Веб-версия сама проверяет сайт и предлагает обновиться.
-const APP_VER='1.6.0';
+const APP_VER='1.8.0';
 const verNum=v=>String(v).split('.').map(n=>+n||0).reduce((a,n,i)=>a+n*Math.pow(1000,2-i),0);
 var UPD_LAST=0;
 async function checkUpdate(force){ if(HOST||!('serviceWorker' in navigator)) return false; if(!force&&Date.now()-UPD_LAST<10*60000) return false; UPD_LAST=Date.now();
@@ -3049,6 +3142,413 @@ Object.assign(A,{
     act(`${x.title}: повторено — ${uN(x.ru,pt.to-pt.from+1)}`+dayNote(d),()=>{ x.rv.done[C.no+':'+i]=d; txAddLog(x,'revLog',d,pt.to-pt.from+1); }); },
 });
 Object.assign(CHG,{ 'mr-on':el=>{ const x=findText(el.dataset.id); if(x) act(null,()=>{ x.rv.on=el.checked; }); } });
+
+/* ===================== 1.7: ИСТОРИЯ ЗАПИСЕЙ ===================== */
+// Каждое действие, которое меняет счётчики дня (заучивание, повторение, чтение, книги, уроки, матны), попадает в журнал:
+// {id, ts, date, key, n, label, mm?}. Запись можно изменить или удалить — итог дня поправится.
+var JOURNAL_OFF=false;
+function counterSnap(){ const o={}, put=(k,L)=>{ for(const d in L||{}) o[k+'|'+d]=L[d]; };
+  put('hifz',state.log.hifz); put('rev',state.log.rev); put('khatm',state.khatm.log);
+  for(const it of state.items) put('item:'+it.id,it.log); for(const x of state.texts){ put('text:'+x.id,x.log); put('trev:'+x.id,x.revLog); } return o; }
+function memDiff(m0){ const out=[]; for(const S of SUR){ const a=m0[S.n]||'', b=state.quran.mem[S.n]||''; if(a===b) continue; let st=0;
+  for(let i=1;i<=S.ayahs+1;i++){ const on=i<=S.ayahs&&b.charCodeAt(i-1)===49&&a.charCodeAt(i-1)!==49; if(on&&!st) st=i; if(!on&&st){ out.push([S.n,st,i-1]); st=0; } } } return out; }
+// false — пользователь отказался от повторной записи
+function journalize(c0,m0,label){ const c1=counterSnap(), diffs=[];
+  for(const k of new Set([...Object.keys(c0),...Object.keys(c1)])){ const d=r3((c1[k]||0)-(c0[k]||0)); if(Math.abs(d)>1e-6){ const i=k.lastIndexOf('|'); diffs.push({key:k.slice(0,i),date:k.slice(i+1),n:d}); } }
+  if(!diffs.length) return true; label=label||'Запись'; const now=Date.now();
+  const dup=(state.journal||[]).find(e=>now-e.ts<60000&&e.label===label&&diffs.some(d=>d.key===e.key&&d.date===e.date&&Math.abs(d.n-e.n)<1e-6));
+  if(dup&&!confirm(`Вы уже записали это ${Math.max(1,Math.round((now-dup.ts)/1000))} с назад:\n«${label}»\n\nЗаписать ещё раз?`)) return false;
+  const mm=diffs.some(d=>d.key==='hifz')?memDiff(m0):null;
+  for(const d of diffs) state.journal.push(Object.assign({id:'j'+now.toString(36)+Math.random().toString(36).slice(2,6),ts:now,date:d.date,key:d.key,n:d.n,label},d.key==='hifz'&&mm&&mm.length?{mm}:{}));
+  return true; }
+const findAny=id=>findItem(id)||findText(id);
+function jrLog(key){ if(key==='hifz') return state.log.hifz; if(key==='rev') return state.log.rev; if(key==='khatm') return state.khatm.log;
+  const [t,id]=key.split(':'); if(t==='item'){ const it=findItem(id); return it&&it.log; } const x=findText(id); return x&&(t==='text'?x.log:x.revLog); }
+function jrApply(key,date,delta){ const L=jrLog(key); if(!L) return; L[date]=r3((L[date]||0)+delta); if(Math.abs(L[date])<1e-6) delete L[date];
+  if(key==='khatm'){ const K=state.khatm; K.cur.page=Math.max(0,Math.min(TOTAL_PAGES,r3(K.cur.page+delta))); }
+  if(key.startsWith('item:')){ const it=findItem(key.slice(5)); if(it) checkFinish(it); } }
+function jrUnit(key,n){ if(['hifz','rev','khatm'].includes(key)) return 'стр.'; const [t,id]=key.split(':'); if(t==='item'){ const it=findItem(id); return it?esc(it.unit):''; }
+  const x=findText(id); return x?uW(t==='text'?x.mu:x.ru,Math.abs(n)):''; }
+const JR_KIND={hifz:'Заучивание',rev:'Повторение',khatm:'Чтение Корана'};
+function jrKind(key){ if(JR_KIND[key]) return JR_KIND[key]; const [t,id]=key.split(':'), o=t==='item'?findItem(id):findText(id); return (o?o.title:'')+(t==='trev'?' · повторение':''); }
+UI.jrLim={};
+// keys — какие счётчики показывать (null — все); выдвигается из полоски «История записей»
+function historyFold(fid,keys,withKind){
+  const all=keys||null, keyOk=k=>!all||all.includes(k), t=today();
+  const byDay=new Map(); const add=(d,o)=>{ if(!byDay.has(d)) byDay.set(d,[]); byDay.get(d).push(o); };
+  for(const e of state.journal) if(keyOk(e.key)) add(e.date,{e});
+  const keyList=all||(()=>{ const s=new Set(['hifz','rev','khatm']); state.items.forEach(i=>s.add('item:'+i.id)); state.texts.forEach(x=>{ s.add('text:'+x.id); s.add('trev:'+x.id); }); return [...s]; })();
+  for(const k of keyList){ const L=jrLog(k)||{}; for(const d in L){ const sum=state.journal.filter(e=>e.key===k&&e.date===d).reduce((a,e)=>a+e.n,0), rest=r3(L[d]-sum); if(Math.abs(rest)>1e-6) add(d,{rest:{key:k,date:d,n:rest}}); } }
+  const days=[...byDay.keys()].sort().reverse(), lim=UI.jrLim[fid]||14, shown=days.slice(0,lim);
+  const sign=n=>(n>0?'+':'')+fmt(n);
+  const body=!days.length?'<div class="muted">Записей пока нет.</div>':`<div class="jr">${shown.map(d=>`<div class="jr-day"><div class="jr-dh">${d===t?'Сегодня':d===addDays(t,-1)?'Вчера':fmtD(d)}</div>${byDay.get(d).sort((a,b)=>((b.e&&b.e.ts)||0)-((a.e&&a.e.ts)||0)).map(o=>o.e?
+      `<div class="jr-row"><span class="jr-time">${new Date(o.e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span><span class="jr-l">${withKind?`<span class="sub">${esc(jrKind(o.e.key))} · </span>`:''}${esc(o.e.label)}${o.e.edited?' <span class="sub">(изменено)</span>':''}</span><b class="jr-n">${sign(o.e.n)} ${jrUnit(o.e.key,o.e.n)}</b><button class="btn ghost sm icon" data-act="jr-edit" data-id="${o.e.id}" title="Изменить">${ico('edit')}</button><button class="btn ghost sm icon" data-act="jr-del" data-id="${o.e.id}" title="Удалить">✕</button></div>`
+     :`<div class="jr-row rest"><span class="jr-time">—</span><span class="jr-l">${withKind?`<span class="sub">${esc(jrKind(o.rest.key))} · </span>`:''}<span class="sub">без подробностей (записи до версии 1.7)</span></span><b class="jr-n">${sign(o.rest.n)} ${jrUnit(o.rest.key,o.rest.n)}</b><button class="btn ghost sm icon" data-act="jr-rest" data-key="${esc(o.rest.key)}" data-d="${d}" data-n="${o.rest.n}" title="Исправить итог">${ico('edit')}</button><span class="jr-sp"></span></div>`).join('')}</div>`).join('')}</div>
+    ${days.length>lim?`<button class="btn sm" data-act="jr-more" data-f="${fid}" style="margin-top:8px">Показать ещё</button>`:''}`;
+  return fold(fid,'clock','История записей','изменить или удалить запись, если ошиблись',body); }
+function jrSheet(e){ const hifzMarks=e.key==='hifz'&&e.mm&&e.mm.length&&e.n>0;
+  openModal(`<div class="mhead"><h2>Запись</h2><button class="btn ghost icon" data-act="close" title="Закрыть">✕</button></div>
+    <div class="sub">${fmtD(e.date)} · ${new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</div><div style="margin:6px 0 12px;font-weight:600">${esc(e.label)}</div>
+    <div class="row rng"><span>Сколько на самом деле:</span><input type="number" id="jrN" step="any" value="${e.n}"><span>${jrUnit(e.key,e.n)}</span><button class="btn sm primary" data-act="jr-save" data-id="${e.id}">${ico('check')}Сохранить</button></div>
+    <div class="mfoot"><button class="btn danger" data-act="jr-delgo" data-id="${e.id}" data-u="0">${ico('trash')}Удалить запись</button>${hifzMarks?`<button class="btn danger" data-act="jr-delgo" data-id="${e.id}" data-u="1">Удалить и снять отметку «выучено»</button>`:''}<span class="spacer"></span><button class="btn" data-act="close">Отмена</button></div>`,'small'); }
+const jrAct=(msg,fn)=>{ JOURNAL_OFF=true; try{ act(msg,fn); } finally{ JOURNAL_OFF=false; } };
+Object.assign(A,{
+  'jr-more':el=>{ const f=el.dataset.f; UI.jrLim[f]=(UI.jrLim[f]||14)+30; render(); if(UI.modalRefresh) UI.modalRefresh(); },
+  'jr-edit':el=>{ const e=state.journal.find(z=>z.id===el.dataset.id); if(e) jrSheet(e); },
+  'jr-del':el=>{ const e=state.journal.find(z=>z.id===el.dataset.id); if(e) jrSheet(e); },
+  'jr-save':el=>{ const e=state.journal.find(z=>z.id===el.dataset.id); if(!e) return; const v=parseFloat($('#jrN').value); if(!isFinite(v)) return toast('Введите число'); closeModal();
+    jrAct('Запись изменена',()=>{ jrApply(e.key,e.date,v-e.n); e.n=r3(v); e.edited=1; if(Math.abs(e.n)<1e-6) state.journal=state.journal.filter(z=>z.id!==e.id); }); },
+  'jr-delgo':el=>{ const e=state.journal.find(z=>z.id===el.dataset.id); if(!e) return; const un=el.dataset.u==='1'; closeModal();
+    jrAct(un?'Запись удалена, отметка «выучено» снята':'Запись удалена',()=>{ jrApply(e.key,e.date,-e.n);
+      if(un) for(const [s0,a,b] of e.mm){ const arr=memArr(s0); for(let x=a;x<=b;x++) arr[x-1]=false; applyMem(s0,arr,null); }
+      state.journal=state.journal.filter(z=>z.id!==e.id); }); },
+  'jr-rest':el=>{ const key=el.dataset.key, d=el.dataset.d, n=+el.dataset.n, v=prompt(`${jrKind(key)} · ${fmtD(d)}\nИтог без подробностей: ${fmt(n)} ${jrUnit(key,n)}.\nСколько должно быть?`,String(n)); if(v==null) return; const x=parseFloat(String(v).replace(',','.')); if(!isFinite(x)) return toast('Введите число');
+    jrAct('Итог за день исправлен',()=>jrApply(key,d,x-n)); },
+});
+
+/* ===================== 1.7: PDF — НА КАРТОЧКАХ И ЧИТАЛКА В ВЕБ-ВЕРСИИ ===================== */
+const pdfIconBtn=o=>`<button class="btn ghost sm icon" data-act="${o.pdf?'pdf-open':'pdf-attach'}" data-id="${o.id}" title="${o.pdf?'Читать PDF':'Прикрепить PDF'}">${ico('file')}</button>`;
+const PDFJS='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+function loadPdfJs(){ if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=PDFJS+'pdf.min.js';
+    sc.onload=()=>{ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js'; res(window.pdfjsLib); }catch(e){ rej(e); } };
+    sc.onerror=()=>rej(new Error('читалка загружается из интернета при первом открытии PDF — подключитесь к сети')); document.head.appendChild(sc); }); }
+var PDFV=null;
+async function openPdfViewer(id,title,page){
+  let blob; try{ blob=await IDB.get(id); }catch(e){} if(!blob) return toast('PDF не найден на этом устройстве — прикрепите его заново');
+  toast('Открываю PDF…'); let lib, pdf; try{ lib=await loadPdfJs(); pdf=await lib.getDocument({data:await blob.arrayBuffer()}).promise; }catch(e){ return toast('Не удалось открыть PDF: '+e.message); }
+  let saved=0; try{ saved=+localStorage.getItem('talib-pdfpage-'+id)||0; }catch(e){}
+  page=Math.min(pdf.numPages,Math.max(1,saved>page?saved:page));
+  const first=await pdf.getPage(1), vp=first.getViewport({scale:1}), ratio=vp.height/vp.width;
+  const el=document.createElement('div'); el.className='pdfv'; el.innerHTML=`<div class="pdfv-bar"><button class="btn ghost icon" data-act="pdfv-close" title="Закрыть">‹</button><b class="pdfv-t">${esc(title)}</b><span class="pdfv-i" id="pdfvInfo"></span><button class="btn sm primary" data-act="pdfv-here" id="pdfvHere">Я здесь</button></div><div class="pdfv-body" id="pdfvBody">${Array.from({length:pdf.numPages},(_,i)=>`<div class="pdfv-pg" data-n="${i+1}" style="aspect-ratio:${(1/ratio).toFixed(4)}"></div>`).join('')}</div>`;
+  document.body.appendChild(el); lockScroll(); const body=el.querySelector('#pdfvBody');
+  PDFV={id,el,pdf,cur:page,rendered:new Map()};
+  const render1=async n=>{ if(!PDFV||PDFV.rendered.has(n)) return; PDFV.rendered.set(n,null); const pg=await pdf.getPage(n), box=body.querySelector(`[data-n="${n}"]`); if(!box||!PDFV) return;
+    const w=box.clientWidth||body.clientWidth, sc=w/pg.getViewport({scale:1}).width*Math.min(2,devicePixelRatio||1), v=pg.getViewport({scale:sc}), cv=document.createElement('canvas'); cv.width=v.width; cv.height=v.height;
+    await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise; if(!PDFV) return; box.innerHTML=''; box.appendChild(cv); PDFV.rendered.set(n,cv); };
+  const io=new IntersectionObserver(es=>{ for(const e of es){ const n=+e.target.dataset.n; if(e.isIntersecting) render1(n); else if(PDFV&&PDFV.rendered.get(n)&&Math.abs(n-PDFV.cur)>4){ e.target.innerHTML=''; PDFV.rendered.delete(n); } } },{root:body,rootMargin:'800px 0px'});
+  body.querySelectorAll('.pdfv-pg').forEach(b=>io.observe(b)); PDFV.io=io;
+  const info=()=>{ const top=body.scrollTop+body.clientHeight*0.3; let n=1; for(const b of body.children){ if(b.offsetTop<=top) n=+b.dataset.n; else break; } PDFV.cur=n; el.querySelector('#pdfvInfo').textContent=`стр. ${n} / ${pdf.numPages}`; el.querySelector('#pdfvHere').textContent='Я здесь: '+n; };
+  body.addEventListener('scroll',()=>{ if(PDFV) info(); },{passive:true});
+  requestAnimationFrame(()=>{ const t=body.querySelector(`[data-n="${page}"]`); if(t) body.scrollTop=t.offsetTop; info(); }); }
+function closePdfViewer(){ if(!PDFV) return; try{ localStorage.setItem('talib-pdfpage-'+PDFV.id,PDFV.cur); }catch(e){} try{ PDFV.io.disconnect(); PDFV.pdf.destroy(); }catch(e){} PDFV.el.remove(); PDFV=null; unlockScroll(); }
+Object.assign(A,{
+  'pdfv-close':()=>closePdfViewer(),
+  'pdfv-here':()=>{ if(!PDFV) return; const id=PDFV.id, p=PDFV.cur; closePdfViewer(); const it=findItem(id), x=findText(id);
+    if(it){ const d=p-itemDone(it); if(d<0&&!confirm(`Отметить стр. ${p}? Сейчас в книге отмечено больше — стр. ${fmt(itemDone(it))}.`)) return; if(Math.abs(d)>1e-9) act(`«${it.title}»: отмечено — стр. ${p}`,()=>itemAdd(it,LD(),d)?`Ма ша Аллах! «${it.title}» завершено`:null); }
+    else if(x) act(`«${x.title}»: отмечено — стр. ${p} PDF`,()=>{ x.pdfPage=p; }); },
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&PDFV) closePdfViewer(); });
+{ const back=window.talibBack; window.talibBack=()=>{ if(PDFV){ closePdfViewer(); return true; } return back(); }; }
+
+/* ===================== 1.8: ИИ-ПОМОЩНИК ===================== */
+// Запросы идут напрямую с устройства к выбранному сервису (Gemini, Claude, ChatGPT, DeepSeek) по ключу пользователя.
+// Ключи и выбор модели — в state.prefs.ai (синхронизируются), переписка — в state.ui.ai (у каждого устройства своя).
+Object.assign(ICON,{ai:ICON.sparkle,send:'<path d="M4.5 12L20 4.5l-4.2 15.5-4-6.2z"/><path d="M11.8 13.8L20 4.5"/>'});
+const AI_PROV={
+  gemini:{name:'Gemini',co:'Google',free:true,price:'Бесплатно — с дневным лимитом',def:'gemini-3.5-flash-lite',models:['gemini-3.5-flash-lite','gemini-3.6-flash','gemini-3.8-flash','gemini-3.1-pro-preview'],
+    lv:[['','по умолчанию'],['minimal','минимальный'],['low','низкий'],['medium','средний'],['high','высокий']],lvDef:'',url:'https://aistudio.google.com/apikey'},
+  claude:{name:'Claude',co:'Anthropic',price:'Платно — оплата за использование',def:'claude-haiku-5-5',models:['claude-haiku-5-5','claude-sonnet-5-5','claude-opus-5-5'],
+    lv:[['low','низкий'],['medium','средний (по умолчанию)'],['high','высокий'],['max','максимальный']],lvDef:'medium',url:'https://platform.claude.com/'},
+  openai:{name:'ChatGPT',co:'OpenAI',price:'Платно — оплата за использование',def:'auto',models:['auto'],
+    lv:[['','авто'],['minimal','минимальный'],['low','низкий'],['medium','средний'],['high','высокий']],lvDef:'',url:'https://platform.openai.com/api-keys'},
+  deepseek:{name:'DeepSeek',co:'DeepSeek',price:'Платно, но очень дёшево',def:'auto',models:['auto','deepseek-flash','deepseek-v4-pro'],lv:null,url:'https://platform.deepseek.com/api_keys'},
+};
+const AI_HOWTO={
+  gemini:{steps:['Откройте {link} и войдите в аккаунт Google.','Нажмите <b>Create API key</b> («Создать ключ»). Если спросит проект — выберите любой или создайте новый.','Скопируйте ключ (начинается на <code>AIza</code>) и вставьте ниже.'],
+    note:'<b>Бесплатно</b>, банковская карта не нужна. Есть дневной лимит запросов — для личного помощника его обычно хватает. На бесплатном тарифе Google может использовать запросы для улучшения своих сервисов. В некоторых странах (например, в России) Gemini API недоступен — тогда появится ошибка региона; выберите другой ИИ.'},
+  deepseek:{steps:['Откройте {link} и зарегистрируйтесь.','Пополните баланс в разделе <b>Top up</b> — нескольких долларов хватит надолго.','Раздел <b>API keys</b> → <b>Create new API key</b>. Скопируйте ключ (начинается на <code>sk-</code>) — он показывается только один раз.'],
+    note:'<b>Честно: постоянного бесплатного тарифа у DeepSeek нет</b> — оплата за использование. Иногда новым аккаунтам дают пробный баланс — его видно в личном кабинете. Зато очень дёшево: обычный разговор с помощником стоит доли цента.'},
+  claude:{steps:['Откройте {link} и создайте аккаунт. Подписка Claude Pro к API не относится — это отдельный счёт.','Пополните баланс в разделе <b>Billing</b> (от $5).','Раздел <b>API keys</b> → <b>Create Key</b>. Скопируйте ключ (начинается на <code>sk-ant-</code>).'],
+    note:'<b>Платно</b>, оплата за использование. Модель по умолчанию — Haiku: самая быстрая и дешёвая у Claude.'},
+  openai:{steps:['Откройте {link} и войдите. Подписка ChatGPT Plus к API не относится — это отдельный счёт.','Пополните баланс: <b>Settings → Billing</b> (от $5).','Нажмите <b>Create new secret key</b>. Скопируйте ключ (начинается на <code>sk-</code>).'],
+    note:'<b>Платно</b>, оплата за использование. Модель «авто» — программа сама выберет новейшую модель GPT, доступную вашему ключу.'},
+};
+const aiP=()=>state.prefs.ai;
+const aiId=()=>'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const aiHasKey=p=>!!String(aiP().keys[p]||'').trim();
+const aiLevel=p=>{ const v=aiP().levels[p]; return v==null?(AI_PROV[p].lvDef||''):v; };
+function aiHowToHtml(p){ const D=AI_PROV[p], H=AI_HOWTO[p], link=`<a href="#" data-act="ai-link" data-u="${D.url}">${D.url.replace(/^https:\/\//,'').replace(/\/$/,'')}</a>`;
+  return `<ol class="ai-steps">${H.steps.map(s=>`<li>${s.replace('{link}',link)}</li>`).join('')}</ol><div class="ai-note">${H.note}</div>`; }
+
+/* ---------- сводка данных для ИИ ---------- */
+function aiContext(){
+  const t=today(), q=state.quran, T=quranTotals(), P=aiP(), L=[];
+  const lastN=(log,n,from)=>{ let s=0; for(let i=from||0;i<(from||0)+n;i++) s+=(log||{})[addDays(t,-i)]||0; return r3(s); };
+  const sumKind=(k,d)=>state.items.filter(i=>i.kind===k).reduce((s,i)=>s+((i.log||{})[d]||0),0);
+  L.push(`Сегодня: ${t} (${fmtD(t)}, ${hijri(t)}). Приложением пользуется с ${state.created}.`);
+  if(isOn('hifz')) L.push(`ЗАУЧИВАНИЕ КОРАНА: выучено ≈${fmt(T.pg)} из ${TOTAL_PAGES} стр. (${T.full} сур целиком, ${T.part} частично). Цель: ${fmt(q.goal)} стр. в день${q.deadline?', срок до '+q.deadline:''}. Выучено за 7 дней: ${fmt(lastN(state.log.hifz,7))} стр., за предыдущие 7: ${fmt(lastN(state.log.hifz,7,7))}, за 30 дней: ${fmt(lastN(state.log.hifz,30))}.`);
+  if(isOn('rev')) L.push(`ПОВТОРЕНИЕ КОРАНА: режим «${q.revMode==='cycle'?'круг за '+q.cycleDays+' дн.':'умное повторение'}». Повторено за 7 дней: ${fmt(lastN(state.log.rev,7))} стр., за предыдущие 7: ${fmt(lastN(state.log.rev,7,7))}, за 30 дней: ${fmt(lastN(state.log.rev,30))}.`);
+  if(isOn('khatm')){ const k=state.khatm; L.push(`ЧТЕНИЕ КОРАНА (хатм): текущий хатм — стр. ${fmt(k.cur.page||0)} из ${TOTAL_PAGES}, начат ${k.cur.start}; завершено хатмов: ${k.done.length}; цель ${k.goal||0} стр. в день; прочитано за 7 дней: ${fmt(lastN(k.log,7))} стр.`); }
+  const items=state.items.filter(i=>isOn(i.kind==='book'?'books':'lessons')).sort((a,b)=>(!!a.finished)-(!!b.finished)).slice(0,40);
+  if(items.length){ L.push('КНИГИ И УРОКИ (id в квадратных скобках):'); for(const i of items){ const u=i.unit||KIND[i.kind].unit;
+    L.push(`- [${i.id}] ${i.kind==='book'?'Книга':'Курс уроков'} «${i.title}»${i.author?' — '+i.author:''}: пройдено ${fmt(itemDone(i))} из ${fmt(i.total)} ${u}; ${i.dlMode==='deadline'&&i.deadline?'дедлайн '+i.deadline:'без дедлайна'}; ${i.dMode==='fixed'&&i.daily?'норма '+fmt(i.daily)+' в день':'свободный темп'}; за 7 дней ${fmt(lastN(i.log,7))}${i.finished?'; завершено '+i.finished:''}${isPlanned(i)?'; запланировано с '+i.start:''}.`); } }
+  if(isOn('texts')&&state.texts.length){ L.push('МАТНЫ:'); for(const x of state.texts.slice(0,30)){ const U=MU[x.mu]||MU.item;
+    L.push(`- [${x.id}] «${x.title}»${x.author?' — '+x.author:''}: выучено ${Object.keys(x.mem||{}).length} из ${x.items.length} (${U[2]}); норма ${x.goal||0} в день${x.deadline?', срок до '+x.deadline:''}; выучено за 7 дней ${fmt(lastN(x.log,7))}; повторение матна ${x.rv&&x.rv.on?'включено':'выключено'}.`); } }
+  // по дням за 14 дней
+  const days=[]; for(let i=13;i>=0;i--){ const d=addDays(t,-i), r=[];
+    const h=state.log.hifz[d]||0, rv=state.log.rev[d]||0, kh=(state.khatm.log||{})[d]||0, bk=sumKind('book',d), ls=sumKind('lesson',d), tx=state.texts.reduce((s,x)=>s+((x.log||{})[d]||0),0);
+    if(h) r.push('заучено '+fmt(h)+' стр.'); if(rv) r.push('повторено '+fmt(rv)+' стр.'); if(kh) r.push('чтение Корана '+fmt(kh)+' стр.'); if(bk) r.push('книги '+fmt(bk)+' стр.'); if(ls) r.push('уроки '+fmt(ls)); if(tx) r.push('матны '+fmt(tx));
+    days.push(`${d}: ${r.length?r.join(', '):'нет отметок'}`); }
+  L.push('ОТМЕТКИ ПО ДНЯМ (14 дней):\n'+days.join('\n'));
+  if(isOn('diary')){ if(P.noNotes) L.push('ЕЖЕДНЕВНИК: пользователь попросил не передавать задачи и заметки.');
+    else { const open=state.tasks.filter(k=>!k.done&&!k.rep).slice(0,25), rep=state.tasks.filter(k=>k.rep).slice(0,15);
+      if(open.length) L.push('ЗАДАЧИ (не выполнены):\n'+open.map(k=>`- ${k.text}${k.date?' ('+k.date+(k.time?' '+k.time:'')+')':''}${k.due?' до '+k.due:''}`).join('\n'));
+      if(rep.length) L.push('ПОВТОРЯЮЩИЕСЯ ЗАДАЧИ:\n'+rep.map(k=>'- '+k.text).join('\n'));
+      const notes=[]; for(let i=6;i>=0;i--){ const d=addDays(t,-i), n=((state.diary[d]||{}).note||'').trim(); if(n) notes.push(`${d}: ${n.slice(0,300)}`); }
+      if(notes.length) L.push('ЗАМЕТКИ ЕЖЕДНЕВНИКА (7 дней):\n'+notes.join('\n')); } }
+  return L.join('\n');
+}
+function aiSystem(){ const t=today();
+  return `Ты — ИИ-помощник в приложении «Талиб»: трекер заучивания Корана, повторения, чтения Корана, матнов, книг и уроков. Пользователь — студент знания. Отвечай по-русски, на «вы», тепло и по делу, без воды.
+
+ДОСТОВЕРНОСТЬ — самое важное:
+- Аят — всегда с названием суры и номерами (например: «Таха, 20:114»), приводи смысловой перевод.
+- Хадис — только известный достоверный, со сборником и, если уверен, номером и степенью достоверности (например: «аль-Бухари, 71»).
+- Слова сподвижников и праведных предшественников — с именем и, если знаешь, книгой (например: «Ибн Абд аль-Барр, "Джами' баян аль-'ильм"»).
+- Никогда не выдумывай хадисы, цитаты, номера и источники. Если не уверен в точной формулировке или источнике — прямо скажи «не уверен в точности — проверьте по источнику» или не приводи цитату.
+- Не выноси фетв; по вопросам фикха и акыды советуй спросить знающего преподавателя.
+
+ДАННЫЕ: ниже — сводка данных пользователя из приложения. Опирайся на цифры и не придумывай того, чего в них нет. Советы — конкретные: что, сколько, когда. Хвали за реальные успехи, мягко указывай на отставание.
+
+ДЕЙСТВИЯ: ты можешь предложить изменение в приложении. Если для действия не хватает данных (например: сколько страниц в книге, к какому сроку или по сколько в день, с какой даты начать), сначала задай короткие уточняющие вопросы. Когда всё ясно — кратко опиши, что будет сделано, и добавь в КОНЕЦ ответа ровно один блок:
+\`\`\`talib-action
+{"type":"add_item","kind":"book","title":"…","author":"…","total":300,"startDone":0,"start":"${t}","deadline":"","daily":10}
+\`\`\`
+Виды действий:
+- add_item — новая книга (kind "book", total — страниц) или курс уроков (kind "lesson", total — уроков). deadline "" — без срока; daily 0 — свободный темп; startDone — сколько уже пройдено.
+- edit_item — {"type":"edit_item","id":"<id из сводки>","changes":{…}}; можно менять title, author, total, startDone, deadline, daily.
+- item_progress — {"type":"item_progress","id":"<id>","amount":число,"date":"ГГГГ-ММ-ДД"} — сколько прочитано / прослушано.
+- add_text — новый матн: {"type":"add_text","title":"…","author":"…","count":число,"unit":"hadith|page|line|item","goal":в день или 0,"deadline":""}.
+- add_task — задача в ежедневник: {"type":"add_task","text":"…","date":"ГГГГ-ММ-ДД или \"\"","time":"ЧЧ:ММ или \"\"","due":"ГГГГ-ММ-ДД или \"\""}.
+- rev_add — повторение Корана: {"type":"rev_add","pages":число,"date":"ГГГГ-ММ-ДД"}.
+Действие выполнится, только когда пользователь нажмёт кнопку подтверждения. Не пиши, что уже сделал. Даты — в формате ГГГГ-ММ-ДД; сегодня ${t}.
+
+ОФОРМЛЕНИЕ: короткие абзацы и списки, **жирный** для главного, без таблиц. Арабский текст можно давать, но всегда с переводом.
+
+=== ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ===
+${aiContext()}`; }
+
+/* ---------- запросы к сервисам ---------- */
+function aiErr(msg,raw){ const e=new Error(msg); e.raw=raw; return e; }
+function aiErrText(st,m){ const s=String(m||'');
+  if(/location is not supported|not available in your (country|region)|unsupported_country|unsupported_region/i.test(s)) return 'Сервис недоступен в вашем регионе. Выберите другой ИИ (кнопка вверху) или подключитесь через VPN.';
+  if(/insufficient[_ ]quota|insufficient balance|credit balance is too low|billing/i.test(s)||st===402) return 'На счёте сервиса закончились средства. Пополните баланс в личном кабинете сервиса или выберите другой ИИ.';
+  if(st===429) return 'Превышен лимит запросов (на бесплатном тарифе он дневной). Подождите немного и попробуйте снова.';
+  if(st===401||/API key not valid|invalid[ _-]?(x-)?api[ _-]?key|Incorrect API key|Authentication Fails|API_KEY_INVALID/i.test(s)) return 'Ключ не подходит. Проверьте, что он скопирован полностью, — или создайте новый.';
+  if(st===403) return 'Доступ запрещён: у ключа нет прав на эту модель или сервис недоступен в вашем регионе.';
+  if(st===404||(/model/i.test(s)&&/not found|does not exist|not supported|invalid/i.test(s))) return 'Модель не найдена. Проверьте название модели в настройках ИИ или верните модель по умолчанию.';
+  if(st>=500) return 'Сервис ИИ сейчас перегружен или недоступен. Попробуйте позже.';
+  return 'Ошибка сервиса ИИ: '+s.slice(0,240); }
+async function aiFetch(url,headers,body,ctl){ let r;
+  try{ r=await fetch(url,{method:body?'POST':'GET',headers:Object.assign(body?{'Content-Type':'application/json'}:{},headers),body:body?JSON.stringify(body):undefined,signal:ctl&&ctl.signal}); }
+  catch(e){ throw aiErr(e&&e.name==='AbortError'?'Сервис слишком долго не отвечает. Попробуйте ещё раз.':'Нет связи с сервисом ИИ. Проверьте интернет.'); }
+  let txt='', j=null; try{ txt=await r.text(); j=JSON.parse(txt); }catch(e){}
+  if(!r.ok){ const raw=(j&&j.error&&(j.error.message||j.error.type||(typeof j.error==='string'?j.error:'')))||txt.slice(0,300)||('HTTP '+r.status); throw aiErr(aiErrText(r.status,raw),raw); }
+  return j||{}; }
+const aiHeaders=(p,key)=>p==='gemini'?{'x-goog-api-key':key}:p==='claude'?{'x-api-key':key,'anthropic-version':'2026-10-21','anthropic-dangerous-direct-browser-access':'true'}:{Authorization:'Bearer '+key};
+// «авто» у ChatGPT: новейшая модель GPT из доступных ключу (проверяется раз в день)
+function aiPickOpenAI(ids){ const pref=['','sol','astra','terra','luna']; let best=null,bv=-1,bp=99;
+  for(const id of ids){ const m=/^gpt-(\d+(?:\.\d+)?)(?:-(sol|astra|terra|luna))?$/.exec(id); if(!m) continue; const v=parseFloat(m[1]), p=pref.indexOf(m[2]||''); if(v>bv||(v===bv&&p<bp)){ best=id; bv=v; bp=p; } }
+  return best; }
+async function aiAutoOpenAI(key,ctl){ const c=state.ui.aiAuto; if(c&&c.id&&c.at===today()) return c.id;
+  try{ const j=await aiFetch('https://api.openai.com/v1/models',aiHeaders('openai',key),null,ctl), best=aiPickOpenAI((j.data||[]).map(m=>m.id)); if(best){ state.ui.aiAuto={id:best,at:today()}; return best; } }catch(e){ if(e.raw&&/key|auth/i.test(e.raw)) throw e; }
+  return 'gpt-5.5'; }
+async function aiCall(p,msgs,system){
+  const key=String(aiP().keys[p]||'').trim(), lvl=aiLevel(p); let model=String(aiP().models[p]||'').trim()||AI_PROV[p].def;
+  const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),150000);
+  try{
+    if(p==='gemini'){ const body={systemInstruction:{parts:[{text:system}]},contents:msgs.map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]}))};
+      if(lvl) body.generationConfig={thinkingConfig:{thinkingLevel:lvl}};
+      const j=await aiFetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,aiHeaders(p,key),body,ctl), c=j.candidates&&j.candidates[0];
+      if(!c) throw aiErr(j.promptFeedback&&j.promptFeedback.blockReason?'Gemini отклонил запрос ('+j.promptFeedback.blockReason+'). Переформулируйте вопрос.':'Пустой ответ от Gemini.');
+      return {text:((c.content&&c.content.parts)||[]).filter(x=>!x.thought&&x.text).map(x=>x.text).join(''),model,cut:c.finishReason==='MAX_TOKENS'}; }
+    if(p==='claude'){ const body={model,max_tokens:8000,system,messages:msgs.map(m=>({role:m.r==='u'?'user':'assistant',content:m.t})),output_config:{effort:lvl||'medium'}}, h=aiHeaders(p,key);
+      if(/^claude-(opus-5-5|sonnet-5-5|fable)/.test(model)){ h['anthropic-beta']='server-side-fallback-2026-07-01'; body.fallbacks='default'; }
+      const j=await aiFetch('https://api.anthropic.com/v1/messages',h,body,ctl);
+      if(j.stop_reason==='refusal') throw aiErr('Claude отказался отвечать на этот запрос. Переформулируйте вопрос.');
+      return {text:(j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(''),model:j.model||model,cut:j.stop_reason==='max_tokens'}; }
+    if(!model||model==='auto') model=p==='openai'?await aiAutoOpenAI(key,ctl):'deepseek-flash';
+    const body={model,messages:[{role:'system',content:system},...msgs.map(m=>({role:m.r==='u'?'user':'assistant',content:m.t}))]};
+    if(p==='openai'&&lvl) body.reasoning_effort=lvl;
+    const j=await aiFetch(p==='openai'?'https://api.openai.com/v1/chat/completions':'https://api.deepseek.com/chat/completions',aiHeaders(p,key),body,ctl), ch=j.choices&&j.choices[0];
+    return {text:(ch&&ch.message&&ch.message.content)||'',model:j.model||model,cut:!!ch&&ch.finish_reason==='length'};
+  } finally{ clearTimeout(to); } }
+// список моделей, доступных ключу (для подсказок в настройках)
+async function aiListModels(p){ const key=String(aiP().keys[p]||'').trim(), h=aiHeaders(p,key);
+  if(p==='gemini'){ const j=await aiFetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',h); return (j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>String(m.name).replace(/^models\//,'')); }
+  if(p==='claude'){ const j=await aiFetch('https://api.anthropic.com/v1/models?limit=100',h); return (j.data||[]).map(m=>m.id); }
+  const j=await aiFetch(p==='openai'?'https://api.openai.com/v1/models':'https://api.deepseek.com/models',h); let ids=(j.data||[]).map(m=>m.id);
+  if(p==='openai') ids=ids.filter(id=>/^(gpt|o\d|chatgpt)/.test(id)&&!/(audio|realtime|tts|transcribe|image|search|embedding|instruct)/.test(id)).sort().reverse(); return ids; }
+
+/* ---------- переписка ---------- */
+function aiHistory(){ const src=state.ui.ai.msgs.filter(m=>m.r==='u'||m.r==='a').slice(-16), out=[];
+  for(const m of src){ let t=m.t||''; if(m.act) t+=`\n[предложено действие ${m.act.type}: ${m.act.st==='done'?'пользователь подтвердил, выполнено':m.act.st==='cancel'?'пользователь отменил':'ждёт подтверждения'}]`;
+    const last=out[out.length-1]; if(last&&last.r===m.r) last.t+='\n\n'+t; else out.push({r:m.r,t}); }
+  while(out.length&&out[0].r!=='u') out.shift(); return out; }
+function aiTrim(){ const A=state.ui.ai; if(A.msgs.length>80) A.msgs.splice(0,A.msgs.length-80); }
+function aiParseAct(text){ const m=/```\s*talib-action\s*([\s\S]*?)```/i.exec(text||''); if(!m) return {text,act:null}; let a=null;
+  try{ a=JSON.parse(m[1].trim()); }catch(e){} const rest=String(text).replace(m[0],'').trim();
+  if(!a||typeof a!=='object'||!AI_ACT[a.type]) return {text:rest+(a?'':'\n\n_(ИИ предложил действие, но в неверном формате — попросите повторить.)_'),act:null};
+  return {text:rest,act:a}; }
+async function aiSend(text){ text=String(text||'').trim(); if(!text||UI.aiBusy) return; const p=aiP().prov;
+  if(!aiHasKey(p)) return toast('Сначала добавьте ключ '+AI_PROV[p].name);
+  state.ui.ai.msgs.push({id:aiId(),r:'u',t:text,ts:Date.now()}); UI.aiDraft=''; const inp=$('#aiIn'); if(inp){ inp.value=''; inp.style.height=''; }
+  aiTrim(); save(); UI.aiBusy=true; aiRefresh();
+  try{ const res=await aiCall(p,aiHistory(),aiSystem()), pr=aiParseAct(res.text); let t=pr.text;
+    if(!t&&!pr.act) t='(пустой ответ — попробуйте переформулировать вопрос)'; if(res.cut) t+='\n\n_(ответ обрезан — он получился слишком длинным)_';
+    state.ui.ai.msgs.push({id:aiId(),r:'a',t,ts:Date.now(),p,model:res.model,act:pr.act}); }
+  catch(e){ state.ui.ai.msgs.push({id:aiId(),r:'e',t:e.message||String(e),raw:e.raw||'',ts:Date.now(),p}); }
+  UI.aiBusy=false; aiTrim(); save(); aiRefresh(); }
+
+/* ---------- карточки действий ---------- */
+const AI_EF={title:['Название','text'],author:['Автор','text'],total:['Всего','number'],startDone:['Уже пройдено','number'],deadline:['Дедлайн','date'],daily:['В день','number']};
+const AI_ACT={
+  add_item:{t:a=>a.kind==='lesson'?'Новый курс уроков':'Новая книга',btn:'Добавить',f:a=>[['title','Название','text'],['author',a.kind==='lesson'?'Преподаватель':'Автор','text'],['total',a.kind==='lesson'?'Всего уроков':'Всего страниц','number'],['startDone','Уже пройдено','number'],['start','Начать','date'],['deadline','Дедлайн','date'],['daily','В день','number']]},
+  edit_item:{t:a=>`Изменить «${(findItem(a.id)||{title:'?'}).title}»`,btn:'Сохранить',f:a=>Object.keys(a.changes||{}).filter(k=>AI_EF[k]).map(k=>[k,...AI_EF[k]])},
+  item_progress:{t:a=>`Отметить: «${(findItem(a.id)||{title:'?'}).title}»`,btn:'Отметить',f:a=>[['amount',(findItem(a.id)||{}).kind==='lesson'?'Уроков':'Страниц','number'],['date','За день','date']]},
+  add_text:{t:()=>'Новый матн',btn:'Добавить',f:()=>[['title','Название','text'],['author','Автор','text'],['count','Сколько единиц','number'],['unit','Единица','unit'],['goal','В день','number'],['deadline','Дедлайн','date']]},
+  add_task:{t:()=>'Новая задача',btn:'Добавить',f:()=>[['text','Задача','text'],['date','Дата','date'],['time','Время','time'],['due','Срок до','date']]},
+  rev_add:{t:()=>'Повторение Корана',btn:'Записать',f:()=>[['pages','Страниц','number'],['date','За день','date']]},
+};
+const aiGet=(a,k)=>a.type==='edit_item'?(a.changes||{})[k]:a[k];
+const aiSet=(a,k,v)=>{ if(a.type==='edit_item'){ a.changes=a.changes||{}; a.changes[k]=v; } else a[k]=v; };
+const isDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))&&!isNaN(parseD(s));
+function aiFieldView(k,type,v){ if(v===''||v==null) return '<span class="muted">—</span>';
+  if(type==='date') return esc(fmtD(v)); if(type==='unit') return esc(((MU[v]||MU.item)[2])); return esc(type==='number'?fmt(v):v); }
+function aiActHtml(m){ const a=m.act, D=AI_ACT[a.type], ed=UI.aiEdit===m.id&&!a.st;
+  const rows=D.f(a).map(([k,l,type])=>{ const v=aiGet(a,k);
+    const inp=type==='unit'?`<select id="aiF_${k}">${Object.keys(MU).map(u=>`<option value="${u}" ${(v||'item')===u?'selected':''}>${MU[u][3]}</option>`).join('')}</select>`
+      :`<input id="aiF_${k}" type="${type}" value="${esc(v==null?'':v)}"${type==='number'?' step="any" min="0"':''}>`;
+    return `<div class="ai-fr"><span>${l}</span>${ed?inp:`<b>${aiFieldView(k,type,v)}</b>`}</div>`; }).join('');
+  const st=a.st==='done'?`<div class="ai-st ok">${ico('check')}Выполнено</div>`:a.st==='cancel'?`<div class="ai-st">Отменено</div>`
+    :`<div class="row ai-btns"><button class="btn primary sm" data-act="ai-apply" data-id="${m.id}">${ico('check')}${D.btn}</button>${ed?'':`<button class="btn sm" data-act="ai-edit" data-id="${m.id}">${ico('edit')}Изменить</button>`}<button class="btn ghost sm" data-act="ai-cancel" data-id="${m.id}">Отмена</button></div>`;
+  return `<div class="ai-act${a.st?' '+a.st:''}"><div class="ai-act-h">${ico('sparkle')}${esc(D.t(a))}</div>${rows}${st}</div>`; }
+function aiReadCard(m){ const a=JSON.parse(JSON.stringify(m.act)); if(UI.aiEdit!==m.id) return a;
+  for(const [k,,type] of AI_ACT[a.type].f(a)){ const el=$('#aiF_'+k); if(!el) continue; const v=el.value.trim(); aiSet(a,k,type==='number'?(v===''?'':+v):v); } return a; }
+function aiCheck(a){ const n=v=>+v||0;
+  if(a.type==='add_item'){ if(!String(a.title||'').trim()) return 'Укажите название.'; if(!(n(a.total)>0)) return 'Укажите, сколько всего '+(a.kind==='lesson'?'уроков.':'страниц.');
+    if(a.deadline&&!isDate(a.deadline)) return 'Дедлайн — неверная дата.'; if(a.start&&!isDate(a.start)) return 'Дата начала — неверная.'; }
+  if(a.type==='edit_item'&&!findItem(a.id)) return 'Эта книга или курс не найдены — возможно, удалены.';
+  if(a.type==='edit_item'&&a.changes){ const c=a.changes; if('total' in c&&!(n(c.total)>0)) return 'Всего — больше нуля.'; if(c.deadline&&!isDate(c.deadline)) return 'Дедлайн — неверная дата.'; }
+  if(a.type==='item_progress'){ if(!findItem(a.id)) return 'Эта книга или курс не найдены.'; if(!(n(a.amount)>0)) return 'Укажите, сколько пройдено.'; }
+  if(a.type==='add_text'){ if(!String(a.title||'').trim()) return 'Укажите название.'; if(!(n(a.count)>=1&&n(a.count)<=5000)) return 'Количество — от 1 до 5000.'; }
+  if(a.type==='add_task'&&!String(a.text||'').trim()) return 'Введите текст задачи.';
+  if(a.type==='rev_add'&&!(n(a.pages)>0)) return 'Укажите количество страниц.';
+  for(const k of ['date','due']) if(a[k]&&!isDate(a[k])) return 'Неверная дата.';
+  if((a.type==='item_progress'||a.type==='rev_add')&&a.date&&a.date>today()) return 'Нельзя отметить будущий день.';
+  return ''; }
+function aiApply(m,a){ const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6), d=a.date&&isDate(a.date)?a.date:today(), done=()=>{ const mm=state.ui.ai.msgs.find(x=>x.id===m.id); if(mm) mm.act=Object.assign(a,{st:'done'}); };
+  if(a.type==='add_item'){ const kind=a.kind==='lesson'?'lesson':'book', dl=isDate(a.deadline)?a.deadline:'', daily=Math.max(0,+a.daily||0);
+    act(`Добавлено: ${a.title}`,()=>{ const it=normalize({items:[{id:'i'+id(),kind,created:today(),log:{},finished:'',title:String(a.title).trim(),author:String(a.author||'').trim(),total:+a.total,unit:KIND[kind].unit,startDone:Math.max(0,+a.startDone||0),dlMode:dl?'deadline':'open',deadline:dl,dMode:daily?'fixed':'open',daily,wd:ALLW(),start:isDate(a.start)?a.start:today(),links:[]}]}).items[0]; checkFinish(it); state.items.push(it); done(); }); }
+  else if(a.type==='edit_item'){ const it=findItem(a.id), c=a.changes||{};
+    act(`Изменено: ${it.title}`,()=>{ const x=findItem(a.id); if('title' in c&&String(c.title).trim()) x.title=String(c.title).trim(); if('author' in c) x.author=String(c.author||'').trim(); if('total' in c) x.total=+c.total; if('startDone' in c) x.startDone=Math.max(0,+c.startDone||0);
+      if('deadline' in c){ x.deadline=isDate(c.deadline)?c.deadline:''; x.dlMode=x.deadline?'deadline':'open'; } if('daily' in c){ x.daily=Math.max(0,+c.daily||0); x.dMode=x.daily?'fixed':'open'; } checkFinish(x); done(); }); }
+  else if(a.type==='item_progress'){ const it=findItem(a.id); act(`«${it.title}»: +${fmt(+a.amount)} ${it.unit||KIND[it.kind].unit}`+dayNote(d),()=>{ const r=itemAdd(findItem(a.id),d,+a.amount); done(); return r?`Ма ша Аллах! «${it.title}» завершено`:null; }); }
+  else if(a.type==='add_text'){ const mu=MU[a.unit]?a.unit:'item', n=Math.round(+a.count), dl=isDate(a.deadline)?a.deadline:'';
+    act(`Добавлено: ${a.title}`,()=>{ state.texts.push(normalize({texts:[{id:'t'+id(),title:String(a.title).trim(),author:String(a.author||'').trim(),items:Array.from({length:n},()=>''),mem:{},rev:{},goal:Math.max(0,+a.goal||0),deadline:dl,wd:ALLW(),start:today(),log:{},revLog:{},created:today(),mu,ru:mu}]}).texts[0]); done(); }); }
+  else if(a.type==='add_task'){ act('Задача добавлена',()=>{ state.tasks.push({id:'k'+id(),text:String(a.text).trim(),note:'',date:isDate(a.date)?a.date:'',time:/^\d{1,2}:\d{2}$/.test(a.time||'')?a.time:'',prio:0,due:isDate(a.due)?a.due:'',rep:null,until:'',done:'',doneOn:{},created:today()}); done(); }); }
+  else if(a.type==='rev_add'){ act(`Повторение: +${fmt(+a.pages)} стр.`+dayNote(d),()=>{ addLog('rev',d,+a.pages); done(); }); } }
+
+/* ---------- экран ---------- */
+function mdLite(s){ const inl=t=>t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/(^|[^*\w])[*_]([^*_\n]+)[*_](?=[^*\w]|$)/g,'$1<i>$2</i>').replace(/`([^`]+)`/g,'<code>$1</code>');
+  let out='', list=null; const close=()=>{ if(list){ out+=`</${list}>`; list=null; } };
+  for(const raw of esc(s).split('\n')){ const l=raw.replace(/\s+$/,''); let m;
+    if((m=/^\s*[-*•]\s+(.*)$/.exec(l))){ if(list!=='ul'){ close(); out+='<ul>'; list='ul'; } out+=`<li dir="auto">${inl(m[1])}</li>`; continue; }
+    if((m=/^\s*\d+[.)]\s+(.*)$/.exec(l))){ if(list!=='ol'){ close(); out+='<ol>'; list='ol'; } out+=`<li dir="auto">${inl(m[1])}</li>`; continue; }
+    close(); if(!l.trim()) continue;
+    if((m=/^#{1,4}\s+(.*)$/.exec(l))){ out+=`<div class="md-h">${inl(m[1])}</div>`; continue; }
+    if((m=/^&gt;\s?(.*)$/.exec(l))){ out+=`<blockquote dir="auto">${inl(m[1])}</blockquote>`; continue; }
+    out+=`<p dir="auto">${inl(l)}</p>`; }
+  close(); return out; }
+const AI_CITE=/аят|хадис|сура|сунн|пророк|посланник|ﷺ|передал|сказал|ибн |имам|саляф|сподвижник|[؀-ۿ]/i;
+function aiMsgHtml(m){
+  if(m.r==='u') return `<div class="ai-m u"><div class="ai-b">${esc(m.t).replace(/\n/g,'<br>')}</div></div>`;
+  if(m.r==='e') return `<div class="ai-m e"><div class="ai-b">${ico('info')}<div>${esc(m.t)}${m.raw?`<details><summary>Подробнее</summary><code>${esc(m.raw)}</code></details>`:''}<div class="row" style="margin-top:8px"><button class="btn sm" data-act="ai-retry" data-id="${m.id}">${ico('repeat')}Повторить</button></div></div></div></div>`;
+  return `<div class="ai-m a"><div class="ai-b"><div class="ai-md">${mdLite(m.t)}</div>${m.act?aiActHtml(m):''}${AI_CITE.test(m.t)?`<div class="ai-chk">${ico('info')}ИИ может ошибаться — аяты, хадисы и высказывания проверяйте по источнику.</div>`:''}<div class="ai-meta">${esc(AI_PROV[m.p]?AI_PROV[m.p].name:'')}${m.model?' · '+esc(m.model):''}</div></div></div>`; }
+const AI_QUICK=[['Разбор успехов','Проанализируй мои данные за последние недели: что идёт хорошо, где я отстаю, и дай 3–5 конкретных советов.'],
+  ['Мотивация','Дай мне мотивацию на сегодня: аят или достоверный хадис о стремлении к знанию и короткое высказывание праведных предшественников — с точными источниками.'],
+  ['Распорядок дня','Помоги составить распорядок дня для учёбы с учётом моих целей и темпа. Что говорили праведные предшественники о ценности времени?'],
+  ['Отчёт за неделю','Сделай краткий отчёт за последние 7 дней и сравни с предыдущей неделей.'],
+  ['Добавить книгу','Добавь книгу ',1]];
+function aiLogHtml(){ const ms=state.ui.ai.msgs;
+  const empty=`<div class="ai-empty">${ico('ai')}<b>Ассаляму алейкум!</b><div class="sub">Я вижу ваши отметки, цели и темп. Спросите, как идут дела, попросите совет или мотивацию — или дайте команду: «добавь книгу „Китаб ат-таухид“, 150 страниц, закончить к концу месяца».</div></div>`;
+  return (ms.length?ms.map(aiMsgHtml).join(''):empty)+(UI.aiBusy?`<div class="ai-m a"><div class="ai-b ai-typing"><i></i><i></i><i></i></div></div>`:''); }
+function aiScroll(){ const l=$('#aiLog'); if(l) l.scrollTop=l.scrollHeight; }
+function aiRefresh(){ if(state.ui.page!=='ai'||!$('#aiLog')) return; $('#aiLog').innerHTML=aiLogHtml(); const b=$('#aiSendBtn'); if(b) b.disabled=!!UI.aiBusy; aiScroll(); }
+function aiProvMenu(){ const P=aiP();
+  return `<div class="ai-pw"><button class="btn ai-pb" data-act="ai-provs" aria-expanded="${UI.aiProvs?'true':'false'}">${ico('ai')}<b>${AI_PROV[P.prov].name}</b>${ico('chev')}</button>
+    <div class="ai-provs${UI.aiProvs?' open':''}" role="menu">${Object.keys(AI_PROV).map(k=>{ const D=AI_PROV[k];
+      return `<button class="ai-pi${P.prov===k?' on':''}" data-act="ai-prov" data-p="${k}" role="menuitem"><span class="ai-pn"><b>${D.name}</b><span class="sub">${D.co}</span></span><span class="ai-tag ${D.free?'free':''}">${D.free?'бесплатно':'платно'}</span>${aiHasKey(k)?`<span class="ai-ok" title="Ключ добавлен">${ico('check')}</span>`:'<span class="ai-ok"></span>'}</button>`; }).join('')}</div></div>`; }
+function aiSetupHtml(p){ const P=aiP(), D=AI_PROV[p];
+  return `${P.ok?'':`<div class="card ai-intro"><h2>${ico('ai')}ИИ-помощник</h2>
+      <ul class="ai-feat"><li><b>Разбирает ваши данные</b> — заучивание, повторение, книги, уроки, матны — и даёт конкретные советы.</li><li><b>Выполняет команды</b>: «добавь книгу…», «отметь, что прочитал 20 страниц». Уточнит детали и покажет карточку — изменение будет только после вашего подтверждения.</li><li><b>Мотивирует</b> аятами, хадисами и словами праведных предшественников — с источниками. ИИ может ошибаться: проверяйте по источнику.</li></ul>
+      <div class="ai-priv">${ico('info')}<div><b>Что отправляется.</b> Когда вы пишете помощнику, программа отправляет выбранному сервису (Google, Anthropic, OpenAI или DeepSeek) ваш вопрос и сводку ваших данных: прогресс и отметки по Корану, книгам, урокам и матнам${P.noNotes?'':', а также задачи и заметки ежедневника'}. Отправка идёт напрямую с этого устройства, без посредников. Ключ хранится в ваших данных и через вашу синхронизацию попадает на другие ваши устройства.</div></div>
+      <label class="ai-cb"><input type="checkbox" data-chg="ai-nonotes" ${P.noNotes?'checked':''}><span>Не отправлять задачи и заметки ежедневника</span></label></div>`}
+    <div class="card"><div class="ai-kh"><h2>${ico('ai')}Ключ ${D.name}</h2><span class="ai-tag ${D.free?'free':''}">${D.price}</span></div>
+      ${aiHowToHtml(p)}
+      <label class="f"><span>Ключ API</span><div class="ai-keyrow"><input type="password" id="aiKey" placeholder="вставьте ключ" autocomplete="off" autocapitalize="off" spellcheck="false" data-enter><button class="btn primary" data-act="ai-key" data-p="${p}">${P.ok?'Сохранить':'Согласен, сохранить'}</button></div></label>
+      <div class="err" id="aiErr"></div>
+      <div class="sub" style="margin-top:8px">Другой ИИ — кнопка «${D.name}» вверху. Программа просит ключ только здесь — остальные разделы работают без него.</div></div>`; }
+function pageAi(){ const P=aiP(), p=P.prov, ready=P.ok&&aiHasKey(p);
+  const right=aiProvMenu()+`<button class="btn icon" data-act="ai-set" title="Настройки ИИ" aria-label="Настройки ИИ">${ico('settings')}</button>`;
+  const head=pageHead('ai','ИИ-помощник','',right);
+  if(!ready) return head+`<div class="stack">${aiSetupHtml(p)}</div>`;
+  setTimeout(aiScroll,0);
+  return head+`<div class="card ai-chat"><div id="aiLog" class="ai-log" aria-live="polite">${aiLogHtml()}</div>
+    <div class="ai-quick">${AI_QUICK.map(([l],i)=>`<button class="chip-btn" data-act="ai-q" data-i="${i}">${l}</button>`).join('')}</div>
+    <div class="ai-in"><textarea id="aiIn" rows="1" placeholder="Вопрос или команда…">${esc(UI.aiDraft||'')}</textarea><button class="btn primary icon" id="aiSendBtn" data-act="ai-send" title="Отправить" aria-label="Отправить" ${UI.aiBusy?'disabled':''}>${ico('send')}</button></div>
+    <div class="ai-foot">${ico('info')}ИИ может ошибаться. Аяты и хадисы проверяйте по источнику.</div></div>`; }
+function aiModelList(p){ return [...new Set([...AI_PROV[p].models,...((UI.aiLists||{})[p]||[])])]; }
+function aiSettingsBody(){ const P=aiP(), p=P.prov, D=AI_PROV[p], key=String(P.keys[p]||''), model=P.models[p]||D.def;
+  return `<label class="f"><span>Сервис</span><select data-chg="ai-prov">${Object.keys(AI_PROV).map(k=>`<option value="${k}" ${p===k?'selected':''}>${AI_PROV[k].name} — ${AI_PROV[k].free?'бесплатно':'платно'}${aiHasKey(k)?' ✓':''}</option>`).join('')}</select></label>
+    <label class="f"><span>Ключ API ${D.name}</span><div class="ai-keyrow"><input type="password" id="aiKey" placeholder="${key?'сохранён: ••••'+esc(key.slice(-4)):'вставьте ключ'}" autocomplete="off" autocapitalize="off" spellcheck="false" data-enter><button class="btn" data-act="ai-key" data-p="${p}">Сохранить</button></div></label>
+    <div class="err" id="aiErr"></div>
+    <div class="row">${key?`<button class="btn ghost sm" data-act="ai-key-del" data-p="${p}">${ico('trash')}Удалить ключ</button>`:''}<button class="btn ghost sm" data-act="ai-howto" data-p="${p}">${ico('info')}Как получить ключ</button></div>
+    <label class="f"><span>Модель</span><div class="ai-keyrow"><input id="aiModel" list="aiML" data-chg="ai-model" data-p="${p}" value="${esc(model)}" placeholder="${D.def}" autocomplete="off" autocapitalize="off" spellcheck="false"><datalist id="aiML">${aiModelList(p).map(m=>`<option value="${esc(m)}">`).join('')}</datalist>${key?`<button class="btn sm" data-act="ai-models" data-p="${p}" title="Загрузить список моделей, доступных ключу">${ico('repeat')}</button>`:''}</div></label>
+    <div class="sub">По умолчанию: <b>${D.def==='auto'?'авто':D.def}</b>${model!==D.def?` · <a href="#" data-act="ai-model-def" data-p="${p}">вернуть</a>`:''}${p==='openai'?' · «авто» — новейшая модель GPT, доступная ключу':p==='deepseek'?' · «авто» = deepseek-flash':''}</div>
+    ${D.lv?`<label class="f"><span>Уровень (насколько глубоко ИИ обдумывает ответ)</span><select data-chg="ai-level" data-p="${p}">${D.lv.map(([v,l])=>`<option value="${v}" ${aiLevel(p)===v?'selected':''}>${l}</option>`).join('')}</select></label>`
+      :`<div class="sub" style="margin-top:10px">У DeepSeek уровень задаётся моделью: <b>deepseek-flash</b> — быстрая и дешёвая, <b>deepseek-v4-pro</b> — умнее и дороже.</div>`}
+    <label class="ai-cb"><input type="checkbox" data-chg="ai-nonotes" ${P.noNotes?'checked':''}><span>Не отправлять ИИ задачи и заметки ежедневника</span></label>
+    <div class="sub" style="margin-top:6px">Ключи хранятся в ваших данных и через вашу синхронизацию попадают на другие ваши устройства. Они есть и в файле резервной копии — не пересылайте его другим людям.</div>
+    ${state.ui.ai.msgs.length?`<div class="row" style="margin-top:12px"><button class="btn sm" data-act="ai-clear">${ico('trash')}Очистить переписку на этом устройстве</button></div>`:''}`; }
+function aiSettingsCard(){ return `<div class="card"><h2>${ico('ai')}ИИ-помощник</h2>${isOn('ai')?aiSettingsBody():'<div class="sub">Раздел спрятан — включите его в «Разделах в меню».</div>'}</div>`; }
+function openAiSettings(){ const draw=()=>`<div class="mhead"><h2>${ico('ai')}Настройки ИИ</h2><button class="btn ghost icon" data-act="close" aria-label="Закрыть">✕</button></div><div class="ai-setm">${aiSettingsBody()}</div>`;
+  openModal(draw(),'small'); UI.modalRefresh=()=>{ const k=$('#aiKey'), v=k?k.value:''; $('#modalBox').innerHTML=draw(); if(v&&$('#aiKey')) $('#aiKey').value=v; }; }
+async function aiSaveKey(p,btn){ const inp=$('#aiKey'), v=(inp&&inp.value||'').replace(/\s+/g,''), err=$('#aiErr'); if(err) err.textContent='';
+  if(!v) return err?err.textContent='Вставьте ключ.':toast('Вставьте ключ'); if(v.length<20) return err?err.textContent='Ключ слишком короткий — скопируйте его полностью.':0;
+  const P=aiP(), old=P.keys[p]; P.keys[p]=v; if(btn){ btn.disabled=true; btn.textContent='Проверяю…'; }
+  let warn='';
+  try{ const ids=await aiListModels(p); (UI.aiLists=UI.aiLists||{})[p]=ids; }
+  catch(e){ if(/Ключ не подходит|Доступ запрещён|регионе/.test(e.message)){ P.keys[p]=old; if(btn){ btn.disabled=false; btn.textContent='Сохранить'; } if($('#aiErr')) $('#aiErr').textContent=e.message; else toast(e.message); return; } warn=e.message; }
+  P.keys[p]=v; P.ok=1; save(); render(); toast(warn?'Ключ сохранён, но проверить его не удалось: '+warn:`Ключ ${AI_PROV[p].name} сохранён`); }
+Object.assign(A,{
+  'ai-provs':()=>{ UI.aiProvs=!UI.aiProvs; const m=document.querySelector('.ai-provs'); if(m) m.classList.toggle('open',UI.aiProvs); const b=document.querySelector('.ai-pb'); if(b) b.setAttribute('aria-expanded',UI.aiProvs?'true':'false'); },
+  'ai-prov':el=>{ UI.aiProvs=false; aiP().prov=el.dataset.p; save(); render(); if(!aiHasKey(el.dataset.p)) window.scrollTo(0,0); },
+  'ai-set':()=>openAiSettings(),
+  'ai-link':el=>openUrl(el.dataset.u),
+  'ai-howto':el=>{ const p=el.dataset.p, D=AI_PROV[p]; UI.modalRefresh=null; openModal(`<div class="mhead"><h2>${ico('info')}Ключ ${D.name}</h2><button class="btn ghost icon" data-act="close" aria-label="Закрыть">✕</button></div><span class="ai-tag ${D.free?'free':''}">${D.price}</span>${aiHowToHtml(p)}<div class="mfoot"><span class="spacer"></span><button class="btn" data-act="close">Понятно</button></div>`,'small'); },
+  'ai-key':el=>aiSaveKey(el.dataset.p,el),
+  'ai-key-del':el=>{ const p=el.dataset.p; if(!confirm(`Удалить ключ ${AI_PROV[p].name} на всех ваших устройствах?`)) return; aiP().keys[p]=''; save(); render(); toast('Ключ удалён'); },
+  'ai-models':async el=>{ const p=el.dataset.p; el.disabled=true; try{ const ids=await aiListModels(p); (UI.aiLists=UI.aiLists||{})[p]=ids; render(); toast(`Доступно моделей: ${ids.length} — выберите в поле «Модель»`); }catch(e){ el.disabled=false; toast(e.message); } },
+  'ai-model-def':el=>{ delete aiP().models[el.dataset.p]; save(); render(); },
+  'ai-send':()=>{ const i=$('#aiIn'); aiSend(i?i.value:''); },
+  'ai-q':el=>{ const q=AI_QUICK[+el.dataset.i]; if(!q) return; if(q[2]){ const i=$('#aiIn'); if(i){ i.value=q[1]; UI.aiDraft=q[1]; i.focus(); i.setSelectionRange(i.value.length,i.value.length); } return; } aiSend(q[1]); },
+  'ai-retry':el=>{ const ms=state.ui.ai.msgs, i=ms.findIndex(m=>m.id===el.dataset.id); if(i<0||UI.aiBusy) return; let j=i-1; while(j>=0&&ms[j].r!=='u') j--; const t=j>=0?ms[j].t:''; ms.splice(i,1); if(j>=0) ms.splice(j,1); save(); aiSend(t); },
+  'ai-edit':el=>{ UI.aiEdit=el.dataset.id; aiRefresh(); const f=document.querySelector('.ai-act input,.ai-act select'); if(f) f.focus(); },
+  'ai-cancel':el=>{ const m=state.ui.ai.msgs.find(x=>x.id===el.dataset.id); if(!m||!m.act) return; m.act.st='cancel'; UI.aiEdit=null; save(); aiRefresh(); },
+  'ai-apply':el=>{ const m=state.ui.ai.msgs.find(x=>x.id===el.dataset.id); if(!m||!m.act||m.act.st) return; const a=aiReadCard(m), err=aiCheck(a); if(err) return toast(err); UI.aiEdit=null; aiApply(m,a); },
+  'ai-clear':()=>{ if(!confirm('Очистить переписку с ИИ на этом устройстве?')) return; state.ui.ai.msgs=[]; save(); render(); },
+});
+Object.assign(CHG,{
+  'ai-nonotes':el=>{ aiP().noNotes=el.checked?1:0; save(); render(); },
+  'ai-prov':el=>{ aiP().prov=el.value; save(); render(); },
+  'ai-model':el=>{ const p=el.dataset.p, v=el.value.trim(); if(!v||v===AI_PROV[p].def) delete aiP().models[p]; else aiP().models[p]=v; if(p==='openai') state.ui.aiAuto=null; save(); render(); toast('Модель: '+(v||AI_PROV[p].def)); },
+  'ai-level':el=>{ aiP().levels[el.dataset.p]=el.value; save(); render(); },
+});
+document.addEventListener('input',e=>{ if(e.target.id==='aiIn'){ UI.aiDraft=e.target.value; e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,180)+'px'; } });
+document.addEventListener('keydown',e=>{ if(e.target.id==='aiIn'&&e.key==='Enter'&&!e.shiftKey&&!IS_TOUCH&&!e.isComposing){ e.preventDefault(); aiSend(e.target.value); } });
+document.addEventListener('click',e=>{ if(UI.aiProvs&&!e.target.closest('.ai-pw')){ UI.aiProvs=false; const m=document.querySelector('.ai-provs'); if(m) m.classList.remove('open'); } },true);
 
 // обновлять «сегодня» после полуночи
 let lastDay=today(); setInterval(()=>{ if(today()!==lastDay){ lastDay=today(); UI.ld=null; render(); } },60000);
